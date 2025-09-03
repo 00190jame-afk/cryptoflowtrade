@@ -1,12 +1,26 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, ChevronDown, TrendingUp } from "lucide-react";
+import { Menu, ChevronDown, TrendingUp, LogOut, User } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
 
   const navigationItems = [
     {
@@ -97,12 +111,31 @@ const Header = () => {
 
         {/* Desktop Auth Buttons */}
         <div className="hidden lg:flex items-center space-x-4">
-          <Button variant="ghost" className="hover:bg-muted/50">
-            Login
-          </Button>
-          <Button className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300">
-            Register
-          </Button>
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center gap-2 hover:bg-muted/50">
+                  <User className="h-4 w-4" />
+                  {user.email}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Button variant="ghost" className="hover:bg-muted/50" onClick={() => navigate("/auth")}>
+                Login
+              </Button>
+              <Button className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300" onClick={() => navigate("/auth")}>
+                Register
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu */}
@@ -144,12 +177,25 @@ const Header = () => {
                 </div>
               ))}
               <div className="pt-4 space-y-2">
-                <Button variant="ghost" className="w-full justify-start hover:bg-muted/50">
-                  Login
-                </Button>
-                <Button className="w-full gradient-primary shadow-primary">
-                  Register
-                </Button>
+                {user ? (
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start text-destructive hover:bg-muted/50"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                ) : (
+                  <>
+                    <Button variant="ghost" className="w-full justify-start hover:bg-muted/50" onClick={() => navigate("/auth")}>
+                      Login
+                    </Button>
+                    <Button className="w-full gradient-primary shadow-primary" onClick={() => navigate("/auth")}>
+                      Register
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </SheetContent>
