@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, TrendingUp, ArrowRight, ExternalLink } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const News = () => {
   const newsItems = [
@@ -101,15 +102,18 @@ const News = () => {
               Stay informed with the latest developments in cryptocurrency markets, technology, and regulations.
             </p>
           </div>
-          <Button variant="outline" className="glass-card border-primary/30 hover:bg-primary/10 mt-4 lg:mt-0">
-            View All News
-            <ExternalLink className="ml-2 h-4 w-4" />
-          </Button>
+          <Link to="/news">
+            <Button variant="outline" className="glass-card border-primary/30 hover:bg-primary/10 mt-4 lg:mt-0">
+              View All News
+              <ExternalLink className="ml-2 h-4 w-4" />
+            </Button>
+          </Link>
         </div>
 
         {/* Featured Article */}
         <div className="mb-12 animate-slide-up">
-          <Card className="glass-card border-border/50 overflow-hidden group hover:shadow-elevated transition-all duration-500">
+          <Link to="/news">
+            <Card className="glass-card border-border/50 overflow-hidden group hover:shadow-elevated transition-all duration-500 cursor-pointer">
             <div className="lg:flex">
               <div className="lg:w-1/2">
                 <img 
@@ -148,16 +152,17 @@ const News = () => {
               </div>
             </div>
           </Card>
+          </Link>
         </div>
 
         {/* News Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {newsItems.slice(1).map((article, index) => (
-            <Card 
-              key={article.id}
-              className="glass-card border-border/50 overflow-hidden group hover:shadow-card transition-all duration-500 hover:-translate-y-1 animate-fade-in"
-              style={{ animationDelay: `${index * 0.1}s` }}
-            >
+            <Link key={article.id} to="/news">
+              <Card 
+                className="glass-card border-border/50 overflow-hidden group hover:shadow-card transition-all duration-500 hover:-translate-y-1 animate-fade-in cursor-pointer"
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
               <div className="relative">
                 <img 
                   src={article.image} 
@@ -190,6 +195,7 @@ const News = () => {
                 </div>
               </CardContent>
             </Card>
+            </Link>
           ))}
         </div>
 
