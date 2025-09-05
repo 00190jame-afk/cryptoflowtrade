@@ -22,6 +22,21 @@ const Header = () => {
     await signOut();
   };
 
+  const handleNavClick = (item: any, subItem?: any) => {
+    const target = subItem || item;
+    
+    // Redirect to auth for Trading and Assets if user is not logged in
+    if (!user && (item.title === "Trading" || item.title === "Assets")) {
+      navigate("/auth");
+      return;
+    }
+    
+    // For other items, navigate normally
+    if (target.href) {
+      navigate(target.href);
+    }
+  };
+
   const navigationItems = [
     {
       title: "Markets",
@@ -80,29 +95,29 @@ const Header = () => {
                     <NavigationMenuContent>
                       <div className="grid w-[300px] gap-3 p-4">
                         {item.items.map((subItem) => (
-                          <NavigationMenuLink
+                          <div
                             key={subItem.title}
-                            href={subItem.href}
+                            onClick={() => handleNavClick(item, subItem)}
                             className={cn(
-                              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-muted/50 focus:bg-muted/50"
+                              "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-muted/50 focus:bg-muted/50 cursor-pointer"
                             )}
                           >
                             <div className="text-sm font-medium leading-none">{subItem.title}</div>
                             <p className="line-clamp-2 text-xs leading-snug text-muted-foreground">
                               {subItem.description}
                             </p>
-                          </NavigationMenuLink>
+                          </div>
                         ))}
                       </div>
                     </NavigationMenuContent>
                   </>
                 ) : (
-                  <NavigationMenuLink
-                    href={item.href}
-                    className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none"
+                  <div
+                    onClick={() => handleNavClick(item)}
+                    className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-transparent px-4 py-2 text-sm font-medium transition-colors hover:bg-muted/50 focus:bg-muted/50 focus:outline-none cursor-pointer"
                   >
                     {item.title}
-                  </NavigationMenuLink>
+                  </div>
                 )}
               </NavigationMenuItem>
             ))}
@@ -155,24 +170,28 @@ const Header = () => {
                         {item.title}
                       </div>
                       {item.items.map((subItem) => (
-                        <a
+                        <div
                           key={subItem.title}
-                          href={subItem.href}
-                          className="block py-2 text-sm hover:text-primary transition-colors"
-                          onClick={() => setIsOpen(false)}
+                          className="block py-2 text-sm hover:text-primary transition-colors cursor-pointer"
+                          onClick={() => {
+                            handleNavClick(item, subItem);
+                            setIsOpen(false);
+                          }}
                         >
                           {subItem.title}
-                        </a>
+                        </div>
                       ))}
                     </div>
                   ) : (
-                    <a
-                      href={item.href}
-                      className="block py-2 text-sm hover:text-primary transition-colors"
-                      onClick={() => setIsOpen(false)}
+                    <div
+                      className="block py-2 text-sm hover:text-primary transition-colors cursor-pointer"
+                      onClick={() => {
+                        handleNavClick(item);
+                        setIsOpen(false);
+                      }}
                     >
                       {item.title}
-                    </a>
+                    </div>
                   )}
                 </div>
               ))}
