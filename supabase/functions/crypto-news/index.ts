@@ -13,10 +13,10 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Fetching crypto news from NewsAPI...');
+    console.log('Fetching crypto news from CoinDesk RSS...');
 
-    // Use NewsAPI to fetch cryptocurrency news (free tier available)
-    const response = await fetch('https://newsapi.org/v2/everything?q=cryptocurrency+OR+bitcoin+OR+ethereum+OR+crypto&sortBy=publishedAt&pageSize=20&language=en', {
+    // Use CoinDesk RSS feed (free and reliable)
+    const response = await fetch('https://www.coindesk.com/arc/outboundfeeds/rss/', {
       method: 'GET',
       headers: {
         'User-Agent': 'CryptoFlow-News-Bot/1.0',
@@ -24,9 +24,9 @@ serve(async (req) => {
     });
 
     if (!response.ok) {
-      console.error('NewsAPI error:', response.status, response.statusText);
+      console.error('CoinDesk RSS error:', response.status, response.statusText);
       
-      // If NewsAPI fails, return some sample crypto news as fallback
+      // If CoinDesk RSS fails, return some sample crypto news as fallback
       console.log('Using fallback crypto news data');
       const fallbackNews = [
         {
@@ -103,22 +103,35 @@ serve(async (req) => {
       );
     }
 
-    const data = await response.json();
-    console.log('Successfully fetched news from NewsAPI');
+    const xmlText = await response.text();
+    console.log('Successfully fetched news from CoinDesk RSS');
 
-    // Transform NewsAPI data to match our frontend structure
-    const transformedNews = data.articles?.map((article: any, index: number) => ({
-      id: index + 1,
-      category: getCategoryFromTitle(article.title),
-      title: article.title || 'Untitled',
-      excerpt: article.description || article.title || '',
-      timestamp: article.publishedAt ? new Date(article.publishedAt).toLocaleString() : 'Recently',
-      readTime: '3 min read',
-      trend: index % 3 === 0 ? 'bullish' : 'neutral',
-      image: article.urlToImage || `https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop`,
-      url: article.url || '#',
-      source: article.source?.name || 'NewsAPI'
-    })) || [];
+    // Parse RSS XML manually
+    const items = xmlText.match(/<item[^>]*>[\s\S]*?<\/item>/g) || [];
+    
+    // Transform RSS data to match our frontend structure
+    const transformedNews = items.slice(0, 20).map((item: string, index: number) => {
+      const titleMatch = item.match(/<title><!\[CDATA\[(.*?)\]\]><\/title>/);
+      const linkMatch = item.match(/<link>(.*?)<\/link>/);
+      const descMatch = item.match(/<description><!\[CDATA\[(.*?)\]\]><\/description>/);
+      const pubDateMatch = item.match(/<pubDate>(.*?)<\/pubDate>/);
+      
+      const title = titleMatch ? titleMatch[1] : 'Crypto News Update';
+      const description = descMatch ? descMatch[1].replace(/<[^>]*>/g, '').substring(0, 150) + '...' : '';
+      
+      return {
+        id: index + 1,
+        category: getCategoryFromTitle(title),
+        title: title,
+        excerpt: description,
+        timestamp: pubDateMatch ? new Date(pubDateMatch[1]).toLocaleString() : new Date().toLocaleString(),
+        readTime: `${Math.floor(Math.random() * 3) + 3} min read`,
+        trend: index % 3 === 0 ? 'bullish' : 'neutral',
+        image: `https://images.unsplash.com/photo-${['1639762681485-074b7f938ba0', '1622630998477-20aa696ecb05', '1639322537228-f710d846310a', '1560472354-b33ff0c44a43'][index % 4]}?w=400&h=250&fit=crop`,
+        url: linkMatch ? linkMatch[1] : '#',
+        source: 'CoinDesk'
+      };
+    });
 
     return new Response(
       JSON.stringify({ 
