@@ -51,7 +51,7 @@ const Assets = () => {
           balance: parseFloat(String(data.balance || 0)),
           on_hold: parseFloat(String(data.on_hold || 0)),
           frozen: parseFloat(String(data.frozen || 0)),
-          currency: data.currency || 'USD'
+          currency: data.currency || 'USDT'
         });
       } else {
         // No balance record exists yet
@@ -59,7 +59,7 @@ const Assets = () => {
           balance: 0,
           on_hold: 0,
           frozen: 0,
-          currency: 'USD'
+          currency: 'USDT'
         });
       }
     } catch (error: any) {
@@ -114,7 +114,7 @@ const Assets = () => {
       
       toast({
         title: "Success",
-        description: `Successfully redeemed $${rechargeAmount} with code ${rechargeCode}`,
+        description: `Successfully redeemed ${rechargeAmount} USDT with code ${rechargeCode}`,
       });
     } catch (error: any) {
       toast({
@@ -171,7 +171,7 @@ const Assets = () => {
       
       toast({
         title: "Success",
-        description: `Withdrawal of $${withdrawalAmount} initiated with code ${withdrawalCode}`,
+        description: `Withdrawal of ${withdrawalAmount} USDT initiated with code ${withdrawalCode}`,
       });
     } catch (error: any) {
       toast({
@@ -216,7 +216,7 @@ const Assets = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-primary">
-                ${userBalance?.balance.toFixed(2) || '0.00'}
+                {userBalance?.balance.toFixed(2) || '0.00'} USDT
               </div>
               <p className="text-xs text-muted-foreground">
                 Ready for trading and withdrawal
@@ -231,7 +231,7 @@ const Assets = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-yellow-500">
-                ${userBalance?.on_hold.toFixed(2) || '0.00'}
+                {userBalance?.on_hold.toFixed(2) || '0.00'} USDT
               </div>
               <p className="text-xs text-muted-foreground">
                 Temporarily held for processing
@@ -246,7 +246,7 @@ const Assets = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-red-500">
-                ${userBalance?.frozen.toFixed(2) || '0.00'}
+                {userBalance?.frozen.toFixed(2) || '0.00'} USDT
               </div>
               <p className="text-xs text-muted-foreground">
                 Locked or restricted funds
@@ -265,11 +265,11 @@ const Assets = () => {
           </CardHeader>
           <CardContent>
             <div className="text-4xl font-bold text-primary">
-              ${((userBalance?.balance || 0) + (userBalance?.on_hold || 0) + (userBalance?.frozen || 0)).toFixed(2)}
+              {((userBalance?.balance || 0) + (userBalance?.on_hold || 0) + (userBalance?.frozen || 0)).toFixed(2)} USDT
             </div>
             <div className="flex gap-4 mt-4">
               <Badge variant="secondary">
-                Currency: {userBalance?.currency || 'USD'}
+                Currency: {userBalance?.currency || 'USDT'}
               </Badge>
               <Badge variant="outline">
                 Last Updated: {new Date().toLocaleTimeString()}
