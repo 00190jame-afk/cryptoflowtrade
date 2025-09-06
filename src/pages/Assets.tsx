@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Wallet, CreditCard, Lock, ArrowUpRight, ArrowDownLeft, AlertCircle } from "lucide-react";
+import Header from "@/components/Header";
 
 interface UserBalance {
   balance: number;
@@ -196,8 +197,10 @@ const Assets = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 space-y-8">
+    <div className="min-h-screen">
+      <Header />
+      <div className="bg-background">
+        <div className="container mx-auto px-4 py-8 space-y-8">
         {/* Header */}
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Assets</h1>
@@ -376,6 +379,7 @@ const Assets = () => {
             </div>
           </CardContent>
         </Card>
+        </div>
       </div>
     </div>
   );
