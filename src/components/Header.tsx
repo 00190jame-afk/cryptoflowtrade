@@ -39,6 +39,11 @@ const Header = () => {
 
   const navigationItems = [
     {
+      title: "Home",
+      href: "/",
+      description: "Go back to homepage"
+    },
+    {
       title: "Markets",
       href: "/markets",
       description: "Explore all available trading pairs"
@@ -75,7 +80,10 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full glass-card border-b border-border/50">
       <div className="container flex h-16 items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center space-x-2">
+        <div 
+          className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={() => navigate("/")}
+        >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary">
             <TrendingUp className="h-5 w-5 text-white" />
           </div>
