@@ -47,9 +47,9 @@ const Assets = () => {
 
       if (data) {
         setUserBalance({
-          balance: parseFloat(data.balance || '0'),
-          on_hold: parseFloat(data.on_hold || '0'),
-          frozen: parseFloat(data.frozen || '0'),
+          balance: parseFloat(String(data.balance || 0)),
+          on_hold: parseFloat(String(data.on_hold || 0)),
+          frozen: parseFloat(String(data.frozen || 0)),
           currency: data.currency || 'USD'
         });
       } else {

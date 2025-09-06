@@ -118,7 +118,9 @@ export type Database = {
           balance: number | null
           created_at: string
           currency: string | null
+          frozen: number | null
           id: string
+          on_hold: number | null
           updated_at: string
           user_id: string
         }
@@ -126,7 +128,9 @@ export type Database = {
           balance?: number | null
           created_at?: string
           currency?: string | null
+          frozen?: number | null
           id?: string
+          on_hold?: number | null
           updated_at?: string
           user_id: string
         }
@@ -134,7 +138,9 @@ export type Database = {
           balance?: number | null
           created_at?: string
           currency?: string | null
+          frozen?: number | null
           id?: string
+          on_hold?: number | null
           updated_at?: string
           user_id?: string
         }
