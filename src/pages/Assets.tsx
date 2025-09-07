@@ -8,7 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Wallet, CreditCard, Lock, ArrowUpRight, ArrowDownLeft, AlertCircle } from "lucide-react";
+import { Wallet, CreditCard, Lock, ArrowUpRight, ArrowDownLeft, AlertCircle, Clock } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Header from "@/components/Header";
 
 interface UserBalance {
@@ -18,10 +19,22 @@ interface UserBalance {
   currency: string;
 }
 
+interface Transaction {
+  id: string;
+  type: string;
+  amount: number;
+  status: string;
+  currency: string;
+  payment_method: string;
+  description: string;
+  created_at: string;
+}
+
 const Assets = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [userBalance, setUserBalance] = useState<UserBalance | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
   const [rechargeCode, setRechargeCode] = useState("");
   const [withdrawalCode, setWithdrawalCode] = useState("");
@@ -30,6 +43,7 @@ const Assets = () => {
   useEffect(() => {
     if (user) {
       fetchUserBalance();
+      fetchTransactions();
     }
   }, [user]);
 
@@ -74,6 +88,28 @@ const Assets = () => {
     }
   };
 
+  const fetchTransactions = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('transactions')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+
+      setTransactions(data || []);
+    } catch (error: any) {
+      console.error('Error fetching transactions:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch transaction history",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleRechargeCode = async () => {
     if (!rechargeCode.trim()) {
       toast({
@@ -110,6 +146,7 @@ const Assets = () => {
       if (error) throw error;
 
       await fetchUserBalance();
+      await fetchTransactions();
       setRechargeCode("");
       
       toast({
@@ -167,6 +204,7 @@ const Assets = () => {
       if (error) throw error;
 
       await fetchUserBalance();
+      await fetchTransactions();
       setWithdrawalCode("");
       
       toast({
@@ -350,6 +388,72 @@ const Assets = () => {
             </CardContent>
           </Card>
         </div>
+
+        <Separator />
+
+        {/* Transaction History */}
+        <Card className="glass-card border-muted/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Transaction History
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Recent transactions and account activity
+            </p>
+          </CardHeader>
+          <CardContent>
+            {transactions.length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Description</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {transactions.map((transaction) => (
+                    <TableRow key={transaction.id}>
+                      <TableCell className="text-sm">
+                        {new Date(transaction.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={transaction.type === 'deposit' ? 'default' : 'secondary'}>
+                          {transaction.type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className={`font-medium ${
+                        transaction.type === 'deposit' ? 'text-green-600' : 'text-blue-600'
+                      }`}>
+                        {transaction.type === 'deposit' ? '+' : '-'}{transaction.amount} {transaction.currency || 'USDT'}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={
+                          transaction.status === 'completed' ? 'default' : 
+                          transaction.status === 'pending' ? 'secondary' : 'destructive'
+                        }>
+                          {transaction.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
+                        {transaction.description || 'No description'}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8">
+                <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No transactions found</p>
+                <p className="text-sm text-muted-foreground">Your transaction history will appear here</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         <Separator />
 
