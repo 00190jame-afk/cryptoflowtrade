@@ -65,6 +65,39 @@ export type Database = {
         }
         Relationships: []
       }
+      recharge_codes: {
+        Row: {
+          amount: number
+          code: string
+          created_at: string
+          id: string
+          redeemed_at: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          code: string
+          created_at?: string
+          id?: string
+          redeemed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          code?: string
+          created_at?: string
+          id?: string
+          redeemed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           admin_notes: string | null
@@ -151,6 +184,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_recharge_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
