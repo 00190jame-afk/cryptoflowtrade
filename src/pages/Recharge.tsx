@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
-import { Header } from '@/components/Header';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState } from "react";
+import Header from "@/components/Header";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Recharge = () => {
-  const [code, setCode] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [rechargeCode, setRechargeCode] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -19,131 +19,175 @@ const Recharge = () => {
     
     if (!user) {
       toast({
-        title: "Authentication Required",
-        description: "Please log in to redeem a recharge code.",
-        variant: "destructive"
+        title: "Error",
+        description: "Please log in to recharge your account.",
+        variant: "destructive",
       });
       return;
     }
 
-    if (!code.trim()) {
+    if (!rechargeCode.trim()) {
       toast({
-        title: "Invalid Input",
+        title: "Error",
         description: "Please enter a recharge code.",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
 
-    setLoading(true);
+    setIsLoading(true);
 
     try {
       // Check if code exists and get its details
-      const { data: rechargeCode, error: fetchError } = await supabase
-        .from('recharge_codes')
-        .select('*')
-        .eq('code', code.trim().toUpperCase())
-        .maybeSingle();
+      const { data: codeData, error: codeError } = await supabase
+        .from("recharge_codes")
+        .select("*")
+        .eq("code", rechargeCode.trim())
+        .single();
 
-      if (fetchError) {
-        console.error('Error fetching recharge code:', fetchError);
+      if (codeError || !codeData) {
         toast({
           title: "Error",
-          description: "Failed to validate recharge code. Please try again.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      if (!rechargeCode) {
-        toast({
-          title: "Invalid Code",
           description: "Wrong recharge code, please enter the correct code.",
-          variant: "destructive"
+          variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
-      if (rechargeCode.status === 'redeemed') {
-        toast({
-          title: "Code Already Used",
-          description: "This recharge code has already been used.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Start a transaction to update both tables
-      const { error: updateError } = await supabase.rpc('redeem_recharge_code', {
-        recharge_code: code.trim().toUpperCase(),
-        user_id: user.id
-      });
-
-      if (updateError) {
-        console.error('Error redeeming code:', updateError);
+      if (codeData.status === "redeemed") {
         toast({
           title: "Error",
-          description: "Failed to redeem recharge code. Please try again.",
-          variant: "destructive"
+          description: "This recharge code has already been used.",
+          variant: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
+      // Get current user balance
+      const { data: balanceData, error: balanceError } = await supabase
+        .from("user_balances")
+        .select("balance")
+        .eq("user_id", user.id)
+        .single();
+
+      if (balanceError) {
+        toast({
+          title: "Error",
+          description: "Failed to fetch your current balance.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      const currentBalance = balanceData?.balance || 0;
+      const newBalance = Number(currentBalance) + Number(codeData.amount);
+
+      // Update user balance
+      const { error: updateBalanceError } = await supabase
+        .from("user_balances")
+        .update({ balance: newBalance })
+        .eq("user_id", user.id);
+
+      if (updateBalanceError) {
+        toast({
+          title: "Error",
+          description: "Failed to update your balance.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Mark code as redeemed
+      const { error: updateCodeError } = await supabase
+        .from("recharge_codes")
+        .update({
+          status: "redeemed",
+          user_id: user.id,
+          redeemed_at: new Date().toISOString(),
+        })
+        .eq("id", codeData.id);
+
+      if (updateCodeError) {
+        // Rollback balance update if code update fails
+        await supabase
+          .from("user_balances")
+          .update({ balance: currentBalance })
+          .eq("user_id", user.id);
+
+        toast({
+          title: "Error",
+          description: "Failed to process recharge code.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Success
       toast({
         title: "Success!",
-        description: `Your account has been recharged with ${rechargeCode.amount} USDT.`,
-        variant: "default"
+        description: `Your account has been recharged with ${codeData.amount} USDT.`,
       });
 
-      setCode('');
+      setRechargeCode("");
     } catch (error) {
-      console.error('Unexpected error:', error);
+      console.error("Recharge error:", error);
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
-        variant: "destructive"
+        variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
+      
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-md mx-auto">
           <Card>
-            <CardHeader className="text-center">
-              <CardTitle className="text-2xl font-bold">Recharge Account</CardTitle>
+            <CardHeader>
+              <CardTitle>Recharge Account</CardTitle>
               <CardDescription>
-                Enter your recharge code to add USDT to your account
+                Enter your recharge code to add USDT to your account balance.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleRecharge} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="code">Recharge Code</Label>
+                  <Label htmlFor="rechargeCode">Recharge Code</Label>
                   <Input
-                    id="code"
+                    id="rechargeCode"
                     type="text"
                     placeholder="Enter your recharge code"
-                    value={code}
-                    onChange={(e) => setCode(e.target.value.toUpperCase())}
-                    className="text-center font-mono tracking-wider"
-                    maxLength={12}
+                    value={rechargeCode}
+                    onChange={(e) => setRechargeCode(e.target.value.toUpperCase())}
+                    className="font-mono"
+                    maxLength={20}
                   />
                 </div>
+                
                 <Button 
                   type="submit" 
                   className="w-full" 
-                  disabled={loading || !code.trim()}
+                  disabled={isLoading || !rechargeCode.trim()}
                 >
-                  {loading ? 'Processing...' : 'Redeem Code'}
+                  {isLoading ? "Processing..." : "Recharge Account"}
                 </Button>
               </form>
             </CardContent>
           </Card>
+          
+          <div className="mt-6 text-center text-sm text-muted-foreground">
+            <p>Need help? Contact support for assistance with recharge codes.</p>
+          </div>
         </div>
       </main>
     </div>
