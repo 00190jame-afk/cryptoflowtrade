@@ -335,7 +335,9 @@ const Assets = () => {
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
-                      <span className="text-lg font-semibold">100 USDT</span>
+                      <span className="text-lg font-semibold">
+                        {withdrawalAmount || '100'} USDT
+                      </span>
                       <Badge className="bg-green-600 text-white text-xs px-2 py-1">✓ Approved</Badge>
                     </div>
                   </div>
