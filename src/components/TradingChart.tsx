@@ -26,18 +26,12 @@ const TradingChart = ({
   // Convert trading pair to Binance symbol format
   const binanceSymbol = tradingPair.replace('/', '').toLowerCase();
 
-  // Fetch 24h ticker data from Binance with better error handling
+  // Fetch 24h ticker data from Binance
   useEffect(() => {
     const fetchTickerData = async () => {
       try {
         const symbol = tradingPair.replace('/', '');
-        const response = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`, {
-          headers: {
-            'Accept': 'application/json',
-          },
-          mode: 'cors'
-        });
-        
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol}`);
         if (response.ok) {
           const data = await response.json();
           setPriceChange(parseFloat(data.priceChange));
@@ -45,11 +39,10 @@ const TradingChart = ({
           setVolume24h(parseFloat(data.volume));
           setHigh24h(parseFloat(data.highPrice));
           setLow24h(parseFloat(data.lowPrice));
-        } else {
-          throw new Error(`HTTP ${response.status}`);
         }
       } catch (error) {
-        // Use simulated data when API is not available
+        console.error('Failed to fetch ticker data:', error);
+        // Fallback to simulated data
         setPriceChange((Math.random() - 0.5) * 1000);
         setPriceChangePercent((Math.random() - 0.5) * 5);
         setVolume24h(Math.random() * 1000000);
@@ -57,9 +50,8 @@ const TradingChart = ({
         setLow24h(currentPrice * 0.95);
       }
     };
-    
     fetchTickerData();
-    const interval = setInterval(fetchTickerData, 30000); // Update every 30 seconds to reduce API calls
+    const interval = setInterval(fetchTickerData, 10000); // Update every 10 seconds
 
     return () => clearInterval(interval);
   }, [tradingPair, currentPrice]);
@@ -130,7 +122,7 @@ const TradingChart = ({
               <div className="text-xs text-gray-400 mb-1">Active Trade</div>
               <div className="flex items-center gap-4 text-sm">
                 <div>
-                  <span className="text-gray-400">Entry:</span>
+                  
                   <span className="text-orange-400 ml-1 font-medium">${activeTrade.entry_price.toFixed(2)}</span>
                 </div>
                 {activeTrade.target_price && <div>
