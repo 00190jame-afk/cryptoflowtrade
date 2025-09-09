@@ -471,7 +471,7 @@ const Assets = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-green-600">
                 <ArrowDownLeft className="h-5 w-5" />
-                Redeem Recharge Code
+                
               </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Add funds to your account using a recharge code
