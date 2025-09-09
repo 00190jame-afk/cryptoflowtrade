@@ -182,11 +182,18 @@ const Futures = () => {
   const completeTrade = async () => {
     if (!activeTrade) return;
 
+    console.log('Starting trade completion for trade:', activeTrade.id);
+    
+    // Clear the active trade immediately to prevent multiple completions
+    const tradeToComplete = activeTrade;
+    setActiveTrade(null);
+    setTradeProgress(0);
+
     // Re-fetch latest trade in case admin modified it
     const {
       data: latest
-    } = await supabase.from('trades').select('modified_by_admin, profit_loss_amount, result').eq('id', activeTrade.id).single();
-    const calculatedProfit = activeTrade.stake_amount * (activeTrade.profit_rate / 100);
+    } = await supabase.from('trades').select('modified_by_admin, profit_loss_amount, result').eq('id', tradeToComplete.id).single();
+    const calculatedProfit = tradeToComplete.stake_amount * (tradeToComplete.profit_rate / 100);
     const profitAmount = latest?.modified_by_admin ? latest.profit_loss_amount ?? 0 : calculatedProfit;
     const finalResult = latest?.modified_by_admin ? latest.result ?? (profitAmount >= 0 ? 'win' : 'loss') : profitAmount >= 0 ? 'win' : 'loss';
 
@@ -198,17 +205,19 @@ const Futures = () => {
       completed_at: new Date().toISOString(),
       profit_loss_amount: profitAmount,
       result: finalResult
-    }).eq('id', activeTrade.id);
+    }).eq('id', tradeToComplete.id);
+    
     if (!error) {
+      console.log('Trade completed successfully:', tradeToComplete.id);
       // Update user balance by profit/loss amount (stake was already deducted at start)
       await supabase.from('user_balances').update({
         balance: balance.balance + profitAmount
       }).eq('user_id', user!.id);
       toast.success(`Trade completed! ${profitAmount >= 0 ? 'Profit' : 'Loss'}: $${Math.abs(profitAmount).toFixed(2)}`);
-      setActiveTrade(null);
-      setTradeProgress(0);
       fetchBalance();
       fetchTrades();
+    } else {
+      console.error('Error completing trade:', error);
     }
   };
 
