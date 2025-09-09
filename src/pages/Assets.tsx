@@ -612,7 +612,7 @@ const Assets = () => {
                           {request.amount} USDT
                         </TableCell>
                         <TableCell>
-                          <span className="font-mono bg-gray-100 px-3 py-1 rounded border text-sm">
+                          <span className="font-mono bg-muted text-foreground px-3 py-1 rounded border text-sm">
                             {request.withdraw_code}
                           </span>
                         </TableCell>
