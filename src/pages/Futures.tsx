@@ -78,8 +78,6 @@ const Futures = () => {
   const [leverage, setLeverage] = useState(5);
   const [stopProfitPercentage, setStopProfitPercentage] = useState<number | null>(null);
   const [isTrading, setIsTrading] = useState(false);
-  const [activeTrade, setActiveTrade] = useState<Trade | null>(null);
-  const [tradeProgress, setTradeProgress] = useState(0);
   const [currentPrice, setCurrentPrice] = useState<number>(45000);
   const [positionOrders, setPositionOrders] = useState<PositionOrder[]>([]);
   const [closingOrders, setClosingOrders] = useState<ClosingOrder[]>([]);
@@ -150,13 +148,6 @@ const Futures = () => {
     if (data) {
       console.log('Fetched trades:', data.length);
       setTrades(data);
-      const active = data.find(t => t.status === "active");
-      console.log('Active trade found:', active?.id || 'none');
-      
-      // Only set active trade if we're not currently completing one
-      if (!completingTradeRef.current) {
-        setActiveTrade(active || null);
-      }
     }
   };
 
@@ -229,107 +220,7 @@ const Futures = () => {
     };
   }, [selectedPair]);
 
-  // Handle active trade countdown
-  useEffect(() => {
-    if (!activeTrade) {
-      completingTradeRef.current = null;
-      return;
-    }
-    
-    console.log('Setting up countdown for trade:', activeTrade.id);
-    const startTime = new Date(activeTrade.created_at).getTime();
-    const duration = activeTrade.trade_duration || 180;
-    
-    const interval = setInterval(() => {
-      const elapsed = (Date.now() - startTime) / 1000;
-      const progress = Math.min(elapsed / duration * 100, 100);
-      setTradeProgress(progress);
-      
-      if (progress >= 100 && completingTradeRef.current !== activeTrade.id) {
-        console.log('Trade reached 100%, completing trade:', activeTrade.id);
-        completingTradeRef.current = activeTrade.id;
-        completeTrade();
-        clearInterval(interval);
-      }
-    }, 100);
-    
-    return () => {
-      console.log('Cleaning up interval for trade:', activeTrade.id);
-      clearInterval(interval);
-    };
-  }, [activeTrade?.id]);
 
-  // Complete trade
-  const completeTrade = async () => {
-    if (!activeTrade) {
-      console.log('No active trade to complete');
-      return;
-    }
-
-    // Double check if we're already completing this trade
-    if (completingTradeRef.current === activeTrade.id) {
-      console.log('Trade already being completed:', activeTrade.id);
-      return;
-    }
-
-    console.log('Starting trade completion for trade:', activeTrade.id);
-    completingTradeRef.current = activeTrade.id;
-    
-    // Clear the active trade immediately to prevent multiple completions
-    const tradeToComplete = activeTrade;
-    setActiveTrade(null);
-    setTradeProgress(0);
-
-    try {
-      // Re-fetch latest trade in case admin modified it
-      const { data: latest } = await supabase
-        .from('trades')
-        .select('modified_by_admin, profit_loss_amount, result, status')
-        .eq('id', tradeToComplete.id)
-        .single();
-
-      // Check if trade was already completed by another process
-      if (latest?.status === 'completed') {
-        console.log('Trade already completed:', tradeToComplete.id);
-        fetchBalance();
-        fetchTrades();
-        return;
-      }
-
-      const calculatedProfit = tradeToComplete.stake_amount * (tradeToComplete.profit_rate / 100);
-      const profitAmount = latest?.modified_by_admin ? latest.profit_loss_amount ?? 0 : calculatedProfit;
-      const finalResult = latest?.modified_by_admin ? latest.result ?? (profitAmount >= 0 ? 'win' : 'loss') : profitAmount >= 0 ? 'win' : 'loss';
-
-      // Update trade status
-      const { error } = await supabase.from('trades').update({
-        status: 'completed',
-        completed_at: new Date().toISOString(),
-        profit_loss_amount: profitAmount,
-        result: finalResult
-      }).eq('id', tradeToComplete.id);
-      
-      if (!error) {
-        console.log('Trade completed successfully:', tradeToComplete.id);
-        // Update user balance by profit/loss amount (stake was already deducted at start)
-        await supabase.from('user_balances').update({
-          balance: balance.balance + profitAmount
-        }).eq('user_id', user!.id);
-        toast.success(`Trade completed! ${profitAmount >= 0 ? 'Profit' : 'Loss'}: $${Math.abs(profitAmount).toFixed(2)}`);
-        fetchBalance();
-        fetchTrades();
-      } else {
-        console.error('Error completing trade:', error);
-        // Reset state if there was an error
-        setActiveTrade(tradeToComplete);
-        completingTradeRef.current = null;
-      }
-    } catch (error) {
-      console.error('Exception in completeTrade:', error);
-      // Reset state if there was an error
-      setActiveTrade(tradeToComplete);
-      completingTradeRef.current = null;
-    }
-  };
 
   // Start new trade
   const startTrade = async () => {
@@ -341,10 +232,6 @@ const Futures = () => {
     }
     if (stake > balance.balance) {
       toast.error("Insufficient balance");
-      return;
-    }
-    if (activeTrade) {
-      toast.error("You already have an active trade");
       return;
     }
     
@@ -499,65 +386,11 @@ const Futures = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Trading Chart - Full Width */}
           <div className="lg:col-span-3">
-            <TradingChart tradingPair={selectedPair} currentPrice={currentPrice} activeTrade={activeTrade} />
+            <TradingChart tradingPair={selectedPair} currentPrice={currentPrice} />
           </div>
 
           {/* Trading Panel */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Active Trade */}
-            {activeTrade && <Card className="glass-card border-primary/20">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5" />
-                    Active Trade
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Pair</p>
-                      <p className="font-medium">{activeTrade.trading_pair}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Direction</p>
-                      <Badge variant={activeTrade.direction === "LONG" ? "default" : "destructive"}>
-                        {activeTrade.direction === "LONG" ? <><TrendingUp className="h-3 w-3 mr-1" /> LONG</> : <><TrendingDown className="h-3 w-3 mr-1" /> SHORT</>}
-                      </Badge>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Stake</p>
-                      <p className="font-medium">${activeTrade.stake_amount}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Leverage</p>
-                      <p className="font-medium">{activeTrade.leverage}x</p>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Progress</span>
-                      <span>{Math.round(tradeProgress)}%</span>
-                    </div>
-                    <Progress value={tradeProgress} className="h-2" />
-                  </div>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div>
-                      <p className="text-muted-foreground">Entry Price</p>
-                      <p className="font-medium">${activeTrade.entry_price?.toFixed(2)}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Target Price</p>
-                      <p className="font-medium">${activeTrade.target_price?.toFixed(2)}</p>
-                    </div>
-                    <div>
-                      <p className="text-muted-foreground">Expected Profit</p>
-                      <p className="font-medium text-green-600">
-                        ${(activeTrade.stake_amount * (activeTrade.profit_rate / 100)).toFixed(2)}
-                      </p>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>}
 
             {/* Trading Form */}
             <Card className="glass-card">
@@ -661,20 +494,9 @@ const Futures = () => {
                     </div>
                   </Card>}
 
-                {activeTrade ? (
-                  <div className="space-y-2">
-                    <Button onClick={() => setActiveTrade(null)} variant="outline" className="w-full" size="lg">
-                      Clear Active Trade
-                    </Button>
-                    <p className="text-xs text-muted-foreground text-center">
-                      There's an active trade. Clear it to start a new one.
-                    </p>
-                  </div>
-                ) : (
-                  <Button onClick={startTrade} disabled={!stakeAmount || parseFloat(stakeAmount) < 50 || isTrading} className="w-full gradient-primary" size="lg">
-                    {isTrading ? "Starting Trade..." : "Start Trade"}
-                  </Button>
-                )}
+                <Button onClick={startTrade} disabled={!stakeAmount || parseFloat(stakeAmount) < 50 || isTrading} className="w-full gradient-primary" size="lg">
+                  {isTrading ? "Starting Trade..." : "Start Trade"}
+                </Button>
               </CardContent>
             </Card>
           </div>
