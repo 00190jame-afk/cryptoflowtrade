@@ -210,8 +210,14 @@ const Futures = () => {
 
       // Calculate profit based on stake tiers: 50-99.99→20%, 100-249.99→30%, 250+→40%
       const calculatedProfit = trade.stake_amount * (trade.profit_rate / 100);
-      const profitAmount = latest?.modified_by_admin ? latest.profit_loss_amount ?? 0 : calculatedProfit;
-      const finalResult = latest?.modified_by_admin ? latest.result ?? 'win' : 'win'; // Always win with new rules
+      const profitAmount = latest?.modified_by_admin ? (latest.profit_loss_amount ?? 0) : calculatedProfit;
+      // If admin modified, infer result from explicit result or profit sign; otherwise default to win
+      const finalResult =
+        latest?.modified_by_admin
+          ? ((latest.result === 'win' || latest.result === 'loss')
+              ? latest.result
+              : (profitAmount < 0 ? 'loss' : 'win'))
+          : 'win';
 
       // Get position to move to closing orders
       const { data: position } = await supabase
@@ -454,7 +460,8 @@ const Futures = () => {
       await supabase.from('trades').update({
         status: 'completed',
         completed_at: new Date().toISOString(),
-        profit_loss_amount: realizedPnl
+        profit_loss_amount: realizedPnl,
+        result: realizedPnl < 0 ? 'loss' : 'win'
       }).eq('id', tradeId);
 
       toast.success('Position closed successfully');
