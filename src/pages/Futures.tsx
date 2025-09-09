@@ -218,6 +218,8 @@ const Futures = () => {
               ? latest.result
               : (profitAmount < 0 ? 'loss' : 'win'))
           : 'win';
+      
+      console.log(`Trade ${trade.id}: admin_modified=${latest?.modified_by_admin}, profit=${profitAmount}, result=${finalResult}`);
 
       // Get position to move to closing orders
       const { data: position } = await supabase
@@ -618,9 +620,10 @@ const Futures = () => {
               </CardHeader>
               <CardContent>
                 <Tabs defaultValue="positions" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
+                  <TabsList className="grid w-full grid-cols-3">
                     <TabsTrigger value="positions">Positions ({positionOrders.length})</TabsTrigger>
                     <TabsTrigger value="closed">Closed Orders ({closingOrders.length})</TabsTrigger>
+                    <TabsTrigger value="trades">All Trades ({trades.length})</TabsTrigger>
                   </TabsList>
                   
                   <TabsContent value="positions" className="space-y-4">
@@ -711,6 +714,66 @@ const Futures = () => {
                                  </TableCell>
                                </TableRow>
                              ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </TabsContent>
+                  
+                  <TabsContent value="trades" className="space-y-4">
+                    {trades.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No trades
+                      </p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Pair</TableHead>
+                              <TableHead>Direction</TableHead>
+                              <TableHead>Stake</TableHead>
+                              <TableHead>Entry Price</TableHead>
+                              <TableHead>Leverage</TableHead>
+                              <TableHead>Status</TableHead>
+                              <TableHead>Result</TableHead>
+                              <TableHead>PnL</TableHead>
+                              <TableHead>Time</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {trades.map((trade) => (
+                              <TableRow 
+                                key={trade.id} 
+                                className={trade.status === 'active' ? 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800' : ''}
+                              >
+                                <TableCell className="font-medium">{trade.trading_pair}</TableCell>
+                                <TableCell>
+                                  <Badge variant={trade.direction === 'LONG' ? 'default' : 'destructive'}>
+                                    {trade.direction}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>${trade.stake_amount.toFixed(2)}</TableCell>
+                                <TableCell>${trade.entry_price.toFixed(2)}</TableCell>
+                                <TableCell>{trade.leverage}x</TableCell>
+                                <TableCell>
+                                  <Badge variant={trade.status === 'active' ? 'secondary' : 'outline'}>
+                                    {trade.status}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>
+                                  <Badge variant={trade.result === 'win' ? 'default' : 'destructive'}>
+                                    {trade.result}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className={trade.profit_loss_amount >= 0 ? 'text-green-600' : 'text-red-600'}>
+                                  {trade.profit_loss_amount ? `$${trade.profit_loss_amount.toFixed(2)}` : '-'}
+                                </TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {new Date(trade.created_at).toLocaleString()}
+                                </TableCell>
+                              </TableRow>
+                            ))}
                           </TableBody>
                         </Table>
                       </div>
