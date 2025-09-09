@@ -68,15 +68,15 @@ const Assets = () => {
               type: 'success',
               message: `Successful! Your withdrawal code is: ${newRecord.withdraw_code}`
             });
-            // Auto-hide after 10 seconds
-            setTimeout(() => setNotification(null), 10000);
+            // Auto-hide after 5 seconds
+            setTimeout(() => setNotification(null), 5000);
           } else if (oldRecord.status === 'pending' && newRecord.status === 'rejected') {
             setNotification({
               type: 'error',
               message: `Withdrawal rejected. ${newRecord.admin_notes || 'Please contact support for more information.'}`
             });
-            // Auto-hide after 10 seconds
-            setTimeout(() => setNotification(null), 10000);
+            // Auto-hide after 8 seconds
+            setTimeout(() => setNotification(null), 8000);
           }
         }
         
