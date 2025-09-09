@@ -11,14 +11,8 @@ import { toast } from "sonner";
 import { TrendingUp, TrendingDown, DollarSign, Target, Clock, BarChart3 } from "lucide-react";
 import Header from "@/components/Header";
 import TradingChart from "@/components/TradingChart";
-
-const TRADING_PAIRS = [
-  "BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "ADA/USDT", "XRP/USDT",
-  "DOT/USDT", "LTC/USDT", "DOGE/USDT", "MATIC/USDT", "AVAX/USDT", "ENR/USDT"
-];
-
+const TRADING_PAIRS = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "ADA/USDT", "XRP/USDT", "DOT/USDT", "LTC/USDT", "DOGE/USDT", "MATIC/USDT", "AVAX/USDT", "ENR/USDT"];
 const LEVERAGES = [5, 10, 20, 50];
-
 interface Trade {
   id: string;
   trading_pair: string;
@@ -37,16 +31,19 @@ interface Trade {
   current_price?: number;
   target_price?: number;
 }
-
 interface UserBalance {
   balance: number;
   currency: string;
 }
-
 const Futures = () => {
-  const { user } = useAuth();
+  const {
+    user
+  } = useAuth();
   const [trades, setTrades] = useState<Trade[]>([]);
-  const [balance, setBalance] = useState<UserBalance>({ balance: 0, currency: "USDT" });
+  const [balance, setBalance] = useState<UserBalance>({
+    balance: 0,
+    currency: "USDT"
+  });
   const [selectedPair, setSelectedPair] = useState("BTC/USDT");
   const [direction, setDirection] = useState<"LONG" | "SHORT">("LONG");
   const [stakeAmount, setStakeAmount] = useState("");
@@ -87,41 +84,35 @@ const Futures = () => {
     'AVAX': 'avalanche-2'
     // ENR not mapped – will stay simulated
   };
-
   const getBaseFromPair = (pair: string) => pair.split('/')[0];
 
   // Fetch profit rate from DB trade_rules by stake
   const getProfitRateFromDB = async (stake: number): Promise<number | null> => {
-    const { data } = await (supabase as any)
-      .from('trade_rules')
-      .select('profit_rate, min_stake, max_stake')
-      .lte('min_stake', stake)
-      .gte('max_stake', stake)
-      .order('min_stake', { ascending: false })
-      .limit(1);
-
+    const {
+      data
+    } = await (supabase as any).from('trade_rules').select('profit_rate, min_stake, max_stake').lte('min_stake', stake).gte('max_stake', stake).order('min_stake', {
+      ascending: false
+    }).limit(1);
     return data?.[0]?.profit_rate ?? null;
   };
 
   // Fetch user balance
   const fetchBalance = async () => {
     if (!user) return;
-    const { data } = await supabase
-      .from("user_balances")
-      .select("balance, currency")
-      .eq("user_id", user.id)
-      .single();
+    const {
+      data
+    } = await supabase.from("user_balances").select("balance, currency").eq("user_id", user.id).single();
     if (data) setBalance(data);
   };
 
   // Fetch user trades
   const fetchTrades = async () => {
     if (!user) return;
-    const { data } = await supabase
-      .from("trades")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
+    const {
+      data
+    } = await supabase.from("trades").select("*").eq("user_id", user.id).order("created_at", {
+      ascending: false
+    });
     if (data) {
       setTrades(data);
       const active = data.find(t => t.status === "active");
@@ -132,7 +123,6 @@ const Futures = () => {
   // Live price updates from Binance with CoinGecko fallback
   useEffect(() => {
     let cancelled = false;
-
     const fetchPrice = async () => {
       try {
         const symbol = mapPairToBinanceSymbol(selectedPair);
@@ -163,30 +153,28 @@ const Futures = () => {
       // Final fallback: small random walk to avoid freezing UI
       setCurrentPrice(prev => Math.max(prev + (Math.random() - 0.5) * 50, 0.01));
     };
-
     fetchPrice();
     const interval = setInterval(fetchPrice, 2000);
-    return () => { cancelled = true; clearInterval(interval); };
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, [selectedPair]);
 
   // Handle active trade countdown
   useEffect(() => {
     if (!activeTrade) return;
-
     const startTime = new Date(activeTrade.created_at).getTime();
     const duration = activeTrade.trade_duration || 180;
-    
     const interval = setInterval(() => {
       const elapsed = (Date.now() - startTime) / 1000;
-      const progress = Math.min((elapsed / duration) * 100, 100);
+      const progress = Math.min(elapsed / duration * 100, 100);
       setTradeProgress(progress);
-
       if (progress >= 100) {
         completeTrade();
         clearInterval(interval);
       }
     }, 100);
-
     return () => clearInterval(interval);
   }, [activeTrade]);
 
@@ -195,41 +183,27 @@ const Futures = () => {
     if (!activeTrade) return;
 
     // Re-fetch latest trade in case admin modified it
-    const { data: latest } = await supabase
-      .from('trades')
-      .select('modified_by_admin, profit_loss_amount, result')
-      .eq('id', activeTrade.id)
-      .single();
-
+    const {
+      data: latest
+    } = await supabase.from('trades').select('modified_by_admin, profit_loss_amount, result').eq('id', activeTrade.id).single();
     const calculatedProfit = activeTrade.stake_amount * (activeTrade.profit_rate / 100);
-    const profitAmount = latest?.modified_by_admin
-      ? (latest.profit_loss_amount ?? 0)
-      : calculatedProfit;
-
-    const finalResult = latest?.modified_by_admin
-      ? (latest.result ?? (profitAmount >= 0 ? 'win' : 'loss'))
-      : (profitAmount >= 0 ? 'win' : 'loss');
+    const profitAmount = latest?.modified_by_admin ? latest.profit_loss_amount ?? 0 : calculatedProfit;
+    const finalResult = latest?.modified_by_admin ? latest.result ?? (profitAmount >= 0 ? 'win' : 'loss') : profitAmount >= 0 ? 'win' : 'loss';
 
     // Update trade status
-    const { error } = await supabase
-      .from('trades')
-      .update({
-        status: 'completed',
-        completed_at: new Date().toISOString(),
-        profit_loss_amount: profitAmount,
-        result: finalResult
-      })
-      .eq('id', activeTrade.id);
-
+    const {
+      error
+    } = await supabase.from('trades').update({
+      status: 'completed',
+      completed_at: new Date().toISOString(),
+      profit_loss_amount: profitAmount,
+      result: finalResult
+    }).eq('id', activeTrade.id);
     if (!error) {
       // Update user balance by profit/loss amount (stake was already deducted at start)
-      await supabase
-        .from('user_balances')
-        .update({
-          balance: balance.balance + profitAmount
-        })
-        .eq('user_id', user!.id);
-
+      await supabase.from('user_balances').update({
+        balance: balance.balance + profitAmount
+      }).eq('user_id', user!.id);
       toast.success(`Trade completed! ${profitAmount >= 0 ? 'Profit' : 'Loss'}: $${Math.abs(profitAmount).toFixed(2)}`);
       setActiveTrade(null);
       setTradeProgress(0);
@@ -241,33 +215,25 @@ const Futures = () => {
   // Start new trade
   const startTrade = async () => {
     if (!user || !stakeAmount || isTrading) return;
-
     const stake = parseFloat(stakeAmount);
     if (stake < 50) {
       toast.error("Minimum stake is $50");
       return;
     }
-
     if (stake > balance.balance) {
       toast.error("Insufficient balance");
       return;
     }
-
     if (activeTrade) {
       toast.error("You already have an active trade");
       return;
     }
-
     setIsTrading(true);
-
     const dbProfitRate = await getProfitRateFromDB(stake);
     const profitRate = dbProfitRate ?? calculateProfitRate(stake);
     const requiredPriceChange = calculateRequiredPriceChange(profitRate, leverage);
     const tradeDuration = Math.floor(Math.random() * 241) + 60; // 60-300 seconds
-    const targetPrice = direction === 'LONG'
-      ? currentPrice * (1 + requiredPriceChange / 100)
-      : currentPrice * (1 - requiredPriceChange / 100);
-
+    const targetPrice = direction === 'LONG' ? currentPrice * (1 + requiredPriceChange / 100) : currentPrice * (1 - requiredPriceChange / 100);
     const tradeData = {
       user_id: user.id,
       trading_pair: selectedPair,
@@ -282,9 +248,9 @@ const Futures = () => {
       current_price: currentPrice,
       target_price: targetPrice
     };
-
-    const { error } = await supabase.from('trades').insert(tradeData);
-
+    const {
+      error
+    } = await supabase.from('trades').insert(tradeData);
     if (error) {
       toast.error("Failed to start trade");
       setIsTrading(false);
@@ -292,62 +258,47 @@ const Futures = () => {
     }
 
     // Deduct stake from balance
-    await supabase
-      .from("user_balances")
-      .update({ balance: balance.balance - stake })
-      .eq("user_id", user.id);
-
+    await supabase.from("user_balances").update({
+      balance: balance.balance - stake
+    }).eq("user_id", user.id);
     toast.success("Trade started successfully!");
     setStakeAmount("");
     setIsTrading(false);
     fetchBalance();
     fetchTrades();
   };
-
   useEffect(() => {
     if (user) {
       fetchBalance();
       fetchTrades();
     }
   }, [user]);
-
   if (!user) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Header />
         <div className="container mx-auto px-4 py-20 text-center">
           <h1 className="text-3xl font-bold mb-4">Please log in to access futures trading</h1>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gradient mb-2">Crypto Futures Trading</h1>
-          <p className="text-muted-foreground">
-            Trade with fixed profit rules and immediate execution
-          </p>
+          
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Trading Chart - Full Width */}
           <div className="lg:col-span-3">
-            <TradingChart 
-              tradingPair={selectedPair}
-              currentPrice={currentPrice}
-              activeTrade={activeTrade}
-            />
+            <TradingChart tradingPair={selectedPair} currentPrice={currentPrice} activeTrade={activeTrade} />
           </div>
 
           {/* Trading Panel */}
           <div className="lg:col-span-2 space-y-6">
             {/* Active Trade */}
-            {activeTrade && (
-              <Card className="glass-card border-primary/20">
+            {activeTrade && <Card className="glass-card border-primary/20">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <BarChart3 className="h-5 w-5" />
@@ -363,11 +314,7 @@ const Futures = () => {
                     <div>
                       <p className="text-muted-foreground">Direction</p>
                       <Badge variant={activeTrade.direction === "LONG" ? "default" : "destructive"}>
-                        {activeTrade.direction === "LONG" ? (
-                          <><TrendingUp className="h-3 w-3 mr-1" /> LONG</>
-                        ) : (
-                          <><TrendingDown className="h-3 w-3 mr-1" /> SHORT</>
-                        )}
+                        {activeTrade.direction === "LONG" ? <><TrendingUp className="h-3 w-3 mr-1" /> LONG</> : <><TrendingDown className="h-3 w-3 mr-1" /> SHORT</>}
                       </Badge>
                     </div>
                     <div>
@@ -403,8 +350,7 @@ const Futures = () => {
                     </div>
                   </div>
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
 
             {/* Trading Form */}
             <Card className="glass-card">
@@ -423,28 +369,18 @@ const Futures = () => {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {TRADING_PAIRS.map(pair => (
-                          <SelectItem key={pair} value={pair}>{pair}</SelectItem>
-                        ))}
+                        {TRADING_PAIRS.map(pair => <SelectItem key={pair} value={pair}>{pair}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Direction</label>
                     <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        variant={direction === "LONG" ? "default" : "outline"}
-                        onClick={() => setDirection("LONG")}
-                        className="flex items-center gap-2"
-                      >
+                      <Button variant={direction === "LONG" ? "default" : "outline"} onClick={() => setDirection("LONG")} className="flex items-center gap-2">
                         <TrendingUp className="h-4 w-4" />
                         LONG
                       </Button>
-                      <Button
-                        variant={direction === "SHORT" ? "destructive" : "outline"}
-                        onClick={() => setDirection("SHORT")}
-                        className="flex items-center gap-2"
-                      >
+                      <Button variant={direction === "SHORT" ? "destructive" : "outline"} onClick={() => setDirection("SHORT")} className="flex items-center gap-2">
                         <TrendingDown className="h-4 w-4" />
                         SHORT
                       </Button>
@@ -455,31 +391,22 @@ const Futures = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Stake Amount (USDT)</label>
-                    <Input
-                      type="number"
-                      placeholder="Minimum $50"
-                      value={stakeAmount}
-                      onChange={(e) => setStakeAmount(e.target.value)}
-                      min="50"
-                    />
+                    <Input type="number" placeholder="Minimum $50" value={stakeAmount} onChange={e => setStakeAmount(e.target.value)} min="50" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Leverage</label>
-                    <Select value={leverage.toString()} onValueChange={(v) => setLeverage(parseInt(v))}>
+                    <Select value={leverage.toString()} onValueChange={v => setLeverage(parseInt(v))}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {LEVERAGES.map(lev => (
-                          <SelectItem key={lev} value={lev.toString()}>{lev}x</SelectItem>
-                        ))}
+                        {LEVERAGES.map(lev => <SelectItem key={lev} value={lev.toString()}>{lev}x</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
                 </div>
 
-                {stakeAmount && parseFloat(stakeAmount) >= 50 && (
-                  <Card className="p-4 bg-muted/10">
+                {stakeAmount && parseFloat(stakeAmount) >= 50 && <Card className="p-4 bg-muted/10">
                     <div className="grid grid-cols-3 gap-4 text-sm">
                       <div>
                         <p className="text-muted-foreground">Profit Rate</p>
@@ -500,15 +427,9 @@ const Futures = () => {
                         </p>
                       </div>
                     </div>
-                  </Card>
-                )}
+                  </Card>}
 
-                <Button
-                  onClick={startTrade}
-                  disabled={!stakeAmount || parseFloat(stakeAmount) < 50 || isTrading || !!activeTrade}
-                  className="w-full gradient-primary"
-                  size="lg"
-                >
+                <Button onClick={startTrade} disabled={!stakeAmount || parseFloat(stakeAmount) < 50 || isTrading || !!activeTrade} className="w-full gradient-primary" size="lg">
                   {isTrading ? "Starting Trade..." : "Start Trade"}
                 </Button>
               </CardContent>
@@ -554,8 +475,7 @@ const Futures = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {trades.slice(0, 5).map((trade) => (
-                  <div key={trade.id} className="flex justify-between items-center p-2 rounded bg-muted/10">
+                {trades.slice(0, 5).map(trade => <div key={trade.id} className="flex justify-between items-center p-2 rounded bg-muted/10">
                     <div>
                       <p className="text-sm font-medium">{trade.trading_pair}</p>
                       <p className="text-xs text-muted-foreground">
@@ -563,29 +483,22 @@ const Futures = () => {
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className={`text-sm font-medium ${
-                        trade.result === 'win' ? 'text-green-600' : 'text-red-600'
-                      }`}>
+                      <p className={`text-sm font-medium ${trade.result === 'win' ? 'text-green-600' : 'text-red-600'}`}>
                         {trade.profit_loss_amount > 0 ? '+' : ''}${trade.profit_loss_amount?.toFixed(2)}
                       </p>
                       <Badge variant={trade.status === 'active' ? 'default' : 'secondary'} className="text-xs">
                         {trade.status}
                       </Badge>
                     </div>
-                  </div>
-                ))}
-                {trades.length === 0 && (
-                  <p className="text-sm text-muted-foreground text-center py-4">
+                  </div>)}
+                {trades.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">
                     No trades yet
-                  </p>
-                )}
+                  </p>}
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Futures;
