@@ -10,7 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { TrendingUp, TrendingDown, DollarSign, Target, Clock, BarChart3, X } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, Clock, BarChart3, X } from "lucide-react";
 import Header from "@/components/Header";
 import TradingChart from "@/components/TradingChart";
 const TRADING_PAIRS = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "ADA/USDT", "XRP/USDT", "DOT/USDT", "LTC/USDT", "DOGE/USDT", "MATIC/USDT", "AVAX/USDT", "ENR/USDT"];
@@ -389,21 +389,10 @@ const Futures = () => {
             <TradingChart tradingPair={selectedPair} currentPrice={currentPrice} />
           </div>
 
-          {/* Trading Form and Balance - Side by Side */}
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
-            {/* Trading Form */}
-            <div className="lg:col-span-3">
-
-            {/* Trading Form */}
+          {/* Trading Form - Streamlined */}
+          <div>
             <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  New Trade
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="p-6 space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Trading Pair</label>
@@ -502,7 +491,6 @@ const Futures = () => {
                 </Button>
               </CardContent>
             </Card>
-            </div>
           </div>
 
           {/* Trading Positions - Full Width */}
