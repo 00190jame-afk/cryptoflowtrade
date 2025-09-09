@@ -51,9 +51,7 @@ const Header = () => {
     {
       title: "Trading",
       items: [
-        { title: "Spot Trading", href: "/spot", description: "Trade cryptocurrencies instantly" },
-        { title: "Futures", href: "/futures", description: "Advanced trading with leverage" },
-        { title: "Options", href: "/options", description: "Hedge your positions" }
+        { title: "Futures", href: "/futures", description: "Advanced trading with leverage" }
       ]
     },
     {
