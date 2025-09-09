@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Wallet, CreditCard, Lock, ArrowUpRight, ArrowDownLeft, AlertCircle, Clock } from "lucide-react";
+import { Wallet, CreditCard, Lock, ArrowUpRight, ArrowDownLeft, AlertCircle, Clock, Send } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Header from "@/components/Header";
 
@@ -38,12 +38,35 @@ const Assets = () => {
   const [loading, setLoading] = useState(true);
   const [rechargeCode, setRechargeCode] = useState("");
   const [withdrawalCode, setWithdrawalCode] = useState("");
+  const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     if (user) {
       fetchUserBalance();
       fetchTransactions();
+      
+      // Set up real-time subscription for withdraw_requests
+      const channel = supabase
+        .channel('withdraw_requests_changes')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'withdraw_requests',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            // Refresh transactions when withdrawal request status changes
+            fetchTransactions();
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
 
@@ -154,6 +177,68 @@ const Assets = () => {
       toast({
         title: "Error",
         description: error.message || "Failed to redeem recharge code",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleWithdrawalRequest = async () => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "Please log in to request a withdrawal",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const amount = parseFloat(withdrawalAmount);
+    
+    if (!amount || amount <= 0) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid withdrawal amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (amount > (userBalance?.balance || 0)) {
+      toast({
+        title: "Error",
+        description: "Insufficient balance for this withdrawal amount",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+
+    try {
+      const { error } = await supabase
+        .from('withdraw_requests')
+        .insert({
+          user_id: user.id,
+          amount: amount
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Withdrawal Request Submitted",
+        description: `Processing your withdrawal of ${amount.toFixed(2)} USDT. It will be completed shortly.`,
+      });
+      
+      setWithdrawalAmount("");
+    } catch (error) {
+      console.error('Error creating withdrawal request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit withdrawal request. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -350,37 +435,43 @@ const Assets = () => {
             </CardContent>
           </Card>
 
-          {/* Withdrawal Code */}
+          {/* Withdrawal Request */}
           <Card className="glass-card border-blue-500/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-blue-600">
-                <ArrowUpRight className="h-5 w-5" />
-                Redeem Withdrawal Code
+                <Send className="h-5 w-5" />
+                Request Withdrawal
               </CardTitle>
               <p className="text-sm text-muted-foreground">
-                Initiate withdrawal using a withdrawal code
+                Submit a withdrawal request to be processed by admin
               </p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="withdrawal-code">Withdrawal Code</Label>
+                <Label htmlFor="withdrawal-amount">Withdrawal Amount (USDT)</Label>
                 <Input
-                  id="withdrawal-code"
-                  placeholder="Enter withdrawal code (e.g., WC123456)"
-                  value={withdrawalCode}
-                  onChange={(e) => setWithdrawalCode(e.target.value)}
-                  className="font-mono"
+                  id="withdrawal-amount"
+                  type="number"
+                  placeholder="Enter amount to withdraw"
+                  value={withdrawalAmount}
+                  onChange={(e) => setWithdrawalAmount(e.target.value)}
+                  min="0"
+                  max={userBalance?.balance || 0}
+                  step="0.01"
                 />
               </div>
+              <div className="text-sm text-muted-foreground">
+                Available balance: {userBalance?.balance.toFixed(2) || '0.00'} USDT
+              </div>
               <Button 
-                onClick={handleWithdrawalCode}
-                disabled={isProcessing || !withdrawalCode.trim()}
+                onClick={handleWithdrawalRequest}
+                disabled={isProcessing || !withdrawalAmount.trim() || parseFloat(withdrawalAmount) <= 0}
                 className="w-full bg-blue-600 hover:bg-blue-700"
               >
-                {isProcessing ? "Processing..." : "Redeem Withdrawal Code"}
+                {isProcessing ? "Processing..." : "Submit Withdrawal Request"}
               </Button>
               <p className="text-xs text-muted-foreground">
-                Demo: Use codes starting with "WC" (e.g., WC123456)
+                Your request will be reviewed and processed by an administrator
               </p>
             </CardContent>
           </Card>
