@@ -377,9 +377,7 @@ const Assets = () => {
               <Button onClick={handleRechargeCode} disabled={isProcessing || !rechargeCode.trim()} className="w-full bg-green-600 hover:bg-green-700">
                 {isProcessing ? "Processing..." : "Redeem Recharge Code"}
               </Button>
-              <p className="text-xs text-muted-foreground">
-                Enter your Supabase-generated recharge code here
-              </p>
+              
             </CardContent>
           </Card>
 
@@ -405,9 +403,7 @@ const Assets = () => {
               <Button onClick={handleWithdrawalRequest} disabled={isProcessing || !withdrawalAmount.trim() || parseFloat(withdrawalAmount) <= 0} className="w-full bg-blue-600 hover:bg-blue-700">
                 {isProcessing ? "Processing..." : "Submit Withdrawal Request"}
               </Button>
-              <p className="text-xs text-muted-foreground">
-                Your request will be reviewed and processed by an administrator
-              </p>
+              
             </CardContent>
           </Card>
         </div>
