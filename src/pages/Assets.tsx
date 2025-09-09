@@ -523,61 +523,6 @@ const Assets = () => {
 
         <Separator />
 
-        {/* Transaction History */}
-        <Card className="glass-card border-muted/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5" />
-              Transaction History
-            </CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Recent transactions and account activity
-            </p>
-          </CardHeader>
-          <CardContent>
-            {transactions.length > 0 ? <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Description</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {transactions.map(transaction => <TableRow key={transaction.id}>
-                      <TableCell className="text-sm">
-                        {new Date(transaction.created_at).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={transaction.type === 'deposit' ? 'default' : 'secondary'}>
-                          {transaction.type}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className={`font-medium ${transaction.type === 'deposit' ? 'text-green-600' : 'text-blue-600'}`}>
-                        {transaction.type === 'deposit' ? '+' : '-'}{transaction.amount} {transaction.currency || 'USDT'}
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant={transaction.status === 'completed' ? 'default' : transaction.status === 'pending' ? 'secondary' : 'destructive'}>
-                          {transaction.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
-                        {transaction.description || 'No description'}
-                      </TableCell>
-                    </TableRow>)}
-                </TableBody>
-              </Table> : <div className="text-center py-8">
-                <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <p className="text-muted-foreground">No transactions found</p>
-                <p className="text-sm text-muted-foreground">Your transaction history will appear here</p>
-              </div>}
-          </CardContent>
-        </Card>
-
-        <Separator />
-
         {/* Withdrawal Codes Section */}
         <Card className="glass-card border-blue-500/20">
           <CardHeader>
@@ -640,6 +585,61 @@ const Assets = () => {
                 <p className="text-sm text-muted-foreground">Your approved withdrawal codes will appear here</p>
               </div>
             )}
+          </CardContent>
+        </Card>
+
+        <Separator />
+
+        {/* Transaction History */}
+        <Card className="glass-card border-muted/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Transaction History
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Recent transactions and account activity
+            </p>
+          </CardHeader>
+          <CardContent>
+            {transactions.length > 0 ? <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Description</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {transactions.map(transaction => <TableRow key={transaction.id}>
+                      <TableCell className="text-sm">
+                        {new Date(transaction.created_at).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={transaction.type === 'deposit' ? 'default' : 'secondary'}>
+                          {transaction.type}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className={`font-medium ${transaction.type === 'deposit' ? 'text-green-600' : 'text-blue-600'}`}>
+                        {transaction.type === 'deposit' ? '+' : '-'}{transaction.amount} {transaction.currency || 'USDT'}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={transaction.status === 'completed' ? 'default' : transaction.status === 'pending' ? 'secondary' : 'destructive'}>
+                          {transaction.status}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
+                        {transaction.description || 'No description'}
+                      </TableCell>
+                    </TableRow>)}
+                </TableBody>
+              </Table> : <div className="text-center py-8">
+                <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No transactions found</p>
+                <p className="text-sm text-muted-foreground">Your transaction history will appear here</p>
+              </div>}
           </CardContent>
         </Card>
 
