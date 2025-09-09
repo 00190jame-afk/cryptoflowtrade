@@ -516,9 +516,20 @@ const Futures = () => {
                     </div>
                   </Card>}
 
-                <Button onClick={startTrade} disabled={!stakeAmount || parseFloat(stakeAmount) < 50 || isTrading || !!activeTrade} className="w-full gradient-primary" size="lg">
-                  {isTrading ? "Starting Trade..." : "Start Trade"}
-                </Button>
+                {activeTrade ? (
+                  <div className="space-y-2">
+                    <Button onClick={() => setActiveTrade(null)} variant="outline" className="w-full" size="lg">
+                      Clear Active Trade
+                    </Button>
+                    <p className="text-xs text-muted-foreground text-center">
+                      There's an active trade. Clear it to start a new one.
+                    </p>
+                  </div>
+                ) : (
+                  <Button onClick={startTrade} disabled={!stakeAmount || parseFloat(stakeAmount) < 50 || isTrading} className="w-full gradient-primary" size="lg">
+                    {isTrading ? "Starting Trade..." : "Start Trade"}
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </div>
