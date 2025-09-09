@@ -63,7 +63,7 @@ const Assets = () => {
           const oldRecord = payload.old;
           
           // Check if status changed from pending to approved/rejected
-          if (oldRecord.status === 'pending' && newRecord.status === 'approved') {
+          if (newRecord.status === 'approved') {
             // Clear any existing notification first
             setNotification(null);
             // Show success notification
