@@ -149,15 +149,6 @@ const Futures = () => {
     if (data) {
       console.log('Fetched trades:', data.length);
       setTrades(data);
-      
-      // Check for active trades that should be completed
-      const activeTrades = data.filter(t => t.status === "active");
-      activeTrades.forEach(trade => {
-        if (trade.ends_at && new Date(trade.ends_at) <= new Date()) {
-          console.log('Found expired trade, completing:', trade.id);
-          completeExpiredTrade(trade);
-        }
-      });
     }
   };
 
@@ -232,8 +223,6 @@ const Futures = () => {
         await supabase.from('user_balances').update({
           balance: balance.balance + profitAmount
         }).eq('user_id', user!.id);
-        
-        toast.success(`Trade completed! ${profitAmount >= 0 ? 'Profit' : 'Loss'}: $${Math.abs(profitAmount).toFixed(2)}`);
         fetchBalance();
         fetchTrades();
         fetchPositionOrders();
@@ -291,23 +280,23 @@ const Futures = () => {
 
 
   
-  // Check for expired trades every 10 seconds
+  // Check for expired trades every 30 seconds
   useEffect(() => {
     const checkExpiredTrades = () => {
       const activeTrades = trades.filter(t => t.status === "active");
       activeTrades.forEach(trade => {
-        if (trade.ends_at && new Date(trade.ends_at) <= new Date()) {
+        if (trade.ends_at && new Date(trade.ends_at) <= new Date() && !completingTradeRef.current) {
           console.log('Found expired trade, completing:', trade.id);
           completeExpiredTrade(trade);
         }
       });
     };
 
-    // Check immediately and then every 10 seconds
-    checkExpiredTrades();
-    const interval = setInterval(checkExpiredTrades, 10000);
-    
-    return () => clearInterval(interval);
+    // Only check if we have trades and user is logged in
+    if (trades.length > 0 && user) {
+      const interval = setInterval(checkExpiredTrades, 30000); // Check every 30 seconds
+      return () => clearInterval(interval);
+    }
   }, [trades, user]);
 
   // Start new trade
