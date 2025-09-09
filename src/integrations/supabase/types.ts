@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      closing_orders: {
+        Row: {
+          closed_at: string
+          created_at: string
+          entry_price: number
+          exit_price: number
+          id: string
+          leverage: number
+          original_trade_id: string | null
+          quantity: number
+          realized_pnl: number
+          side: string
+          symbol: string
+          user_id: string
+        }
+        Insert: {
+          closed_at?: string
+          created_at?: string
+          entry_price: number
+          exit_price: number
+          id?: string
+          leverage: number
+          original_trade_id?: string | null
+          quantity: number
+          realized_pnl: number
+          side: string
+          symbol: string
+          user_id: string
+        }
+        Update: {
+          closed_at?: string
+          created_at?: string
+          entry_price?: number
+          exit_price?: number
+          id?: string
+          leverage?: number
+          original_trade_id?: string | null
+          quantity?: number
+          realized_pnl?: number
+          side?: string
+          symbol?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      positions_orders: {
+        Row: {
+          created_at: string
+          entry_price: number
+          id: string
+          leverage: number
+          mark_price: number | null
+          quantity: number
+          side: string
+          symbol: string
+          trade_id: string | null
+          unrealized_pnl: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          entry_price: number
+          id?: string
+          leverage: number
+          mark_price?: number | null
+          quantity: number
+          side: string
+          symbol: string
+          trade_id?: string | null
+          unrealized_pnl?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          entry_price?: number
+          id?: string
+          leverage?: number
+          mark_price?: number | null
+          quantity?: number
+          side?: string
+          symbol?: string
+          trade_id?: string | null
+          unrealized_pnl?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "positions_orders_trade_id_fkey"
+            columns: ["trade_id"]
+            isOneToOne: false
+            referencedRelation: "trades"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           address: string | null

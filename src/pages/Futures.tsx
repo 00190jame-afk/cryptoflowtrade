@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { TrendingUp, TrendingDown, DollarSign, Target, Clock, BarChart3 } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, Target, Clock, BarChart3, X } from "lucide-react";
 import Header from "@/components/Header";
 import TradingChart from "@/components/TradingChart";
 const TRADING_PAIRS = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "ADA/USDT", "XRP/USDT", "DOT/USDT", "LTC/USDT", "DOGE/USDT", "MATIC/USDT", "AVAX/USDT", "ENR/USDT"];
@@ -36,6 +38,31 @@ interface UserBalance {
   balance: number;
   currency: string;
 }
+
+interface PositionOrder {
+  id: string;
+  symbol: string;
+  side: string;
+  entry_price: number;
+  mark_price: number;
+  quantity: number;
+  leverage: number;
+  unrealized_pnl: number;
+  trade_id: string;
+  created_at: string;
+}
+
+interface ClosingOrder {
+  id: string;
+  symbol: string;
+  side: string;
+  entry_price: number;
+  exit_price: number;
+  quantity: number;
+  leverage: number;
+  realized_pnl: number;
+  closed_at: string;
+}
 const Futures = () => {
   const {
     user
@@ -54,6 +81,8 @@ const Futures = () => {
   const [activeTrade, setActiveTrade] = useState<Trade | null>(null);
   const [tradeProgress, setTradeProgress] = useState(0);
   const [currentPrice, setCurrentPrice] = useState<number>(45000);
+  const [positionOrders, setPositionOrders] = useState<PositionOrder[]>([]);
+  const [closingOrders, setClosingOrders] = useState<ClosingOrder[]>([]);
   const completingTradeRef = useRef<string | null>(null);
 
   // Calculate profit based on stake amount
@@ -128,6 +157,34 @@ const Futures = () => {
       if (!completingTradeRef.current) {
         setActiveTrade(active || null);
       }
+    }
+  };
+
+  // Fetch positions orders
+  const fetchPositionOrders = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("positions_orders")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    
+    if (data) {
+      setPositionOrders(data);
+    }
+  };
+
+  // Fetch closing orders
+  const fetchClosingOrders = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("closing_orders")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("closed_at", { ascending: false });
+    
+    if (data) {
+      setClosingOrders(data);
     }
   };
 
@@ -333,14 +390,26 @@ const Futures = () => {
       current_price: realTimePrice,
       target_price: targetPrice
     };
-    const {
-      error
-    } = await supabase.from('trades').insert(tradeData);
+    const { data: newTrade, error } = await supabase.from('trades').insert(tradeData).select().single();
     if (error) {
       toast.error("Failed to start trade");
       setIsTrading(false);
       return;
     }
+
+    // Create position order
+    const positionData = {
+      user_id: user.id,
+      symbol: selectedPair,
+      side: direction,
+      entry_price: realTimePrice,
+      mark_price: realTimePrice,
+      quantity: stake / realTimePrice, // Calculate quantity based on stake
+      leverage,
+      unrealized_pnl: 0,
+      trade_id: newTrade.id
+    };
+    await supabase.from('positions_orders').insert(positionData);
 
     // Deduct stake from balance
     await supabase.from("user_balances").update({
@@ -351,11 +420,64 @@ const Futures = () => {
     setIsTrading(false);
     fetchBalance();
     fetchTrades();
+    fetchPositionOrders();
   };
+  // Close position function
+  const closePosition = async (positionId: string, tradeId: string) => {
+    try {
+      // Get position details
+      const { data: position } = await supabase
+        .from('positions_orders')
+        .select('*')
+        .eq('id', positionId)
+        .single();
+
+      if (!position) return;
+
+      // Create closing order
+      const exitPrice = currentPrice;
+      const realizedPnl = (exitPrice - position.entry_price) * position.quantity * 
+                         (position.side === 'LONG' ? 1 : -1);
+
+      const closingData = {
+        user_id: user!.id,
+        symbol: position.symbol,
+        side: position.side,
+        entry_price: position.entry_price,
+        exit_price: exitPrice,
+        quantity: position.quantity,
+        leverage: position.leverage,
+        realized_pnl: realizedPnl,
+        original_trade_id: tradeId
+      };
+
+      await supabase.from('closing_orders').insert(closingData);
+      
+      // Remove from positions orders
+      await supabase.from('positions_orders').delete().eq('id', positionId);
+      
+      // Update trade status if exists
+      await supabase.from('trades').update({
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+        profit_loss_amount: realizedPnl
+      }).eq('id', tradeId);
+
+      toast.success('Position closed successfully');
+      fetchPositionOrders();
+      fetchClosingOrders();
+      fetchTrades();
+    } catch (error) {
+      toast.error('Failed to close position');
+    }
+  };
+
   useEffect(() => {
     if (user) {
       fetchBalance();
       fetchTrades();
+      fetchPositionOrders();
+      fetchClosingOrders();
     }
   }, [user]);
   if (!user) {
@@ -584,6 +706,126 @@ const Futures = () => {
               <CardContent>
                 <p className="text-2xl font-bold">${currentPrice.toFixed(2)}</p>
                 <p className="text-sm text-muted-foreground">Live Price</p>
+              </CardContent>
+            </Card>
+
+            {/* Trading Positions and Orders */}
+            <Card className="glass-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <BarChart3 className="h-5 w-5" />
+                  Trading Positions
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <Tabs defaultValue="positions" className="w-full">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="positions">Positions ({positionOrders.length})</TabsTrigger>
+                    <TabsTrigger value="closed">Closed Orders ({closingOrders.length})</TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="positions" className="space-y-4">
+                    {positionOrders.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No open positions
+                      </p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Symbol</TableHead>
+                              <TableHead>Side</TableHead>
+                              <TableHead>Entry Price</TableHead>
+                              <TableHead>Mark Price</TableHead>
+                              <TableHead>Quantity</TableHead>
+                              <TableHead>Leverage</TableHead>
+                              <TableHead>Unrealized PnL</TableHead>
+                              <TableHead>Action</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {positionOrders.map((position) => (
+                              <TableRow key={position.id}>
+                                <TableCell className="font-medium">{position.symbol}</TableCell>
+                                <TableCell>
+                                  <Badge variant={position.side === 'LONG' ? 'default' : 'destructive'}>
+                                    {position.side}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>${position.entry_price.toFixed(2)}</TableCell>
+                                <TableCell>${currentPrice.toFixed(2)}</TableCell>
+                                <TableCell>{position.quantity.toFixed(6)}</TableCell>
+                                <TableCell>{position.leverage}x</TableCell>
+                                <TableCell className={position.unrealized_pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
+                                  ${((currentPrice - position.entry_price) * position.quantity * (position.side === 'LONG' ? 1 : -1)).toFixed(2)}
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() => closePosition(position.id, position.trade_id)}
+                                    className="flex items-center gap-1"
+                                  >
+                                    <X className="h-3 w-3" />
+                                    Close
+                                  </Button>
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </TabsContent>
+                  
+                  <TabsContent value="closed" className="space-y-4">
+                    {closingOrders.length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        No closed orders
+                      </p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Symbol</TableHead>
+                              <TableHead>Side</TableHead>
+                              <TableHead>Entry Price</TableHead>
+                              <TableHead>Exit Price</TableHead>
+                              <TableHead>Quantity</TableHead>
+                              <TableHead>Leverage</TableHead>
+                              <TableHead>Realized PnL</TableHead>
+                              <TableHead>Time</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {closingOrders.map((order) => (
+                              <TableRow key={order.id}>
+                                <TableCell className="font-medium">{order.symbol}</TableCell>
+                                <TableCell>
+                                  <Badge variant={order.side === 'LONG' ? 'default' : 'destructive'}>
+                                    {order.side}
+                                  </Badge>
+                                </TableCell>
+                                <TableCell>${order.entry_price.toFixed(2)}</TableCell>
+                                <TableCell>${order.exit_price.toFixed(2)}</TableCell>
+                                <TableCell>{order.quantity.toFixed(6)}</TableCell>
+                                <TableCell>{order.leverage}x</TableCell>
+                                <TableCell className={order.realized_pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
+                                  ${order.realized_pnl.toFixed(2)}
+                                </TableCell>
+                                <TableCell className="text-sm text-muted-foreground">
+                                  {new Date(order.closed_at).toLocaleString()}
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    )}
+                  </TabsContent>
+                </Tabs>
               </CardContent>
             </Card>
 
