@@ -13,7 +13,7 @@ import Header from "@/components/Header";
 import TradingChart from "@/components/TradingChart";
 const TRADING_PAIRS = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "ADA/USDT", "XRP/USDT", "DOT/USDT", "LTC/USDT", "DOGE/USDT", "MATIC/USDT", "AVAX/USDT", "ENR/USDT"];
 const LEVERAGES = [5, 10, 20, 50];
-const STOP_PROFIT_OPTIONS = [5, 10, 15, 20, 25, 30];
+const STOP_PROFIT_OPTIONS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
 interface Trade {
   id: string;
   trading_pair: string;
@@ -469,7 +469,7 @@ const Futures = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Stop Profit (Optional)</label>
+                  <label className="text-sm font-medium">Scale</label>
                   <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
                     <Button
                       variant={stopProfitPercentage === null ? "default" : "outline"}
