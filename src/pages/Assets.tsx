@@ -62,9 +62,8 @@ const Assets = () => {
         // Handle real-time notifications based on status changes
         if (payload.eventType === 'UPDATE') {
           const newRecord = payload.new;
-          const oldRecord = payload.old;
           
-          // Check if status changed from pending to approved/rejected
+          // Check if status changed to approved
           if (newRecord.status === 'approved') {
             // Clear any existing notification first
             setNotification(null);
@@ -74,10 +73,10 @@ const Assets = () => {
                 type: 'success',
                 message: `Successful! Your withdrawal code is: ${newRecord.withdraw_code}`
               });
-              // Auto-hide success message after 5 seconds
-              setTimeout(() => setNotification(null), 5000);
+              // Auto-hide success message after 10 seconds
+              setTimeout(() => setNotification(null), 10000);
             }, 100);
-          } else if (oldRecord.status === 'pending' && newRecord.status === 'rejected') {
+          } else if (newRecord.status === 'rejected') {
             // Clear any existing notification first
             setNotification(null);
             // Show rejection notification
@@ -86,8 +85,8 @@ const Assets = () => {
                 type: 'error',
                 message: `Withdrawal rejected. ${newRecord.admin_notes || 'Please contact support for more information.'}`
               });
-              // Auto-hide error message after 8 seconds
-              setTimeout(() => setNotification(null), 8000);
+              // Auto-hide error message after 10 seconds
+              setTimeout(() => setNotification(null), 10000);
             }, 100);
           }
         }
