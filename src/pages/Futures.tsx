@@ -745,7 +745,7 @@ const Futures = () => {
                             {trades.map((trade) => (
                               <TableRow 
                                 key={trade.id} 
-                                className={trade.status === 'active' ? 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800' : ''}
+                                className={trade.status === 'active' ? 'bg-primary/10 border-primary/20' : 'bg-background'}
                               >
                                 <TableCell className="font-medium">{trade.trading_pair}</TableCell>
                                 <TableCell>
