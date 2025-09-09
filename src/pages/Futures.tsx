@@ -472,7 +472,7 @@ const Futures = () => {
                       </Button>
                     ))}
                   </div>
-                </div>
+          </div>
 
                 {stakeAmount && parseFloat(stakeAmount) >= 50 && <Card className="p-4 bg-muted/10">
                     <div className="grid grid-cols-3 gap-4 text-sm">
@@ -500,37 +500,6 @@ const Futures = () => {
                 <Button onClick={startTrade} disabled={!stakeAmount || parseFloat(stakeAmount) < 50 || isTrading} className="w-full gradient-primary" size="lg">
                   {isTrading ? "Starting Trade..." : "Start Trade"}
                 </Button>
-              </CardContent>
-            </Card>
-            </div>
-
-            {/* Sidebar */}
-            <div className="space-y-6">
-            {/* Balance */}
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <DollarSign className="h-5 w-5" />
-                  Balance
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">${balance.balance.toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground">{balance.currency}</p>
-              </CardContent>
-            </Card>
-
-            {/* Current Price */}
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  {selectedPair}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold">${currentPrice.toFixed(2)}</p>
-                <p className="text-sm text-muted-foreground">Live Price</p>
               </CardContent>
             </Card>
             </div>
