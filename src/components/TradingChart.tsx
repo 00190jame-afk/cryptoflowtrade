@@ -119,16 +119,16 @@ const TradingChart = ({ tradingPair, currentPrice, activeTrade }: TradingChartPr
       </CardHeader>
       
       <CardContent className="p-0">
-        {/* Binance TradingView Widget */}
+        {/* TradingView Chart Widget */}
         <div className="h-[500px] w-full bg-gray-900 relative">
           <iframe
-            src={`https://www.binance.com/en/trade/${binanceSymbol}?theme=dark&type=spot`}
+            src={`https://www.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=BINANCE:${tradingPair.replace('/', '')}&interval=5&hidesidetoolbar=1&hidetoptoolbar=1&symboledit=1&saveimage=1&toolbarbg=0e1621&studies=[]&hideideas=1&theme=dark&style=1&timezone=Etc%2FUTC&studies_overrides={}&overrides={}&enabled_features=[]&disabled_features=[]&locale=en&utm_source=localhost&utm_medium=widget&utm_campaign=chart&utm_term=BINANCE:${tradingPair.replace('/', '')}`}
             className="w-full h-full border-0"
             style={{
               border: 'none',
               borderRadius: '0 0 8px 8px'
             }}
-            title={`Binance ${tradingPair} Chart`}
+            title={`TradingView ${tradingPair} Chart`}
             allowFullScreen
           />
           
