@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { TrendingUp, TrendingDown, DollarSign, Target, Clock, BarChart3 } from "lucide-react";
 import Header from "@/components/Header";
+import TradingChart from "@/components/TradingChart";
 
 const TRADING_PAIRS = [
   "BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "ADA/USDT", "XRP/USDT",
@@ -254,6 +255,15 @@ const Futures = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Trading Chart - Full Width */}
+          <div className="lg:col-span-3">
+            <TradingChart 
+              tradingPair={selectedPair}
+              currentPrice={currentPrice}
+              activeTrade={activeTrade}
+            />
+          </div>
+
           {/* Trading Panel */}
           <div className="lg:col-span-2 space-y-6">
             {/* Active Trade */}
