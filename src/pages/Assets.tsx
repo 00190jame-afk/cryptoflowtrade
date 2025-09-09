@@ -42,8 +42,10 @@ const Assets = () => {
   const [withdrawalCode, setWithdrawalCode] = useState("");
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const [notification, setNotification] = useState<{type: 'success' | 'error' | 'info', message: string} | null>(null);
-
+  const [notification, setNotification] = useState<{
+    type: 'success' | 'error' | 'info';
+    message: string;
+  } | null>(null);
   useEffect(() => {
     if (user) {
       fetchUserBalance();
@@ -58,11 +60,11 @@ const Assets = () => {
         filter: `user_id=eq.${user.id}`
       }, payload => {
         console.log('Withdrawal request update:', payload);
-        
+
         // Handle real-time notifications based on status changes
         if (payload.eventType === 'UPDATE') {
           const newRecord = payload.new;
-          
+
           // Check if status changed to approved
           if (newRecord.status === 'approved') {
             // Clear any existing notification first
@@ -90,7 +92,7 @@ const Assets = () => {
             }, 100);
           }
         }
-        
+
         // Refresh transactions and balance when withdrawal request status changes
         fetchTransactions();
         fetchUserBalance();
@@ -157,16 +159,15 @@ const Assets = () => {
       });
     }
   };
-  
   const fetchWithdrawalRequests = async () => {
     try {
       console.log('Fetching withdrawal requests for user:', user?.id);
-      const { data, error } = await supabase
-        .from('withdraw_requests')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false });
-      
+      const {
+        data,
+        error
+      } = await supabase.from('withdraw_requests').select('*').eq('user_id', user?.id).order('created_at', {
+        ascending: false
+      });
       if (error) throw error;
       console.log('Withdrawal requests data:', data);
       setWithdrawalRequests(data || []);
@@ -343,15 +344,9 @@ const Assets = () => {
         </div>
 
         {/* Notification Bar */}
-        {notification && (
-          <div className={`p-4 rounded-lg border ${
-            notification.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
-            notification.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' :
-            'bg-blue-50 border-blue-200 text-blue-800'
-          } flex items-center justify-between`}>
+        {notification && <div className={`p-4 rounded-lg border ${notification.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' : notification.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' : 'bg-blue-50 border-blue-200 text-blue-800'} flex items-center justify-between`}>
             <div className="flex-1">
-              {notification.type === 'success' && notification.message.includes('withdrawal code') ? (
-                <div className="flex items-center justify-between w-full">
+              {notification.type === 'success' && notification.message.includes('withdrawal code') ? <div className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
                       <span className="text-lg font-semibold">
@@ -364,34 +359,23 @@ const Assets = () => {
                     <span className="text-sm font-mono bg-gray-100 px-3 py-1 rounded border">
                       {notification.message.split(': ')[1]}
                     </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        const code = notification.message.split(': ')[1];
-                        navigator.clipboard.writeText(code);
-                        toast({ title: "Copied!", description: "Withdrawal code copied to clipboard" });
-                      }}
-                      className="h-8 px-3 text-xs"
-                    >
+                    <Button variant="outline" size="sm" onClick={() => {
+                  const code = notification.message.split(': ')[1];
+                  navigator.clipboard.writeText(code);
+                  toast({
+                    title: "Copied!",
+                    description: "Withdrawal code copied to clipboard"
+                  });
+                }} className="h-8 px-3 text-xs">
                       Copy
                     </Button>
                   </div>
-                </div>
-              ) : (
-                <p className="font-medium">{notification.message}</p>
-              )}
+                </div> : <p className="font-medium">{notification.message}</p>}
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setNotification(null)}
-              className="h-auto p-1 hover:bg-transparent ml-4"
-            >
+            <Button variant="ghost" size="sm" onClick={() => setNotification(null)} className="h-auto p-1 hover:bg-transparent ml-4">
               ✕
             </Button>
-          </div>
-        )}
+          </div>}
 
         {/* Asset Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -485,9 +469,7 @@ const Assets = () => {
               <Button onClick={handleRechargeCode} disabled={isProcessing || !rechargeCode.trim()} className="w-full bg-green-600 hover:bg-green-700">
                 {isProcessing ? "Processing..." : "Redeem Recharge Code"}
               </Button>
-              <p className="text-xs text-muted-foreground">
-                Enter your Supabase-generated recharge code here
-              </p>
+              
             </CardContent>
           </Card>
 
@@ -498,9 +480,7 @@ const Assets = () => {
                 <Upload className="h-5 w-5" />
                 Redeem Withdrawal Code
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Submit a withdrawal request to be processed by admin
-              </p>
+              
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -513,9 +493,7 @@ const Assets = () => {
               <Button onClick={handleWithdrawalRequest} disabled={isProcessing || !withdrawalAmount.trim() || parseFloat(withdrawalAmount) <= 0} className="w-full bg-blue-600 hover:bg-blue-700">
                 {isProcessing ? "Processing..." : "Redeem Withdrawal Code"}
               </Button>
-              <p className="text-xs text-muted-foreground">
-                Your request will be reviewed and processed by an administrator
-              </p>
+              
             </CardContent>
           </Card>
         </div>
@@ -534,8 +512,7 @@ const Assets = () => {
             </p>
           </CardHeader>
           <CardContent>
-            {withdrawalRequests.filter(req => req.status === 'approved' && req.withdraw_code).length > 0 ? (
-              <Table>
+            {withdrawalRequests.filter(req => req.status === 'approved' && req.withdraw_code).length > 0 ? <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
@@ -545,10 +522,7 @@ const Assets = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {withdrawalRequests
-                    .filter(req => req.status === 'approved' && req.withdraw_code)
-                    .map(request => (
-                      <TableRow key={request.id}>
+                  {withdrawalRequests.filter(req => req.status === 'approved' && req.withdraw_code).map(request => <TableRow key={request.id}>
                         <TableCell className="text-sm">
                           {new Date(request.processed_at || request.created_at).toLocaleDateString()}
                         </TableCell>
@@ -561,29 +535,23 @@ const Assets = () => {
                           </span>
                         </TableCell>
                         <TableCell>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              navigator.clipboard.writeText(request.withdraw_code);
-                              toast({ title: "Copied!", description: "Withdrawal code copied to clipboard" });
-                            }}
-                            className="h-8 px-3 text-xs"
-                          >
+                          <Button variant="outline" size="sm" onClick={() => {
+                      navigator.clipboard.writeText(request.withdraw_code);
+                      toast({
+                        title: "Copied!",
+                        description: "Withdrawal code copied to clipboard"
+                      });
+                    }} className="h-8 px-3 text-xs">
                             Copy
                           </Button>
                         </TableCell>
-                      </TableRow>
-                    ))}
+                      </TableRow>)}
                 </TableBody>
-              </Table>
-            ) : (
-              <div className="text-center py-8">
+              </Table> : <div className="text-center py-8">
                 <ArrowUpRight className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">No withdrawal codes yet</p>
                 <p className="text-sm text-muted-foreground">Your approved withdrawal codes will appear here</p>
-              </div>
-            )}
+              </div>}
           </CardContent>
         </Card>
 
