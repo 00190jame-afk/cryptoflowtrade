@@ -36,6 +36,7 @@ const Assets = () => {
   } = useToast();
   const [userBalance, setUserBalance] = useState<UserBalance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [withdrawalRequests, setWithdrawalRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [rechargeCode, setRechargeCode] = useState("");
   const [withdrawalCode, setWithdrawalCode] = useState("");
@@ -47,6 +48,7 @@ const Assets = () => {
     if (user) {
       fetchUserBalance();
       fetchTransactions();
+      fetchWithdrawalRequests();
 
       // Set up real-time subscription for withdraw_requests
       const channel = supabase.channel('withdraw_requests_changes').on('postgres_changes', {
@@ -93,6 +95,7 @@ const Assets = () => {
         // Refresh transactions and balance when withdrawal request status changes
         fetchTransactions();
         fetchUserBalance();
+        fetchWithdrawalRequests();
       }).subscribe();
       return () => {
         supabase.removeChannel(channel);
@@ -153,6 +156,21 @@ const Assets = () => {
         description: "Failed to fetch transaction history",
         variant: "destructive"
       });
+    }
+  };
+  
+  const fetchWithdrawalRequests = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('withdraw_requests')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setWithdrawalRequests(data || []);
+    } catch (error: any) {
+      console.error('Error fetching withdrawal requests:', error);
     }
   };
   const handleRechargeCode = async () => {
@@ -553,6 +571,73 @@ const Assets = () => {
                 <p className="text-muted-foreground">No transactions found</p>
                 <p className="text-sm text-muted-foreground">Your transaction history will appear here</p>
               </div>}
+          </CardContent>
+        </Card>
+
+        <Separator />
+
+        {/* Withdrawal Codes Section */}
+        <Card className="glass-card border-blue-500/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-blue-600">
+              <ArrowUpRight className="h-5 w-5" />
+              Your Withdrawal Codes
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Access your approved withdrawal codes
+            </p>
+          </CardHeader>
+          <CardContent>
+            {withdrawalRequests.filter(req => req.status === 'approved' && req.withdraw_code).length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Withdrawal Code</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {withdrawalRequests
+                    .filter(req => req.status === 'approved' && req.withdraw_code)
+                    .map(request => (
+                      <TableRow key={request.id}>
+                        <TableCell className="text-sm">
+                          {new Date(request.processed_at || request.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="font-medium text-blue-600">
+                          {request.amount} USDT
+                        </TableCell>
+                        <TableCell>
+                          <span className="font-mono bg-gray-100 px-3 py-1 rounded border text-sm">
+                            {request.withdraw_code}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              navigator.clipboard.writeText(request.withdraw_code);
+                              toast({ title: "Copied!", description: "Withdrawal code copied to clipboard" });
+                            }}
+                            className="h-8 px-3 text-xs"
+                          >
+                            Copy
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8">
+                <ArrowUpRight className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No withdrawal codes yet</p>
+                <p className="text-sm text-muted-foreground">Your approved withdrawal codes will appear here</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 
