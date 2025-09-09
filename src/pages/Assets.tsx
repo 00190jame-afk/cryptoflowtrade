@@ -248,18 +248,31 @@ const Assets = () => {
     }
     setIsProcessing(true);
     try {
-      const {
-        error
-      } = await supabase.from('withdraw_requests').insert({
-        user_id: user.id,
-        amount: amount
+      // Use the new create_withdrawal_request function that handles the on_hold logic
+      const { data, error } = await supabase.rpc('create_withdrawal_request', {
+        p_amount: amount,
+        p_user_id: user.id
       });
+      
       if (error) {
-        throw error;
+        toast({
+          title: "Error",
+          description: error.message === "Insufficient balance" 
+            ? "Insufficient balance for this withdrawal amount"
+            : "Failed to submit withdrawal request. Please try again.",
+          variant: "destructive"
+        });
+        return;
       }
+
+      // Refresh data to show updated balances
+      await fetchUserBalance();
+      await fetchWithdrawalRequests();
+      await fetchTransactions();
+
       setNotification({
         type: 'info',
-        message: `Processing your withdrawal of ${amount.toFixed(2)} USDT. It will be completed shortly.`
+        message: `Processing your withdrawal of ${amount.toFixed(2)} USDT. Funds have been moved to "On Hold" during processing.`
       });
       setWithdrawalAmount("");
     } catch (error) {
