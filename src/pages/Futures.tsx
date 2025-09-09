@@ -69,6 +69,40 @@ const Futures = () => {
     return profitRate / leverageValue;
   };
 
+  // Map pair to Binance symbol (e.g., BTC/USDT -> BTCUSDT)
+  const mapPairToBinanceSymbol = (pair: string) => pair.replace('/', '');
+
+  // Optional mapping for CoinGecko IDs (fallback)
+  const COINGECKO_IDS: Record<string, string> = {
+    'BTC': 'bitcoin',
+    'ETH': 'ethereum',
+    'SOL': 'solana',
+    'BNB': 'binancecoin',
+    'ADA': 'cardano',
+    'XRP': 'ripple',
+    'DOT': 'polkadot',
+    'LTC': 'litecoin',
+    'DOGE': 'dogecoin',
+    'MATIC': 'polygon-ecosystem-token',
+    'AVAX': 'avalanche-2'
+    // ENR not mapped – will stay simulated
+  };
+
+  const getBaseFromPair = (pair: string) => pair.split('/')[0];
+
+  // Fetch profit rate from DB trade_rules by stake
+  const getProfitRateFromDB = async (stake: number): Promise<number | null> => {
+    const { data } = await (supabase as any)
+      .from('trade_rules')
+      .select('profit_rate, min_stake, max_stake')
+      .lte('min_stake', stake)
+      .gte('max_stake', stake)
+      .order('min_stake', { ascending: false })
+      .limit(1);
+
+    return data?.[0]?.profit_rate ?? null;
+  };
+
   // Fetch user balance
   const fetchBalance = async () => {
     if (!user) return;
@@ -95,17 +129,45 @@ const Futures = () => {
     }
   };
 
-  // Simulate price updates
+  // Live price updates from Binance with CoinGecko fallback
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentPrice(prev => {
-        const change = (Math.random() - 0.5) * 100;
-        return Math.max(prev + change, 1000);
-      });
-    }, 1000);
+    let cancelled = false;
 
-    return () => clearInterval(interval);
-  }, []);
+    const fetchPrice = async () => {
+      try {
+        const symbol = mapPairToBinanceSymbol(selectedPair);
+        const res = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
+        if (res.ok) {
+          const json = await res.json();
+          const price = parseFloat(json.price);
+          if (!cancelled && !isNaN(price)) setCurrentPrice(price);
+          return;
+        }
+      } catch {}
+
+      // Fallback: CoinGecko for supported bases
+      try {
+        const base = getBaseFromPair(selectedPair);
+        const id = COINGECKO_IDS[base];
+        if (id) {
+          const res2 = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${id}&vs_currencies=usd`);
+          if (res2.ok) {
+            const j = await res2.json();
+            const price = parseFloat(j[id]?.usd);
+            if (!cancelled && !isNaN(price)) setCurrentPrice(price);
+            return;
+          }
+        }
+      } catch {}
+
+      // Final fallback: small random walk to avoid freezing UI
+      setCurrentPrice(prev => Math.max(prev + (Math.random() - 0.5) * 50, 0.01));
+    };
+
+    fetchPrice();
+    const interval = setInterval(fetchPrice, 2000);
+    return () => { cancelled = true; clearInterval(interval); };
+  }, [selectedPair]);
 
   // Handle active trade countdown
   useEffect(() => {
@@ -132,28 +194,43 @@ const Futures = () => {
   const completeTrade = async () => {
     if (!activeTrade) return;
 
-    const profitAmount = activeTrade.stake_amount * (activeTrade.profit_rate / 100);
-    
+    // Re-fetch latest trade in case admin modified it
+    const { data: latest } = await supabase
+      .from('trades')
+      .select('modified_by_admin, profit_loss_amount, result')
+      .eq('id', activeTrade.id)
+      .single();
+
+    const calculatedProfit = activeTrade.stake_amount * (activeTrade.profit_rate / 100);
+    const profitAmount = latest?.modified_by_admin
+      ? (latest.profit_loss_amount ?? 0)
+      : calculatedProfit;
+
+    const finalResult = latest?.modified_by_admin
+      ? (latest.result ?? (profitAmount >= 0 ? 'win' : 'loss'))
+      : (profitAmount >= 0 ? 'win' : 'loss');
+
     // Update trade status
     const { error } = await supabase
-      .from("trades")
+      .from('trades')
       .update({
-        status: "completed",
+        status: 'completed',
         completed_at: new Date().toISOString(),
-        profit_loss_amount: profitAmount
+        profit_loss_amount: profitAmount,
+        result: finalResult
       })
-      .eq("id", activeTrade.id);
+      .eq('id', activeTrade.id);
 
     if (!error) {
-      // Update user balance
+      // Update user balance by profit/loss amount (stake was already deducted at start)
       await supabase
-        .from("user_balances")
+        .from('user_balances')
         .update({
           balance: balance.balance + profitAmount
         })
-        .eq("user_id", user!.id);
+        .eq('user_id', user!.id);
 
-      toast.success(`Trade completed! Profit: $${profitAmount.toFixed(2)}`);
+      toast.success(`Trade completed! ${profitAmount >= 0 ? 'Profit' : 'Loss'}: $${Math.abs(profitAmount).toFixed(2)}`);
       setActiveTrade(null);
       setTradeProgress(0);
       fetchBalance();
@@ -183,10 +260,11 @@ const Futures = () => {
 
     setIsTrading(true);
 
-    const profitRate = calculateProfitRate(stake);
+    const dbProfitRate = await getProfitRateFromDB(stake);
+    const profitRate = dbProfitRate ?? calculateProfitRate(stake);
     const requiredPriceChange = calculateRequiredPriceChange(profitRate, leverage);
     const tradeDuration = Math.floor(Math.random() * 241) + 60; // 60-300 seconds
-    const targetPrice = direction === "LONG" 
+    const targetPrice = direction === 'LONG'
       ? currentPrice * (1 + requiredPriceChange / 100)
       : currentPrice * (1 - requiredPriceChange / 100);
 
@@ -200,11 +278,12 @@ const Futures = () => {
       profit_rate: profitRate,
       required_price_change: requiredPriceChange,
       trade_duration: tradeDuration,
+      ends_at: new Date(Date.now() + tradeDuration * 1000).toISOString(),
       current_price: currentPrice,
       target_price: targetPrice
     };
 
-    const { error } = await supabase.from("trades").insert(tradeData);
+    const { error } = await supabase.from('trades').insert(tradeData);
 
     if (error) {
       toast.error("Failed to start trade");

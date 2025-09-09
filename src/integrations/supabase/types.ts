@@ -98,12 +98,37 @@ export type Database = {
         }
         Relationships: []
       }
+      trade_rules: {
+        Row: {
+          created_at: string
+          id: string
+          max_stake: number
+          min_stake: number
+          profit_rate: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          max_stake: number
+          min_stake: number
+          profit_rate: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          max_stake?: number
+          min_stake?: number
+          profit_rate?: number
+        }
+        Relationships: []
+      }
       trades: {
         Row: {
           completed_at: string | null
           created_at: string
           current_price: number | null
           direction: string
+          ends_at: string | null
           entry_price: number
           id: string
           leverage: number
@@ -124,6 +149,7 @@ export type Database = {
           created_at?: string
           current_price?: number | null
           direction: string
+          ends_at?: string | null
           entry_price: number
           id?: string
           leverage: number
@@ -144,6 +170,7 @@ export type Database = {
           created_at?: string
           current_price?: number | null
           direction?: string
+          ends_at?: string | null
           entry_price?: number
           id?: string
           leverage?: number
