@@ -67,7 +67,10 @@ export type Database = {
           leverage: number
           mark_price: number | null
           quantity: number
+          realized_pnl: number | null
+          scale: string | null
           side: string
+          stake: number | null
           symbol: string
           trade_id: string | null
           unrealized_pnl: number | null
@@ -81,7 +84,10 @@ export type Database = {
           leverage: number
           mark_price?: number | null
           quantity: number
+          realized_pnl?: number | null
+          scale?: string | null
           side: string
+          stake?: number | null
           symbol: string
           trade_id?: string | null
           unrealized_pnl?: number | null
@@ -95,7 +101,10 @@ export type Database = {
           leverage?: number
           mark_price?: number | null
           quantity?: number
+          realized_pnl?: number | null
+          scale?: string | null
           side?: string
+          stake?: number | null
           symbol?: string
           trade_id?: string | null
           unrealized_pnl?: number | null

@@ -48,7 +48,10 @@ interface PositionOrder {
   mark_price: number;
   quantity: number;
   leverage: number;
+  stake?: number;
+  scale?: string;
   unrealized_pnl: number;
+  realized_pnl?: number;
   trade_id: string;
   created_at: string;
 }
@@ -205,9 +208,37 @@ const Futures = () => {
         return;
       }
 
+      // Calculate profit based on stake tiers: 50-99.99→20%, 100-249.99→30%, 250+→40%
       const calculatedProfit = trade.stake_amount * (trade.profit_rate / 100);
       const profitAmount = latest?.modified_by_admin ? latest.profit_loss_amount ?? 0 : calculatedProfit;
-      const finalResult = latest?.modified_by_admin ? latest.result ?? (profitAmount >= 0 ? 'win' : 'loss') : profitAmount >= 0 ? 'win' : 'loss';
+      const finalResult = latest?.modified_by_admin ? latest.result ?? 'win' : 'win'; // Always win with new rules
+
+      // Get position to move to closing orders
+      const { data: position } = await supabase
+        .from('positions_orders')
+        .select('*')
+        .eq('trade_id', trade.id)
+        .single();
+
+      if (position) {
+        // Move to closing orders with exit price same as entry price
+        const closingData = {
+          user_id: user!.id,
+          symbol: position.symbol,
+          side: position.side,
+          entry_price: position.entry_price,
+          exit_price: position.entry_price, // Same as entry for simplicity
+          quantity: position.quantity,
+          leverage: position.leverage,
+          realized_pnl: profitAmount,
+          original_trade_id: trade.id
+        };
+
+        await supabase.from('closing_orders').insert(closingData);
+        
+        // Remove from positions
+        await supabase.from('positions_orders').delete().eq('trade_id', trade.id);
+      }
 
       // Update trade status
       const { error } = await supabase.from('trades').update({
@@ -219,13 +250,14 @@ const Futures = () => {
       
       if (!error) {
         console.log('Trade completed successfully:', trade.id);
-        // Update user balance by profit/loss amount (stake was already deducted at start)
+        // Update user balance by profit amount (stake + profit)
         await supabase.from('user_balances').update({
-          balance: balance.balance + profitAmount
+          balance: balance.balance + trade.stake_amount + profitAmount
         }).eq('user_id', user!.id);
         fetchBalance();
         fetchTrades();
         fetchPositionOrders();
+        fetchClosingOrders();
       } else {
         console.error('Error completing trade:', error);
       }
@@ -330,15 +362,10 @@ const Futures = () => {
       console.log("Using existing current price for trade:", realTimePrice);
     }
     
-    const dbProfitRate = await getProfitRateFromDB(stake);
-    const profitRate = dbProfitRate ?? calculateProfitRate(stake);
-    const requiredPriceChange = calculateRequiredPriceChange(profitRate, leverage);
-    const tradeDuration = Math.floor(Math.random() * 241) + 60; // 60-300 seconds
-    const targetPrice = direction === 'LONG' 
-      ? realTimePrice * (1 + requiredPriceChange / 100) 
-      : realTimePrice * (1 - requiredPriceChange / 100);
+    const profitRate = calculateProfitRate(stake);
+    const tradeDuration = Math.floor(Math.random() * 241) + 60; // Random 60-300 seconds
       
-    console.log(`Trade calculation: Entry=${realTimePrice}, Target=${targetPrice}, Direction=${direction}, Required Change=${requiredPriceChange}%`);
+    console.log(`Trade started: Entry=${realTimePrice}, Direction=${direction}, Duration=${tradeDuration}s, Stake=${stake}`);
     
     const tradeData = {
       user_id: user.id,
@@ -348,11 +375,11 @@ const Futures = () => {
       leverage,
       entry_price: realTimePrice,
       profit_rate: profitRate,
-      required_price_change: requiredPriceChange,
+      required_price_change: 0, // Not used in new system
       trade_duration: tradeDuration,
       ends_at: new Date(Date.now() + tradeDuration * 1000).toISOString(),
       current_price: realTimePrice,
-      target_price: targetPrice
+      target_price: realTimePrice // Exit price same as entry for simplicity
     };
     const { data: newTrade, error } = await supabase.from('trades').insert(tradeData).select().single();
     if (error) {
@@ -361,16 +388,19 @@ const Futures = () => {
       return;
     }
 
-    // Create position order
+    // Create position order with new fields
     const positionData = {
       user_id: user.id,
       symbol: selectedPair,
       side: direction,
       entry_price: realTimePrice,
       mark_price: realTimePrice,
-      quantity: stake / realTimePrice, // Calculate quantity based on stake
+      quantity: stake / realTimePrice,
       leverage,
+      stake: stake,
+      scale: stopProfitPercentage ? `${stopProfitPercentage}%` : null,
       unrealized_pnl: 0,
+      realized_pnl: null, // Empty at first
       trade_id: newTrade.id
     };
     await supabase.from('positions_orders').insert(positionData);
@@ -593,50 +623,42 @@ const Futures = () => {
                       </p>
                     ) : (
                       <div className="overflow-x-auto">
-                        <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Symbol</TableHead>
-                              <TableHead>Side</TableHead>
-                              <TableHead>Entry Price</TableHead>
-                              <TableHead>Mark Price</TableHead>
-                              <TableHead>Quantity</TableHead>
-                              <TableHead>Leverage</TableHead>
-                              <TableHead>Unrealized PnL</TableHead>
-                              <TableHead>Action</TableHead>
-                            </TableRow>
-                          </TableHeader>
-                          <TableBody>
-                            {positionOrders.map((position) => (
-                              <TableRow key={position.id}>
-                                <TableCell className="font-medium">{position.symbol}</TableCell>
-                                <TableCell>
-                                  <Badge variant={position.side === 'LONG' ? 'default' : 'destructive'}>
-                                    {position.side}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>${position.entry_price.toFixed(2)}</TableCell>
-                                <TableCell>${currentPrice.toFixed(2)}</TableCell>
-                                <TableCell>{position.quantity.toFixed(6)}</TableCell>
-                                <TableCell>{position.leverage}x</TableCell>
-                                <TableCell className={position.unrealized_pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
-                                  ${((currentPrice - position.entry_price) * position.quantity * (position.side === 'LONG' ? 1 : -1)).toFixed(2)}
-                                </TableCell>
-                                <TableCell>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    onClick={() => closePosition(position.id, position.trade_id)}
-                                    className="flex items-center gap-1"
-                                  >
-                                    <X className="h-3 w-3" />
-                                    Close
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
-                            ))}
-                          </TableBody>
-                        </Table>
+                         <Table>
+                           <TableHeader>
+                             <TableRow>
+                               <TableHead>Symbol</TableHead>
+                               <TableHead>Side</TableHead>
+                               <TableHead>Stake</TableHead>
+                               <TableHead>Entry Price</TableHead>
+                               <TableHead>Leverage</TableHead>
+                               <TableHead>Scale</TableHead>
+                               <TableHead>Realized PnL</TableHead>
+                               <TableHead>Time</TableHead>
+                             </TableRow>
+                           </TableHeader>
+                           <TableBody>
+                             {positionOrders.map((position) => (
+                               <TableRow key={position.id}>
+                                 <TableCell className="font-medium">{position.symbol}</TableCell>
+                                 <TableCell>
+                                   <Badge variant={position.side === 'LONG' ? 'default' : 'destructive'}>
+                                     {position.side}
+                                   </Badge>
+                                 </TableCell>
+                                 <TableCell>${position.stake?.toFixed(2) || 'N/A'}</TableCell>
+                                 <TableCell>${position.entry_price.toFixed(2)}</TableCell>
+                                 <TableCell>{position.leverage}x</TableCell>
+                                 <TableCell>{position.scale || 'None'}</TableCell>
+                                 <TableCell className="text-muted-foreground">
+                                   {position.realized_pnl ? `$${position.realized_pnl.toFixed(2)}` : '-'}
+                                 </TableCell>
+                                 <TableCell className="text-sm text-muted-foreground">
+                                   {new Date(position.created_at).toLocaleString()}
+                                 </TableCell>
+                               </TableRow>
+                             ))}
+                           </TableBody>
+                         </Table>
                       </div>
                     )}
                   </TabsContent>
