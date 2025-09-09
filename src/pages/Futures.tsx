@@ -290,24 +290,47 @@ const Futures = () => {
       toast.error("You already have an active trade");
       return;
     }
+    
     setIsTrading(true);
+    
+    // Get the most current price just before trade execution
+    let realTimePrice = currentPrice;
+    try {
+      const symbol = mapPairToBinanceSymbol(selectedPair);
+      const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
+      if (response.ok) {
+        const data = await response.json();
+        realTimePrice = parseFloat(data.price);
+        console.log(`Using real-time price for trade: ${realTimePrice}`);
+        // Update the current price state to match
+        setCurrentPrice(realTimePrice);
+      }
+    } catch (error) {
+      console.log("Using existing current price for trade:", realTimePrice);
+    }
+    
     const dbProfitRate = await getProfitRateFromDB(stake);
     const profitRate = dbProfitRate ?? calculateProfitRate(stake);
     const requiredPriceChange = calculateRequiredPriceChange(profitRate, leverage);
     const tradeDuration = Math.floor(Math.random() * 241) + 60; // 60-300 seconds
-    const targetPrice = direction === 'LONG' ? currentPrice * (1 + requiredPriceChange / 100) : currentPrice * (1 - requiredPriceChange / 100);
+    const targetPrice = direction === 'LONG' 
+      ? realTimePrice * (1 + requiredPriceChange / 100) 
+      : realTimePrice * (1 - requiredPriceChange / 100);
+      
+    console.log(`Trade calculation: Entry=${realTimePrice}, Target=${targetPrice}, Direction=${direction}, Required Change=${requiredPriceChange}%`);
+    
     const tradeData = {
       user_id: user.id,
       trading_pair: selectedPair,
       direction,
       stake_amount: stake,
       leverage,
-      entry_price: currentPrice,
+      entry_price: realTimePrice,
       profit_rate: profitRate,
       required_price_change: requiredPriceChange,
       trade_duration: tradeDuration,
       ends_at: new Date(Date.now() + tradeDuration * 1000).toISOString(),
-      current_price: currentPrice,
+      current_price: realTimePrice,
       target_price: targetPrice
     };
     const {
