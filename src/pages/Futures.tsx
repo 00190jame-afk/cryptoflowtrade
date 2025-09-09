@@ -228,7 +228,7 @@ const Futures = () => {
           side: position.side,
           entry_price: position.entry_price,
           exit_price: position.entry_price, // Same as entry for simplicity
-          quantity: position.quantity,
+          quantity: position.stake || position.quantity, // Use stake as quantity for display
           leverage: position.leverage,
           realized_pnl: profitAmount,
           original_trade_id: trade.id
@@ -671,39 +671,39 @@ const Futures = () => {
                     ) : (
                       <div className="overflow-x-auto">
                         <Table>
-                          <TableHeader>
-                            <TableRow>
-                              <TableHead>Symbol</TableHead>
-                              <TableHead>Side</TableHead>
-                              <TableHead>Entry Price</TableHead>
-                              <TableHead>Exit Price</TableHead>
-                              <TableHead>Quantity</TableHead>
-                              <TableHead>Leverage</TableHead>
-                              <TableHead>Realized PnL</TableHead>
-                              <TableHead>Time</TableHead>
-                            </TableRow>
-                          </TableHeader>
+                           <TableHeader>
+                             <TableRow>
+                               <TableHead>Symbol</TableHead>
+                               <TableHead>Side</TableHead>
+                               <TableHead>Stake</TableHead>
+                               <TableHead>Entry Price</TableHead>
+                               <TableHead>Leverage</TableHead>
+                               <TableHead>Scale</TableHead>
+                               <TableHead>Realized PnL</TableHead>
+                               <TableHead>Time</TableHead>
+                             </TableRow>
+                           </TableHeader>
                           <TableBody>
-                            {closingOrders.map((order) => (
-                              <TableRow key={order.id}>
-                                <TableCell className="font-medium">{order.symbol}</TableCell>
-                                <TableCell>
-                                  <Badge variant={order.side === 'LONG' ? 'default' : 'destructive'}>
-                                    {order.side}
-                                  </Badge>
-                                </TableCell>
-                                <TableCell>${order.entry_price.toFixed(2)}</TableCell>
-                                <TableCell>${order.exit_price.toFixed(2)}</TableCell>
-                                <TableCell>{order.quantity.toFixed(6)}</TableCell>
-                                <TableCell>{order.leverage}x</TableCell>
-                                <TableCell className={order.realized_pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
-                                  ${order.realized_pnl.toFixed(2)}
-                                </TableCell>
-                                <TableCell className="text-sm text-muted-foreground">
-                                  {new Date(order.closed_at).toLocaleString()}
-                                </TableCell>
-                              </TableRow>
-                            ))}
+                             {closingOrders.map((order) => (
+                               <TableRow key={order.id}>
+                                 <TableCell className="font-medium">{order.symbol}</TableCell>
+                                 <TableCell>
+                                   <Badge variant={order.side === 'LONG' ? 'default' : 'destructive'}>
+                                     {order.side}
+                                   </Badge>
+                                 </TableCell>
+                                 <TableCell>${order.quantity.toFixed(2)}</TableCell>
+                                 <TableCell>${order.entry_price.toFixed(2)}</TableCell>
+                                 <TableCell>{order.leverage}x</TableCell>
+                                 <TableCell>None</TableCell>
+                                 <TableCell className={order.realized_pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
+                                   ${order.realized_pnl.toFixed(2)}
+                                 </TableCell>
+                                 <TableCell className="text-sm text-muted-foreground">
+                                   {new Date(order.closed_at).toLocaleString()}
+                                 </TableCell>
+                               </TableRow>
+                             ))}
                           </TableBody>
                         </Table>
                       </div>
