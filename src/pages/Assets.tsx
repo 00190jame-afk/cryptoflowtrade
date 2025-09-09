@@ -129,13 +129,13 @@ const Assets = () => {
       });
 
       if (error) {
-        throw new Error(
-          error.message === 'Invalid recharge code' 
-            ? "Wrong recharge code, please enter the correct code."
-            : error.message === 'Recharge code has already been redeemed'
-            ? "This recharge code has already been used."
-            : "Failed to redeem recharge code. Please try again."
-        );
+        const errorMessage = error.message === "Invalid recharge code" 
+          ? "Wrong recharge code, please enter the correct code."
+          : error.message === "Recharge code has already been redeemed"
+          ? "This recharge code has already been used."
+          : "Failed to process recharge code. Please try again.";
+        
+        throw new Error(errorMessage);
       }
 
       if (data && data.length > 0) {
@@ -331,7 +331,7 @@ const Assets = () => {
                 <Label htmlFor="recharge-code">Recharge Code</Label>
                 <Input
                   id="recharge-code"
-                  placeholder="Enter recharge code (e.g., RC123456)"
+                  placeholder="Enter your Supabase-generated recharge code"
                   value={rechargeCode}
                   onChange={(e) => setRechargeCode(e.target.value)}
                   className="font-mono"
@@ -345,7 +345,7 @@ const Assets = () => {
                 {isProcessing ? "Processing..." : "Redeem Recharge Code"}
               </Button>
               <p className="text-xs text-muted-foreground">
-                Enter the recharge code provided to you
+                Enter your Supabase-generated recharge code here
               </p>
             </CardContent>
           </Card>

@@ -46,12 +46,12 @@ const Recharge = () => {
 
       if (error) {
         toast({
-          title: "Error", 
-          description: error.message === 'Invalid recharge code' 
+          title: "Error",
+          description: error.message === "Invalid recharge code" 
             ? "Wrong recharge code, please enter the correct code."
-            : error.message === 'Recharge code has already been redeemed'
+            : error.message === "Recharge code has already been redeemed"
             ? "This recharge code has already been used."
-            : "Failed to redeem recharge code. Please try again.",
+            : "Failed to process recharge code. Please try again.",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -60,10 +60,12 @@ const Recharge = () => {
 
       if (data && data.length > 0) {
         const { amount } = data[0];
+        
         toast({
           title: "Success!",
           description: `Your account has been recharged with ${amount} USDT.`,
         });
+
         setRechargeCode("");
       }
     } catch (error) {
