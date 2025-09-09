@@ -211,13 +211,9 @@ const Futures = () => {
       // Calculate profit based on stake tiers: 50-99.99→20%, 100-249.99→30%, 250+→40%
       const calculatedProfit = trade.stake_amount * (trade.profit_rate / 100);
       const profitAmount = latest?.modified_by_admin ? (latest.profit_loss_amount ?? 0) : calculatedProfit;
-      // If admin modified, infer result from explicit result or profit sign; otherwise default to win
-      const finalResult =
-        latest?.modified_by_admin
-          ? ((latest.result === 'win' || latest.result === 'loss')
-              ? latest.result
-              : (profitAmount < 0 ? 'loss' : 'win'))
-          : 'win';
+      
+      // Determine result based on profit amount - negative = loss, positive = win
+      const finalResult = profitAmount < 0 ? 'loss' : 'win';
       
       console.log(`Trade ${trade.id}: admin_modified=${latest?.modified_by_admin}, profit=${profitAmount}, result=${finalResult}`);
 
