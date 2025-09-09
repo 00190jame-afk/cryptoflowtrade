@@ -13,6 +13,7 @@ import Header from "@/components/Header";
 import TradingChart from "@/components/TradingChart";
 const TRADING_PAIRS = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "ADA/USDT", "XRP/USDT", "DOT/USDT", "LTC/USDT", "DOGE/USDT", "MATIC/USDT", "AVAX/USDT", "ENR/USDT"];
 const LEVERAGES = [5, 10, 20, 50];
+const STOP_PROFIT_OPTIONS = [5, 10, 15, 20, 25, 30];
 interface Trade {
   id: string;
   trading_pair: string;
@@ -48,6 +49,7 @@ const Futures = () => {
   const [direction, setDirection] = useState<"LONG" | "SHORT">("LONG");
   const [stakeAmount, setStakeAmount] = useState("");
   const [leverage, setLeverage] = useState(5);
+  const [stopProfitPercentage, setStopProfitPercentage] = useState<number | null>(null);
   const [isTrading, setIsTrading] = useState(false);
   const [activeTrade, setActiveTrade] = useState<Trade | null>(null);
   const [tradeProgress, setTradeProgress] = useState(0);
@@ -463,6 +465,31 @@ const Futures = () => {
                         {LEVERAGES.map(lev => <SelectItem key={lev} value={lev.toString()}>{lev}x</SelectItem>)}
                       </SelectContent>
                     </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Stop Profit (Optional)</label>
+                  <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+                    <Button
+                      variant={stopProfitPercentage === null ? "default" : "outline"}
+                      onClick={() => setStopProfitPercentage(null)}
+                      className="text-xs"
+                      size="sm"
+                    >
+                      None
+                    </Button>
+                    {STOP_PROFIT_OPTIONS.map(percentage => (
+                      <Button
+                        key={percentage}
+                        variant={stopProfitPercentage === percentage ? "default" : "outline"}
+                        onClick={() => setStopProfitPercentage(percentage)}
+                        className="text-xs"
+                        size="sm"
+                      >
+                        {percentage}%
+                      </Button>
+                    ))}
                   </div>
                 </div>
 
