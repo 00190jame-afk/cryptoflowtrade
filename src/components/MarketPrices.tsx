@@ -24,7 +24,7 @@ export const MarketPrices = () => {
   const fetchMarketData = async () => {
     try {
       const response = await fetch(
-        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=10&page=1&sparkline=false'
+        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false'
       );
       
       if (!response.ok) {
@@ -81,7 +81,7 @@ export const MarketPrices = () => {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {[...Array(10)].map((_, i) => (
+            {[...Array(20)].map((_, i) => (
               <div key={i} className="flex space-x-4">
                 <Skeleton className="h-4 w-8" />
                 <Skeleton className="h-4 w-16" />
@@ -107,7 +107,7 @@ export const MarketPrices = () => {
             <RefreshCw className="h-4 w-4 text-muted-foreground" />
           </CardTitle>
           <CardDescription>
-            Top cryptocurrencies by market cap
+            Top 100 cryptocurrencies by market cap
             {lastUpdate && (
               <span className="block text-xs mt-1">
                 Last updated: {lastUpdate.toLocaleTimeString()}
