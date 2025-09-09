@@ -192,6 +192,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      redeem_recharge_code: {
+        Args: { p_code: string; p_user_id: string }
+        Returns: {
+          amount: number
+          currency: string
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

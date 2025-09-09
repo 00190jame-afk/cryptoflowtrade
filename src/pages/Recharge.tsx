@@ -38,102 +38,34 @@ const Recharge = () => {
     setIsLoading(true);
 
     try {
-      // Check if code exists and get its details
-      const { data: codeData, error: codeError } = await supabase
-        .from("recharge_codes")
-        .select("*")
-        .eq("code", rechargeCode.trim())
-        .single();
-
-      if (codeError || !codeData) {
-        toast({
-          title: "Error",
-          description: "Wrong recharge code, please enter the correct code.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      if (codeData.status === "redeemed") {
-        toast({
-          title: "Error",
-          description: "This recharge code has already been used.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Get current user balance
-      const { data: balanceData, error: balanceError } = await supabase
-        .from("user_balances")
-        .select("balance")
-        .eq("user_id", user.id)
-        .single();
-
-      if (balanceError) {
-        toast({
-          title: "Error",
-          description: "Failed to fetch your current balance.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      const currentBalance = balanceData?.balance || 0;
-      const newBalance = Number(currentBalance) + Number(codeData.amount);
-
-      // Update user balance
-      const { error: updateBalanceError } = await supabase
-        .from("user_balances")
-        .update({ balance: newBalance })
-        .eq("user_id", user.id);
-
-      if (updateBalanceError) {
-        toast({
-          title: "Error",
-          description: "Failed to update your balance.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Mark code as redeemed
-      const { error: updateCodeError } = await supabase
-        .from("recharge_codes")
-        .update({
-          status: "redeemed",
-          user_id: user.id,
-          redeemed_at: new Date().toISOString(),
-        })
-        .eq("id", codeData.id);
-
-      if (updateCodeError) {
-        // Rollback balance update if code update fails
-        await supabase
-          .from("user_balances")
-          .update({ balance: currentBalance })
-          .eq("user_id", user.id);
-
-        toast({
-          title: "Error",
-          description: "Failed to process recharge code.",
-          variant: "destructive",
-        });
-        setIsLoading(false);
-        return;
-      }
-
-      // Success
-      toast({
-        title: "Success!",
-        description: `Your account has been recharged with ${codeData.amount} USDT.`,
+      // Use the secure RPC function to redeem the code atomically
+      const { data, error } = await supabase.rpc('redeem_recharge_code', {
+        p_code: rechargeCode.trim(),
+        p_user_id: user.id
       });
 
-      setRechargeCode("");
+      if (error) {
+        toast({
+          title: "Error", 
+          description: error.message === 'Invalid recharge code' 
+            ? "Wrong recharge code, please enter the correct code."
+            : error.message === 'Recharge code has already been redeemed'
+            ? "This recharge code has already been used."
+            : "Failed to redeem recharge code. Please try again.",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        const { amount } = data[0];
+        toast({
+          title: "Success!",
+          description: `Your account has been recharged with ${amount} USDT.`,
+        });
+        setRechargeCode("");
+      }
     } catch (error) {
       console.error("Recharge error:", error);
       toast({

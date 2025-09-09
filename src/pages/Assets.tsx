@@ -122,37 +122,34 @@ const Assets = () => {
 
     setIsProcessing(true);
     try {
-      // Simulate code verification - in real app, this would call an API
-      // For demo purposes, we'll accept any code starting with "RC"
-      if (!rechargeCode.toUpperCase().startsWith('RC')) {
-        throw new Error('Invalid recharge code format');
+      // Use the secure RPC function to redeem the code atomically
+      const { data, error } = await supabase.rpc('redeem_recharge_code', {
+        p_code: rechargeCode.trim(),
+        p_user_id: user?.id
+      });
+
+      if (error) {
+        throw new Error(
+          error.message === 'Invalid recharge code' 
+            ? "Wrong recharge code, please enter the correct code."
+            : error.message === 'Recharge code has already been redeemed'
+            ? "This recharge code has already been used."
+            : "Failed to redeem recharge code. Please try again."
+        );
       }
 
-      // Simulate adding $100 for demo
-      const rechargeAmount = 100;
-      
-      const { error } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: user?.id,
-          type: 'deposit',
-          amount: rechargeAmount,
-          status: 'completed',
-          payment_method: 'recharge_code',
-          external_transaction_id: rechargeCode,
-          description: `Recharge code redemption: ${rechargeCode}`
+      if (data && data.length > 0) {
+        const { amount } = data[0];
+        
+        await fetchUserBalance();
+        await fetchTransactions();
+        setRechargeCode("");
+        
+        toast({
+          title: "Success",
+          description: `Successfully redeemed ${amount} USDT with code ${rechargeCode}`,
         });
-
-      if (error) throw error;
-
-      await fetchUserBalance();
-      await fetchTransactions();
-      setRechargeCode("");
-      
-      toast({
-        title: "Success",
-        description: `Successfully redeemed ${rechargeAmount} USDT with code ${rechargeCode}`,
-      });
+      }
     } catch (error: any) {
       toast({
         title: "Error",
@@ -348,7 +345,7 @@ const Assets = () => {
                 {isProcessing ? "Processing..." : "Redeem Recharge Code"}
               </Button>
               <p className="text-xs text-muted-foreground">
-                Demo: Use codes starting with "RC" (e.g., RC123456)
+                Enter the recharge code provided to you
               </p>
             </CardContent>
           </Card>
