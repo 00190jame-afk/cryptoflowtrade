@@ -464,7 +464,7 @@ const Assets = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="recharge-code">Recharge Code</Label>
-                <Input id="recharge-code" placeholder="Enter your Supabase-generated recharge code" value={rechargeCode} onChange={e => setRechargeCode(e.target.value)} className="font-mono" />
+                <Input id="recharge-code" placeholder="Enter your recharge code" value={rechargeCode} onChange={e => setRechargeCode(e.target.value)} className="font-mono" />
               </div>
               <Button onClick={handleRechargeCode} disabled={isProcessing || !rechargeCode.trim()} className="w-full bg-green-600 hover:bg-green-700">
                 {isProcessing ? "Processing..." : "Redeem Recharge Code"}
