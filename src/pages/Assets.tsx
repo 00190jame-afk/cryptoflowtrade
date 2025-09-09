@@ -330,7 +330,29 @@ const Assets = () => {
             notification.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' :
             'bg-blue-50 border-blue-200 text-blue-800'
           } flex items-center justify-between`}>
-            <p className="font-medium">{notification.message}</p>
+            <div className="flex-1">
+              <p className="font-medium">{notification.message}</p>
+              {notification.type === 'success' && notification.message.includes('withdrawal code') && (
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="text-sm">Withdrawal Code:</span>
+                  <code className="bg-white px-2 py-1 rounded border text-sm font-mono">
+                    {notification.message.split(': ')[1]}
+                  </code>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const code = notification.message.split(': ')[1];
+                      navigator.clipboard.writeText(code);
+                      toast({ title: "Copied!", description: "Withdrawal code copied to clipboard" });
+                    }}
+                    className="h-auto py-1 px-2"
+                  >
+                    Copy
+                  </Button>
+                </div>
+              )}
+            </div>
             <Button
               variant="ghost"
               size="sm"
