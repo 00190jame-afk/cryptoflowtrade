@@ -64,19 +64,29 @@ const Assets = () => {
           
           // Check if status changed from pending to approved/rejected
           if (oldRecord.status === 'pending' && newRecord.status === 'approved') {
-            setNotification({
-              type: 'success',
-              message: `Successful! Your withdrawal code is: ${newRecord.withdraw_code}`
-            });
-            // Auto-hide after 5 seconds
-            setTimeout(() => setNotification(null), 5000);
+            // Clear any existing notification first
+            setNotification(null);
+            // Show success notification
+            setTimeout(() => {
+              setNotification({
+                type: 'success',
+                message: `Successful! Your withdrawal code is: ${newRecord.withdraw_code}`
+              });
+              // Auto-hide success message after 5 seconds
+              setTimeout(() => setNotification(null), 5000);
+            }, 100);
           } else if (oldRecord.status === 'pending' && newRecord.status === 'rejected') {
-            setNotification({
-              type: 'error',
-              message: `Withdrawal rejected. ${newRecord.admin_notes || 'Please contact support for more information.'}`
-            });
-            // Auto-hide after 8 seconds
-            setTimeout(() => setNotification(null), 8000);
+            // Clear any existing notification first
+            setNotification(null);
+            // Show rejection notification
+            setTimeout(() => {
+              setNotification({
+                type: 'error',
+                message: `Withdrawal rejected. ${newRecord.admin_notes || 'Please contact support for more information.'}`
+              });
+              // Auto-hide error message after 8 seconds
+              setTimeout(() => setNotification(null), 8000);
+            }, 100);
           }
         }
         
