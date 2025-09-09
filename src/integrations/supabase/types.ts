@@ -246,6 +246,7 @@ export type Database = {
           result: string
           stake_amount: number
           status: string
+          status_indicator: string | null
           target_price: number | null
           trade_duration: number | null
           trading_pair: string
@@ -267,6 +268,7 @@ export type Database = {
           result?: string
           stake_amount: number
           status?: string
+          status_indicator?: string | null
           target_price?: number | null
           trade_duration?: number | null
           trading_pair: string
@@ -288,6 +290,7 @@ export type Database = {
           result?: string
           stake_amount?: number
           status?: string
+          status_indicator?: string | null
           target_price?: number | null
           trade_duration?: number | null
           trading_pair?: string
