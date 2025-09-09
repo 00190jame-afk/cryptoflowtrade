@@ -161,6 +161,7 @@ const Assets = () => {
   
   const fetchWithdrawalRequests = async () => {
     try {
+      console.log('Fetching withdrawal requests for user:', user?.id);
       const { data, error } = await supabase
         .from('withdraw_requests')
         .select('*')
@@ -168,6 +169,7 @@ const Assets = () => {
         .order('created_at', { ascending: false });
       
       if (error) throw error;
+      console.log('Withdrawal requests data:', data);
       setWithdrawalRequests(data || []);
     } catch (error: any) {
       console.error('Error fetching withdrawal requests:', error);
