@@ -33,6 +33,7 @@ interface Trade {
   trade_duration?: number;
   current_price?: number;
   target_price?: number;
+  ends_at?: string;
 }
 interface UserBalance {
   balance: number;
@@ -148,6 +149,15 @@ const Futures = () => {
     if (data) {
       console.log('Fetched trades:', data.length);
       setTrades(data);
+      
+      // Check for active trades that should be completed
+      const activeTrades = data.filter(t => t.status === "active");
+      activeTrades.forEach(trade => {
+        if (trade.ends_at && new Date(trade.ends_at) <= new Date()) {
+          console.log('Found expired trade, completing:', trade.id);
+          completeExpiredTrade(trade);
+        }
+      });
     }
   };
 
@@ -176,6 +186,64 @@ const Futures = () => {
     
     if (data) {
       setClosingOrders(data);
+    }
+  };
+
+  
+  // Complete expired trade function
+  const completeExpiredTrade = async (trade: Trade) => {
+    if (completingTradeRef.current === trade.id) {
+      return; // Already completing this trade
+    }
+    
+    console.log('Starting trade completion for expired trade:', trade.id);
+    completingTradeRef.current = trade.id;
+
+    try {
+      // Re-fetch latest trade in case admin modified it
+      const { data: latest } = await supabase
+        .from('trades')
+        .select('modified_by_admin, profit_loss_amount, result, status')
+        .eq('id', trade.id)
+        .single();
+
+      // Check if trade was already completed by another process
+      if (latest?.status === 'completed') {
+        console.log('Trade already completed:', trade.id);
+        completingTradeRef.current = null;
+        return;
+      }
+
+      const calculatedProfit = trade.stake_amount * (trade.profit_rate / 100);
+      const profitAmount = latest?.modified_by_admin ? latest.profit_loss_amount ?? 0 : calculatedProfit;
+      const finalResult = latest?.modified_by_admin ? latest.result ?? (profitAmount >= 0 ? 'win' : 'loss') : profitAmount >= 0 ? 'win' : 'loss';
+
+      // Update trade status
+      const { error } = await supabase.from('trades').update({
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+        profit_loss_amount: profitAmount,
+        result: finalResult
+      }).eq('id', trade.id);
+      
+      if (!error) {
+        console.log('Trade completed successfully:', trade.id);
+        // Update user balance by profit/loss amount (stake was already deducted at start)
+        await supabase.from('user_balances').update({
+          balance: balance.balance + profitAmount
+        }).eq('user_id', user!.id);
+        
+        toast.success(`Trade completed! ${profitAmount >= 0 ? 'Profit' : 'Loss'}: $${Math.abs(profitAmount).toFixed(2)}`);
+        fetchBalance();
+        fetchTrades();
+        fetchPositionOrders();
+      } else {
+        console.error('Error completing trade:', error);
+      }
+    } catch (error) {
+      console.error('Exception in completeExpiredTrade:', error);
+    } finally {
+      completingTradeRef.current = null;
     }
   };
 
@@ -221,6 +289,26 @@ const Futures = () => {
   }, [selectedPair]);
 
 
+
+  
+  // Check for expired trades every 10 seconds
+  useEffect(() => {
+    const checkExpiredTrades = () => {
+      const activeTrades = trades.filter(t => t.status === "active");
+      activeTrades.forEach(trade => {
+        if (trade.ends_at && new Date(trade.ends_at) <= new Date()) {
+          console.log('Found expired trade, completing:', trade.id);
+          completeExpiredTrade(trade);
+        }
+      });
+    };
+
+    // Check immediately and then every 10 seconds
+    checkExpiredTrades();
+    const interval = setInterval(checkExpiredTrades, 10000);
+    
+    return () => clearInterval(interval);
+  }, [trades, user]);
 
   // Start new trade
   const startTrade = async () => {
