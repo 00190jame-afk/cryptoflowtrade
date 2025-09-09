@@ -11,14 +11,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Wallet, CreditCard, Lock, ArrowUpRight, ArrowDownLeft, AlertCircle, Clock, Upload } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Header from "@/components/Header";
-
 interface UserBalance {
   balance: number;
   on_hold: number;
   frozen: number;
   currency: string;
 }
-
 interface Transaction {
   id: string;
   type: string;
@@ -29,10 +27,13 @@ interface Transaction {
   description: string;
   created_at: string;
 }
-
 const Assets = () => {
-  const { user } = useAuth();
-  const { toast } = useToast();
+  const {
+    user
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const [userBalance, setUserBalance] = useState<UserBalance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,49 +41,36 @@ const Assets = () => {
   const [withdrawalCode, setWithdrawalCode] = useState("");
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-
   useEffect(() => {
     if (user) {
       fetchUserBalance();
       fetchTransactions();
-      
-      // Set up real-time subscription for withdraw_requests
-      const channel = supabase
-        .channel('withdraw_requests_changes')
-        .on(
-          'postgres_changes',
-          {
-            event: '*',
-            schema: 'public',
-            table: 'withdraw_requests',
-            filter: `user_id=eq.${user.id}`
-          },
-          (payload) => {
-            // Refresh transactions when withdrawal request status changes
-            fetchTransactions();
-          }
-        )
-        .subscribe();
 
+      // Set up real-time subscription for withdraw_requests
+      const channel = supabase.channel('withdraw_requests_changes').on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'withdraw_requests',
+        filter: `user_id=eq.${user.id}`
+      }, payload => {
+        // Refresh transactions when withdrawal request status changes
+        fetchTransactions();
+      }).subscribe();
       return () => {
         supabase.removeChannel(channel);
       };
     }
   }, [user]);
-
   const fetchUserBalance = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('user_balances')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
-
+      const {
+        data,
+        error
+      } = await supabase.from('user_balances').select('*').eq('user_id', user?.id).single();
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
-
       if (data) {
         setUserBalance({
           balance: parseFloat(String(data.balance || 0)),
@@ -104,158 +92,138 @@ const Assets = () => {
       toast({
         title: "Error",
         description: "Failed to fetch balance information",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setLoading(false);
     }
   };
-
   const fetchTransactions = async () => {
     try {
-      const { data, error } = await supabase
-        .from('transactions')
-        .select('*')
-        .eq('user_id', user?.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
-
+      const {
+        data,
+        error
+      } = await supabase.from('transactions').select('*').eq('user_id', user?.id).order('created_at', {
+        ascending: false
+      }).limit(10);
       if (error) throw error;
-
       setTransactions(data || []);
     } catch (error: any) {
       console.error('Error fetching transactions:', error);
       toast({
         title: "Error",
         description: "Failed to fetch transaction history",
-        variant: "destructive",
+        variant: "destructive"
       });
     }
   };
-
   const handleRechargeCode = async () => {
     if (!rechargeCode.trim()) {
       toast({
         title: "Error",
         description: "Please enter a recharge code",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setIsProcessing(true);
     try {
       // Use the secure RPC function to redeem the code atomically
-      const { data, error } = await supabase.rpc('redeem_recharge_code', {
+      const {
+        data,
+        error
+      } = await supabase.rpc('redeem_recharge_code', {
         p_code: rechargeCode.trim(),
         p_user_id: user?.id
       });
-
       if (error) {
-        const errorMessage = error.message === "Invalid recharge code" 
-          ? "Wrong recharge code, please enter the correct code."
-          : error.message === "Recharge code has already been redeemed"
-          ? "This recharge code has already been used."
-          : "Failed to process recharge code. Please try again.";
-        
+        const errorMessage = error.message === "Invalid recharge code" ? "Wrong recharge code, please enter the correct code." : error.message === "Recharge code has already been redeemed" ? "This recharge code has already been used." : "Failed to process recharge code. Please try again.";
         throw new Error(errorMessage);
       }
-
       if (data && data.length > 0) {
-        const { amount } = data[0];
-        
+        const {
+          amount
+        } = data[0];
         await fetchUserBalance();
         await fetchTransactions();
         setRechargeCode("");
-        
         toast({
           title: "Success",
-          description: `Successfully redeemed ${amount} USDT with code ${rechargeCode}`,
+          description: `Successfully redeemed ${amount} USDT with code ${rechargeCode}`
         });
       }
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to redeem recharge code",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsProcessing(false);
     }
   };
-
   const handleWithdrawalRequest = async () => {
     if (!user) {
       toast({
         title: "Error",
         description: "Please log in to request a withdrawal",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     const amount = parseFloat(withdrawalAmount);
-    
     if (!amount || amount <= 0) {
       toast({
         title: "Error",
         description: "Please enter a valid withdrawal amount",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     if (amount > (userBalance?.balance || 0)) {
       toast({
         title: "Error",
         description: "Insufficient balance for this withdrawal amount",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setIsProcessing(true);
-
     try {
-      const { error } = await supabase
-        .from('withdraw_requests')
-        .insert({
-          user_id: user.id,
-          amount: amount
-        });
-
+      const {
+        error
+      } = await supabase.from('withdraw_requests').insert({
+        user_id: user.id,
+        amount: amount
+      });
       if (error) {
         throw error;
       }
-
       toast({
         title: "Withdrawal Request Submitted",
-        description: `Processing your withdrawal of ${amount.toFixed(2)} USDT. It will be completed shortly.`,
+        description: `Processing your withdrawal of ${amount.toFixed(2)} USDT. It will be completed shortly.`
       });
-      
       setWithdrawalAmount("");
     } catch (error) {
       console.error('Error creating withdrawal request:', error);
       toast({
         title: "Error",
         description: "Failed to submit withdrawal request. Please try again.",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsProcessing(false);
     }
   };
-
   const handleWithdrawalCode = async () => {
     if (!withdrawalCode.trim()) {
       toast({
         title: "Error",
         description: "Please enter a withdrawal code",
-        variant: "destructive",
+        variant: "destructive"
       });
       return;
     }
-
     setIsProcessing(true);
     try {
       // Simulate code verification - in real app, this would call an API
@@ -266,58 +234,48 @@ const Assets = () => {
 
       // Simulate withdrawing $50 for demo
       const withdrawalAmount = 50;
-      
       if (userBalance && userBalance.balance < withdrawalAmount) {
         throw new Error('Insufficient balance for withdrawal');
       }
-
-      const { error } = await supabase
-        .from('transactions')
-        .insert({
-          user_id: user?.id,
-          type: 'withdrawal',
-          amount: withdrawalAmount,
-          status: 'pending',
-          payment_method: 'withdrawal_code',
-          external_transaction_id: withdrawalCode,
-          description: `Withdrawal code redemption: ${withdrawalCode}`
-        });
-
+      const {
+        error
+      } = await supabase.from('transactions').insert({
+        user_id: user?.id,
+        type: 'withdrawal',
+        amount: withdrawalAmount,
+        status: 'pending',
+        payment_method: 'withdrawal_code',
+        external_transaction_id: withdrawalCode,
+        description: `Withdrawal code redemption: ${withdrawalCode}`
+      });
       if (error) throw error;
-
       await fetchUserBalance();
       await fetchTransactions();
       setWithdrawalCode("");
-      
       toast({
         title: "Success",
-        description: `Withdrawal of ${withdrawalAmount} USDT initiated with code ${withdrawalCode}`,
+        description: `Withdrawal of ${withdrawalAmount} USDT initiated with code ${withdrawalCode}`
       });
     } catch (error: any) {
       toast({
         title: "Error",
         description: error.message || "Failed to redeem withdrawal code",
-        variant: "destructive",
+        variant: "destructive"
       });
     } finally {
       setIsProcessing(false);
     }
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center h-64">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen">
+  return <div className="min-h-screen">
       <Header />
       <div className="bg-background">
         <div className="container mx-auto px-4 py-8 space-y-8">
@@ -414,19 +372,9 @@ const Assets = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="recharge-code">Recharge Code</Label>
-                <Input
-                  id="recharge-code"
-                  placeholder="Enter your Supabase-generated recharge code"
-                  value={rechargeCode}
-                  onChange={(e) => setRechargeCode(e.target.value)}
-                  className="font-mono"
-                />
+                <Input id="recharge-code" placeholder="Enter your Supabase-generated recharge code" value={rechargeCode} onChange={e => setRechargeCode(e.target.value)} className="font-mono" />
               </div>
-              <Button 
-                onClick={handleRechargeCode}
-                disabled={isProcessing || !rechargeCode.trim()}
-                className="w-full bg-green-600 hover:bg-green-700"
-              >
+              <Button onClick={handleRechargeCode} disabled={isProcessing || !rechargeCode.trim()} className="w-full bg-green-600 hover:bg-green-700">
                 {isProcessing ? "Processing..." : "Redeem Recharge Code"}
               </Button>
               <p className="text-xs text-muted-foreground">
@@ -449,25 +397,12 @@ const Assets = () => {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="withdrawal-amount">Withdrawal Amount (USDT)</Label>
-                <Input
-                  id="withdrawal-amount"
-                  type="number"
-                  placeholder="Enter amount to withdraw"
-                  value={withdrawalAmount}
-                  onChange={(e) => setWithdrawalAmount(e.target.value)}
-                  min="0"
-                  max={userBalance?.balance || 0}
-                  step="0.01"
-                />
+                <Input id="withdrawal-amount" type="number" placeholder="Enter amount to withdraw" value={withdrawalAmount} onChange={e => setWithdrawalAmount(e.target.value)} min="0" max={userBalance?.balance || 0} step="0.01" />
               </div>
               <div className="text-sm text-muted-foreground">
                 Available balance: {userBalance?.balance.toFixed(2) || '0.00'} USDT
               </div>
-              <Button 
-                onClick={handleWithdrawalRequest}
-                disabled={isProcessing || !withdrawalAmount.trim() || parseFloat(withdrawalAmount) <= 0}
-                className="w-full bg-blue-600 hover:bg-blue-700"
-              >
+              <Button onClick={handleWithdrawalRequest} disabled={isProcessing || !withdrawalAmount.trim() || parseFloat(withdrawalAmount) <= 0} className="w-full bg-blue-600 hover:bg-blue-700">
                 {isProcessing ? "Processing..." : "Submit Withdrawal Request"}
               </Button>
               <p className="text-xs text-muted-foreground">
@@ -491,8 +426,7 @@ const Assets = () => {
             </p>
           </CardHeader>
           <CardContent>
-            {transactions.length > 0 ? (
-              <Table>
+            {transactions.length > 0 ? <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>Date</TableHead>
@@ -503,8 +437,7 @@ const Assets = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {transactions.map((transaction) => (
-                    <TableRow key={transaction.id}>
+                  {transactions.map(transaction => <TableRow key={transaction.id}>
                       <TableCell className="text-sm">
                         {new Date(transaction.created_at).toLocaleDateString()}
                       </TableCell>
@@ -513,33 +446,24 @@ const Assets = () => {
                           {transaction.type}
                         </Badge>
                       </TableCell>
-                      <TableCell className={`font-medium ${
-                        transaction.type === 'deposit' ? 'text-green-600' : 'text-blue-600'
-                      }`}>
+                      <TableCell className={`font-medium ${transaction.type === 'deposit' ? 'text-green-600' : 'text-blue-600'}`}>
                         {transaction.type === 'deposit' ? '+' : '-'}{transaction.amount} {transaction.currency || 'USDT'}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={
-                          transaction.status === 'completed' ? 'default' : 
-                          transaction.status === 'pending' ? 'secondary' : 'destructive'
-                        }>
+                        <Badge variant={transaction.status === 'completed' ? 'default' : transaction.status === 'pending' ? 'secondary' : 'destructive'}>
                           {transaction.status}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
                         {transaction.description || 'No description'}
                       </TableCell>
-                    </TableRow>
-                  ))}
+                    </TableRow>)}
                 </TableBody>
-              </Table>
-            ) : (
-              <div className="text-center py-8">
+              </Table> : <div className="text-center py-8">
                 <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <p className="text-muted-foreground">No transactions found</p>
                 <p className="text-sm text-muted-foreground">Your transaction history will appear here</p>
-              </div>
-            )}
+              </div>}
           </CardContent>
         </Card>
 
@@ -555,9 +479,7 @@ const Assets = () => {
               <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
               <div>
                 <p className="font-medium">Fund Processing Times</p>
-                <p className="text-sm text-muted-foreground">
-                  Recharge codes are processed instantly. Withdrawal codes may take 1-3 business days to complete.
-                </p>
+                <p className="text-sm text-muted-foreground">Recharge codes are processed instantly.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
@@ -573,8 +495,6 @@ const Assets = () => {
         </Card>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Assets;
