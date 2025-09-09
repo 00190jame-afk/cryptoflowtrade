@@ -164,19 +164,27 @@ const Futures = () => {
   // Handle active trade countdown
   useEffect(() => {
     if (!activeTrade) return;
+    
     const startTime = new Date(activeTrade.created_at).getTime();
     const duration = activeTrade.trade_duration || 180;
+    let hasCompleted = false;
+    
     const interval = setInterval(() => {
       const elapsed = (Date.now() - startTime) / 1000;
       const progress = Math.min(elapsed / duration * 100, 100);
       setTradeProgress(progress);
-      if (progress >= 100) {
+      
+      if (progress >= 100 && !hasCompleted) {
+        hasCompleted = true;
         completeTrade();
         clearInterval(interval);
       }
     }, 100);
-    return () => clearInterval(interval);
-  }, [activeTrade]);
+    
+    return () => {
+      clearInterval(interval);
+    };
+  }, [activeTrade?.id]); // Only depend on trade ID to prevent unnecessary re-runs
 
   // Complete trade
   const completeTrade = async () => {
