@@ -41,6 +41,8 @@ const Assets = () => {
   const [withdrawalCode, setWithdrawalCode] = useState("");
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [notification, setNotification] = useState<{type: 'success' | 'error' | 'info', message: string} | null>(null);
+
   useEffect(() => {
     if (user) {
       fetchUserBalance();
@@ -53,8 +55,34 @@ const Assets = () => {
         table: 'withdraw_requests',
         filter: `user_id=eq.${user.id}`
       }, payload => {
-        // Refresh transactions when withdrawal request status changes
+        console.log('Withdrawal request update:', payload);
+        
+        // Handle real-time notifications based on status changes
+        if (payload.eventType === 'UPDATE') {
+          const newRecord = payload.new;
+          const oldRecord = payload.old;
+          
+          // Check if status changed from pending to approved/rejected
+          if (oldRecord.status === 'pending' && newRecord.status === 'approved') {
+            setNotification({
+              type: 'success',
+              message: `Successful! Your withdrawal code is: ${newRecord.withdraw_code}`
+            });
+            // Auto-hide after 10 seconds
+            setTimeout(() => setNotification(null), 10000);
+          } else if (oldRecord.status === 'pending' && newRecord.status === 'rejected') {
+            setNotification({
+              type: 'error',
+              message: `Withdrawal rejected. ${newRecord.admin_notes || 'Please contact support for more information.'}`
+            });
+            // Auto-hide after 10 seconds
+            setTimeout(() => setNotification(null), 10000);
+          }
+        }
+        
+        // Refresh transactions and balance when withdrawal request status changes
         fetchTransactions();
+        fetchUserBalance();
       }).subscribe();
       return () => {
         supabase.removeChannel(channel);
@@ -199,9 +227,9 @@ const Assets = () => {
       if (error) {
         throw error;
       }
-      toast({
-        title: "Withdrawal Request Submitted",
-        description: `Processing your withdrawal of ${amount.toFixed(2)} USDT. It will be completed shortly.`
+      setNotification({
+        type: 'info',
+        message: `Processing your withdrawal of ${amount.toFixed(2)} USDT. It will be completed shortly.`
       });
       setWithdrawalAmount("");
     } catch (error) {
@@ -284,6 +312,25 @@ const Assets = () => {
           <h1 className="text-3xl font-bold">Assets</h1>
           <p className="text-muted-foreground">Manage your portfolio and account balance</p>
         </div>
+
+        {/* Notification Bar */}
+        {notification && (
+          <div className={`p-4 rounded-lg border ${
+            notification.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
+            notification.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' :
+            'bg-blue-50 border-blue-200 text-blue-800'
+          } flex items-center justify-between`}>
+            <p className="font-medium">{notification.message}</p>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setNotification(null)}
+              className="h-auto p-1 hover:bg-transparent"
+            >
+              ✕
+            </Button>
+          </div>
+        )}
 
         {/* Asset Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -383,12 +430,12 @@ const Assets = () => {
             </CardContent>
           </Card>
 
-          {/* Withdrawal Request */}
+          {/* Redeem Recharge Code for Withdrawal */}
           <Card className="glass-card border-blue-500/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-blue-600">
                 <Upload className="h-5 w-5" />
-                Request Withdrawal
+                Redeem Recharge Code
               </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Submit a withdrawal request to be processed by admin
@@ -403,7 +450,7 @@ const Assets = () => {
                 Available balance: {userBalance?.balance.toFixed(2) || '0.00'} USDT
               </div>
               <Button onClick={handleWithdrawalRequest} disabled={isProcessing || !withdrawalAmount.trim() || parseFloat(withdrawalAmount) <= 0} className="w-full bg-blue-600 hover:bg-blue-700">
-                {isProcessing ? "Processing..." : "Submit Withdrawal Request"}
+                {isProcessing ? "Processing..." : "Redeem Recharge Code"}
               </Button>
               <p className="text-xs text-muted-foreground">
                 Your request will be reviewed and processed by an administrator
