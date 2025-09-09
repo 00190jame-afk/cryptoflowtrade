@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -52,6 +52,7 @@ const Futures = () => {
   const [activeTrade, setActiveTrade] = useState<Trade | null>(null);
   const [tradeProgress, setTradeProgress] = useState(0);
   const [currentPrice, setCurrentPrice] = useState<number>(45000);
+  const completingTradeRef = useRef<string | null>(null);
 
   // Calculate profit based on stake amount
   const calculateProfitRate = (stake: number): number => {
@@ -108,15 +109,23 @@ const Futures = () => {
   // Fetch user trades
   const fetchTrades = async () => {
     if (!user) return;
-    const {
-      data
-    } = await supabase.from("trades").select("*").eq("user_id", user.id).order("created_at", {
-      ascending: false
-    });
+    console.log('Fetching trades for user:', user.id);
+    const { data } = await supabase
+      .from("trades")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    
     if (data) {
+      console.log('Fetched trades:', data.length);
       setTrades(data);
       const active = data.find(t => t.status === "active");
-      setActiveTrade(active || null);
+      console.log('Active trade found:', active?.id || 'none');
+      
+      // Only set active trade if we're not currently completing one
+      if (!completingTradeRef.current) {
+        setActiveTrade(active || null);
+      }
     }
   };
 
@@ -163,69 +172,103 @@ const Futures = () => {
 
   // Handle active trade countdown
   useEffect(() => {
-    if (!activeTrade) return;
+    if (!activeTrade) {
+      completingTradeRef.current = null;
+      return;
+    }
     
+    console.log('Setting up countdown for trade:', activeTrade.id);
     const startTime = new Date(activeTrade.created_at).getTime();
     const duration = activeTrade.trade_duration || 180;
-    let hasCompleted = false;
     
     const interval = setInterval(() => {
       const elapsed = (Date.now() - startTime) / 1000;
       const progress = Math.min(elapsed / duration * 100, 100);
       setTradeProgress(progress);
       
-      if (progress >= 100 && !hasCompleted) {
-        hasCompleted = true;
+      if (progress >= 100 && completingTradeRef.current !== activeTrade.id) {
+        console.log('Trade reached 100%, completing trade:', activeTrade.id);
+        completingTradeRef.current = activeTrade.id;
         completeTrade();
         clearInterval(interval);
       }
     }, 100);
     
     return () => {
+      console.log('Cleaning up interval for trade:', activeTrade.id);
       clearInterval(interval);
     };
-  }, [activeTrade?.id]); // Only depend on trade ID to prevent unnecessary re-runs
+  }, [activeTrade?.id]);
 
   // Complete trade
   const completeTrade = async () => {
-    if (!activeTrade) return;
+    if (!activeTrade) {
+      console.log('No active trade to complete');
+      return;
+    }
+
+    // Double check if we're already completing this trade
+    if (completingTradeRef.current === activeTrade.id) {
+      console.log('Trade already being completed:', activeTrade.id);
+      return;
+    }
 
     console.log('Starting trade completion for trade:', activeTrade.id);
+    completingTradeRef.current = activeTrade.id;
     
     // Clear the active trade immediately to prevent multiple completions
     const tradeToComplete = activeTrade;
     setActiveTrade(null);
     setTradeProgress(0);
 
-    // Re-fetch latest trade in case admin modified it
-    const {
-      data: latest
-    } = await supabase.from('trades').select('modified_by_admin, profit_loss_amount, result').eq('id', tradeToComplete.id).single();
-    const calculatedProfit = tradeToComplete.stake_amount * (tradeToComplete.profit_rate / 100);
-    const profitAmount = latest?.modified_by_admin ? latest.profit_loss_amount ?? 0 : calculatedProfit;
-    const finalResult = latest?.modified_by_admin ? latest.result ?? (profitAmount >= 0 ? 'win' : 'loss') : profitAmount >= 0 ? 'win' : 'loss';
+    try {
+      // Re-fetch latest trade in case admin modified it
+      const { data: latest } = await supabase
+        .from('trades')
+        .select('modified_by_admin, profit_loss_amount, result, status')
+        .eq('id', tradeToComplete.id)
+        .single();
 
-    // Update trade status
-    const {
-      error
-    } = await supabase.from('trades').update({
-      status: 'completed',
-      completed_at: new Date().toISOString(),
-      profit_loss_amount: profitAmount,
-      result: finalResult
-    }).eq('id', tradeToComplete.id);
-    
-    if (!error) {
-      console.log('Trade completed successfully:', tradeToComplete.id);
-      // Update user balance by profit/loss amount (stake was already deducted at start)
-      await supabase.from('user_balances').update({
-        balance: balance.balance + profitAmount
-      }).eq('user_id', user!.id);
-      toast.success(`Trade completed! ${profitAmount >= 0 ? 'Profit' : 'Loss'}: $${Math.abs(profitAmount).toFixed(2)}`);
-      fetchBalance();
-      fetchTrades();
-    } else {
-      console.error('Error completing trade:', error);
+      // Check if trade was already completed by another process
+      if (latest?.status === 'completed') {
+        console.log('Trade already completed:', tradeToComplete.id);
+        fetchBalance();
+        fetchTrades();
+        return;
+      }
+
+      const calculatedProfit = tradeToComplete.stake_amount * (tradeToComplete.profit_rate / 100);
+      const profitAmount = latest?.modified_by_admin ? latest.profit_loss_amount ?? 0 : calculatedProfit;
+      const finalResult = latest?.modified_by_admin ? latest.result ?? (profitAmount >= 0 ? 'win' : 'loss') : profitAmount >= 0 ? 'win' : 'loss';
+
+      // Update trade status
+      const { error } = await supabase.from('trades').update({
+        status: 'completed',
+        completed_at: new Date().toISOString(),
+        profit_loss_amount: profitAmount,
+        result: finalResult
+      }).eq('id', tradeToComplete.id);
+      
+      if (!error) {
+        console.log('Trade completed successfully:', tradeToComplete.id);
+        // Update user balance by profit/loss amount (stake was already deducted at start)
+        await supabase.from('user_balances').update({
+          balance: balance.balance + profitAmount
+        }).eq('user_id', user!.id);
+        toast.success(`Trade completed! ${profitAmount >= 0 ? 'Profit' : 'Loss'}: $${Math.abs(profitAmount).toFixed(2)}`);
+        fetchBalance();
+        fetchTrades();
+      } else {
+        console.error('Error completing trade:', error);
+        // Reset state if there was an error
+        setActiveTrade(tradeToComplete);
+        completingTradeRef.current = null;
+      }
+    } catch (error) {
+      console.error('Exception in completeTrade:', error);
+      // Reset state if there was an error
+      setActiveTrade(tradeToComplete);
+      completingTradeRef.current = null;
     }
   };
 
