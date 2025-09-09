@@ -383,14 +383,17 @@ const Futures = () => {
           
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6">
           {/* Trading Chart - Full Width */}
-          <div className="lg:col-span-3">
+          <div>
             <TradingChart tradingPair={selectedPair} currentPrice={currentPrice} />
           </div>
 
-          {/* Trading Panel */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Trading Form and Balance - Side by Side */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+            {/* Trading Form */}
+            <div className="lg:col-span-3">
 
             {/* Trading Form */}
             <Card className="glass-card">
@@ -499,10 +502,10 @@ const Futures = () => {
                 </Button>
               </CardContent>
             </Card>
-          </div>
+            </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
+            {/* Sidebar */}
+            <div className="space-y-6">
             {/* Balance */}
             <Card className="glass-card">
               <CardHeader>
@@ -530,8 +533,11 @@ const Futures = () => {
                 <p className="text-sm text-muted-foreground">Live Price</p>
               </CardContent>
             </Card>
+            </div>
+          </div>
 
-            {/* Trading Positions and Orders */}
+          {/* Trading Positions - Full Width */}
+          <div>
             <Card className="glass-card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -651,36 +657,6 @@ const Futures = () => {
               </CardContent>
             </Card>
 
-            {/* Recent Trades */}
-            <Card className="glass-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  Recent Trades
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {trades.slice(0, 5).map(trade => <div key={trade.id} className="flex justify-between items-center p-2 rounded bg-muted/10">
-                    <div>
-                      <p className="text-sm font-medium">{trade.trading_pair}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {trade.direction} • ${trade.stake_amount}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className={`text-sm font-medium ${trade.result === 'win' ? 'text-green-600' : 'text-red-600'}`}>
-                        {trade.profit_loss_amount > 0 ? '+' : ''}${trade.profit_loss_amount?.toFixed(2)}
-                      </p>
-                      <Badge variant={trade.status === 'active' ? 'default' : 'secondary'} className="text-xs">
-                        {trade.status}
-                      </Badge>
-                    </div>
-                  </div>)}
-                {trades.length === 0 && <p className="text-sm text-muted-foreground text-center py-4">
-                    No trades yet
-                  </p>}
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>
