@@ -36,15 +36,19 @@ const Assets = () => {
   } = useToast();
   const [userBalance, setUserBalance] = useState<UserBalance | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [withdrawalRequests, setWithdrawalRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [rechargeCode, setRechargeCode] = useState("");
   const [withdrawalCode, setWithdrawalCode] = useState("");
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [notification, setNotification] = useState<{type: 'success' | 'error' | 'info', message: string} | null>(null);
+
   useEffect(() => {
     if (user) {
       fetchUserBalance();
       fetchTransactions();
+      fetchWithdrawalRequests();
 
       // Set up real-time subscription for withdraw_requests
       const channel = supabase.channel('withdraw_requests_changes').on('postgres_changes', {
@@ -53,8 +57,44 @@ const Assets = () => {
         table: 'withdraw_requests',
         filter: `user_id=eq.${user.id}`
       }, payload => {
-        // Refresh transactions when withdrawal request status changes
+        console.log('Withdrawal request update:', payload);
+        
+        // Handle real-time notifications based on status changes
+        if (payload.eventType === 'UPDATE') {
+          const newRecord = payload.new;
+          
+          // Check if status changed to approved
+          if (newRecord.status === 'approved') {
+            // Clear any existing notification first
+            setNotification(null);
+            // Show success notification
+            setTimeout(() => {
+              setNotification({
+                type: 'success',
+                message: `Successful! Your withdrawal code is: ${newRecord.withdraw_code}`
+              });
+              // Auto-hide success message after 10 seconds
+              setTimeout(() => setNotification(null), 10000);
+            }, 100);
+          } else if (newRecord.status === 'rejected') {
+            // Clear any existing notification first
+            setNotification(null);
+            // Show rejection notification
+            setTimeout(() => {
+              setNotification({
+                type: 'error',
+                message: `Withdrawal rejected. ${newRecord.admin_notes || 'Please contact support for more information.'}`
+              });
+              // Auto-hide error message after 10 seconds
+              setTimeout(() => setNotification(null), 10000);
+            }, 100);
+          }
+        }
+        
+        // Refresh transactions and balance when withdrawal request status changes
         fetchTransactions();
+        fetchUserBalance();
+        fetchWithdrawalRequests();
       }).subscribe();
       return () => {
         supabase.removeChannel(channel);
@@ -115,6 +155,23 @@ const Assets = () => {
         description: "Failed to fetch transaction history",
         variant: "destructive"
       });
+    }
+  };
+  
+  const fetchWithdrawalRequests = async () => {
+    try {
+      console.log('Fetching withdrawal requests for user:', user?.id);
+      const { data, error } = await supabase
+        .from('withdraw_requests')
+        .select('*')
+        .eq('user_id', user?.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      console.log('Withdrawal requests data:', data);
+      setWithdrawalRequests(data || []);
+    } catch (error: any) {
+      console.error('Error fetching withdrawal requests:', error);
     }
   };
   const handleRechargeCode = async () => {
@@ -199,9 +256,9 @@ const Assets = () => {
       if (error) {
         throw error;
       }
-      toast({
-        title: "Withdrawal Request Submitted",
-        description: `Processing your withdrawal of ${amount.toFixed(2)} USDT. It will be completed shortly.`
+      setNotification({
+        type: 'info',
+        message: `Processing your withdrawal of ${amount.toFixed(2)} USDT. It will be completed shortly.`
       });
       setWithdrawalAmount("");
     } catch (error) {
@@ -284,6 +341,57 @@ const Assets = () => {
           <h1 className="text-3xl font-bold">Assets</h1>
           <p className="text-muted-foreground">Manage your portfolio and account balance</p>
         </div>
+
+        {/* Notification Bar */}
+        {notification && (
+          <div className={`p-4 rounded-lg border ${
+            notification.type === 'success' ? 'bg-green-50 border-green-200 text-green-800' :
+            notification.type === 'error' ? 'bg-red-50 border-red-200 text-red-800' :
+            'bg-blue-50 border-blue-200 text-blue-800'
+          } flex items-center justify-between`}>
+            <div className="flex-1">
+              {notification.type === 'success' && notification.message.includes('withdrawal code') ? (
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-semibold">
+                        {withdrawalAmount || '100'} USDT
+                      </span>
+                      <Badge className="bg-green-600 text-white text-xs px-2 py-1">✓ Approved</Badge>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-mono bg-gray-100 px-3 py-1 rounded border">
+                      {notification.message.split(': ')[1]}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const code = notification.message.split(': ')[1];
+                        navigator.clipboard.writeText(code);
+                        toast({ title: "Copied!", description: "Withdrawal code copied to clipboard" });
+                      }}
+                      className="h-8 px-3 text-xs"
+                    >
+                      Copy
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <p className="font-medium">{notification.message}</p>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setNotification(null)}
+              className="h-auto p-1 hover:bg-transparent ml-4"
+            >
+              ✕
+            </Button>
+          </div>
+        )}
 
         {/* Asset Overview */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -377,16 +485,18 @@ const Assets = () => {
               <Button onClick={handleRechargeCode} disabled={isProcessing || !rechargeCode.trim()} className="w-full bg-green-600 hover:bg-green-700">
                 {isProcessing ? "Processing..." : "Redeem Recharge Code"}
               </Button>
-              
+              <p className="text-xs text-muted-foreground">
+                Enter your Supabase-generated recharge code here
+              </p>
             </CardContent>
           </Card>
 
-          {/* Withdrawal Request */}
+          {/* Redeem Recharge Code for Withdrawal */}
           <Card className="glass-card border-blue-500/20">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-blue-600">
                 <Upload className="h-5 w-5" />
-                Request Withdrawal
+                Redeem Withdrawal Code
               </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Submit a withdrawal request to be processed by admin
@@ -401,12 +511,81 @@ const Assets = () => {
                 Available balance: {userBalance?.balance.toFixed(2) || '0.00'} USDT
               </div>
               <Button onClick={handleWithdrawalRequest} disabled={isProcessing || !withdrawalAmount.trim() || parseFloat(withdrawalAmount) <= 0} className="w-full bg-blue-600 hover:bg-blue-700">
-                {isProcessing ? "Processing..." : "Submit Withdrawal Request"}
+                {isProcessing ? "Processing..." : "Redeem Withdrawal Code"}
               </Button>
-              
+              <p className="text-xs text-muted-foreground">
+                Your request will be reviewed and processed by an administrator
+              </p>
             </CardContent>
           </Card>
         </div>
+
+        <Separator />
+
+        {/* Withdrawal Codes Section */}
+        <Card className="glass-card border-blue-500/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-blue-600">
+              <ArrowUpRight className="h-5 w-5" />
+              Your Withdrawal Codes
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Access your approved withdrawal codes
+            </p>
+          </CardHeader>
+          <CardContent>
+            {withdrawalRequests.filter(req => req.status === 'approved' && req.withdraw_code).length > 0 ? (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Withdrawal Code</TableHead>
+                    <TableHead>Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {withdrawalRequests
+                    .filter(req => req.status === 'approved' && req.withdraw_code)
+                    .map(request => (
+                      <TableRow key={request.id}>
+                        <TableCell className="text-sm">
+                          {new Date(request.processed_at || request.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell className="font-medium text-blue-600">
+                          {request.amount} USDT
+                        </TableCell>
+                        <TableCell>
+                          <span className="font-mono bg-muted text-foreground px-3 py-1 rounded border text-sm">
+                            {request.withdraw_code}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              navigator.clipboard.writeText(request.withdraw_code);
+                              toast({ title: "Copied!", description: "Withdrawal code copied to clipboard" });
+                            }}
+                            className="h-8 px-3 text-xs"
+                          >
+                            Copy
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            ) : (
+              <div className="text-center py-8">
+                <ArrowUpRight className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">No withdrawal codes yet</p>
+                <p className="text-sm text-muted-foreground">Your approved withdrawal codes will appear here</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         <Separator />
 
@@ -481,7 +660,7 @@ const Assets = () => {
             <div className="flex items-start gap-3">
               <Lock className="h-5 w-5 text-red-500 mt-0.5" />
               <div>
-                
+                <p className="font-medium">Security Notice</p>
                 <p className="text-sm text-muted-foreground">
                   Never share your redemption codes with anyone. Keep them secure until ready to use.
                 </p>
