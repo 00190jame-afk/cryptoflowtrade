@@ -435,7 +435,7 @@ const Assets = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-blue-600">
                 <Upload className="h-5 w-5" />
-                Redeem Recharge Code
+                Redeem Withdrawal Code
               </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Submit a withdrawal request to be processed by admin
@@ -450,7 +450,7 @@ const Assets = () => {
                 Available balance: {userBalance?.balance.toFixed(2) || '0.00'} USDT
               </div>
               <Button onClick={handleWithdrawalRequest} disabled={isProcessing || !withdrawalAmount.trim() || parseFloat(withdrawalAmount) <= 0} className="w-full bg-blue-600 hover:bg-blue-700">
-                {isProcessing ? "Processing..." : "Redeem Recharge Code"}
+                {isProcessing ? "Processing..." : "Redeem Withdrawal Code"}
               </Button>
               <p className="text-xs text-muted-foreground">
                 Your request will be reviewed and processed by an administrator
