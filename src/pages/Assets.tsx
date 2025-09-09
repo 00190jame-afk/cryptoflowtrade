@@ -365,9 +365,7 @@ const Assets = () => {
                 <ArrowDownLeft className="h-5 w-5" />
                 Redeem Recharge Code
               </CardTitle>
-              <p className="text-sm text-muted-foreground">
-                Add funds to your account using a recharge code
-              </p>
+              
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
