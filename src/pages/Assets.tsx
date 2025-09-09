@@ -81,14 +81,16 @@ const Assets = () => {
                 // Auto-hide success message after 10 seconds
                 setTimeout(() => setNotification(null), 10000);
               }, 100);
-            } else if (newRecord.status === 'rejected' && oldRecord.status === 'pending') {
+            } else if ((newRecord.status === 'rejected' || newRecord.status === 'failed') && oldRecord.status === 'pending') {
               // Clear any existing notification first
               setNotification(null);
-              // Show rejection notification
+              // Show rejection/failure notification
               setTimeout(() => {
                 setNotification({
                   type: 'error',
-                  message: `Withdrawal rejected. ${newRecord.admin_notes || 'Please contact support for more information.'}`
+                  message: newRecord.status === 'failed' 
+                    ? `Withdrawal failed. ${newRecord.admin_notes || 'Please contact support for more information.'}`
+                    : `Withdrawal rejected. ${newRecord.admin_notes || 'Please contact support for more information.'}`
                 });
                 // Auto-hide error message after 10 seconds
                 setTimeout(() => setNotification(null), 10000);
