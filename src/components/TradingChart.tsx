@@ -15,7 +15,7 @@ interface TradingChartProps {
 const TradingChart = ({
   tradingPair,
   currentPrice,
-  activeTrade
+  activeTrade = null
 }: TradingChartProps) => {
   const [priceChange, setPriceChange] = useState(0);
   const [priceChangePercent, setPriceChangePercent] = useState(0);
