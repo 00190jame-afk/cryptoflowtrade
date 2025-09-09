@@ -365,7 +365,9 @@ const Assets = () => {
                 <ArrowDownLeft className="h-5 w-5" />
                 Redeem Recharge Code
               </CardTitle>
-              
+              <p className="text-sm text-muted-foreground">
+                Add funds to your account using a recharge code
+              </p>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -382,7 +384,10 @@ const Assets = () => {
           {/* Withdrawal Request */}
           <Card className="glass-card border-blue-500/20">
             <CardHeader>
-              
+              <CardTitle className="flex items-center gap-2 text-blue-600">
+                <Upload className="h-5 w-5" />
+                Request Withdrawal
+              </CardTitle>
               <p className="text-sm text-muted-foreground">
                 Submit a withdrawal request to be processed by admin
               </p>
