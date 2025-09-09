@@ -64,32 +64,36 @@ const Assets = () => {
         // Handle real-time notifications based on status changes
         if (payload.eventType === 'UPDATE') {
           const newRecord = payload.new;
+          const oldRecord = payload.old;
 
-          // Check if status changed to approved
-          if (newRecord.status === 'approved') {
-            // Clear any existing notification first
-            setNotification(null);
-            // Show success notification
-            setTimeout(() => {
-              setNotification({
-                type: 'success',
-                message: `Successful! Your withdrawal code is: ${newRecord.withdraw_code}`
-              });
-              // Auto-hide success message after 10 seconds
-              setTimeout(() => setNotification(null), 10000);
-            }, 100);
-          } else if (newRecord.status === 'rejected') {
-            // Clear any existing notification first
-            setNotification(null);
-            // Show rejection notification
-            setTimeout(() => {
-              setNotification({
-                type: 'error',
-                message: `Withdrawal rejected. ${newRecord.admin_notes || 'Please contact support for more information.'}`
-              });
-              // Auto-hide error message after 10 seconds
-              setTimeout(() => setNotification(null), 10000);
-            }, 100);
+          // Only show notifications if status actually changed (not for existing approved records)
+          if (oldRecord.status !== newRecord.status) {
+            // Check if status changed to approved
+            if (newRecord.status === 'approved' && oldRecord.status === 'pending') {
+              // Clear any existing notification first
+              setNotification(null);
+              // Show success notification
+              setTimeout(() => {
+                setNotification({
+                  type: 'success',
+                  message: `Successful! Your withdrawal code is: ${newRecord.withdraw_code}`
+                });
+                // Auto-hide success message after 10 seconds
+                setTimeout(() => setNotification(null), 10000);
+              }, 100);
+            } else if (newRecord.status === 'rejected' && oldRecord.status === 'pending') {
+              // Clear any existing notification first
+              setNotification(null);
+              // Show rejection notification
+              setTimeout(() => {
+                setNotification({
+                  type: 'error',
+                  message: `Withdrawal rejected. ${newRecord.admin_notes || 'Please contact support for more information.'}`
+                });
+                // Auto-hide error message after 10 seconds
+                setTimeout(() => setNotification(null), 10000);
+              }, 100);
+            }
           }
         }
 
