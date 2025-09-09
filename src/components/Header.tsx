@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -17,6 +17,7 @@ const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleSignOut = async () => {
     await signOut();
@@ -33,7 +34,21 @@ const Header = () => {
     
     // For other items, navigate normally
     if (target.href) {
-      navigate(target.href);
+      // If we're already on the target page, scroll to top
+      if (location.pathname === target.href) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        navigate(target.href);
+      }
+    }
+  };
+
+  const handleLogoClick = () => {
+    // If we're already on home page, scroll to top
+    if (location.pathname === "/") {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      navigate("/");
     }
   };
 
@@ -80,7 +95,7 @@ const Header = () => {
         {/* Logo */}
         <div 
           className="flex items-center space-x-2 cursor-pointer hover:opacity-80 transition-opacity"
-          onClick={() => navigate("/")}
+          onClick={handleLogoClick}
         >
           <div className="flex h-8 w-8 items-center justify-center rounded-lg gradient-primary">
             <TrendingUp className="h-5 w-5 text-white" />
