@@ -331,33 +331,41 @@ const Assets = () => {
             'bg-blue-50 border-blue-200 text-blue-800'
           } flex items-center justify-between`}>
             <div className="flex-1">
-              <p className="font-medium">{notification.message}</p>
-              {notification.type === 'success' && notification.message.includes('withdrawal code') && (
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="text-sm">Withdrawal Code:</span>
-                  <code className="bg-white px-2 py-1 rounded border text-sm font-mono">
-                    {notification.message.split(': ')[1]}
-                  </code>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      const code = notification.message.split(': ')[1];
-                      navigator.clipboard.writeText(code);
-                      toast({ title: "Copied!", description: "Withdrawal code copied to clipboard" });
-                    }}
-                    className="h-auto py-1 px-2"
-                  >
-                    Copy
-                  </Button>
+              {notification.type === 'success' && notification.message.includes('withdrawal code') ? (
+                <div className="flex items-center justify-between w-full">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg font-semibold">100 USDT</span>
+                      <Badge className="bg-green-600 text-white text-xs px-2 py-1">✓ Approved</Badge>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-mono bg-gray-100 px-3 py-1 rounded border">
+                      {notification.message.split(': ')[1]}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const code = notification.message.split(': ')[1];
+                        navigator.clipboard.writeText(code);
+                        toast({ title: "Copied!", description: "Withdrawal code copied to clipboard" });
+                      }}
+                      className="h-8 px-3 text-xs"
+                    >
+                      Copy
+                    </Button>
+                  </div>
                 </div>
+              ) : (
+                <p className="font-medium">{notification.message}</p>
               )}
             </div>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setNotification(null)}
-              className="h-auto p-1 hover:bg-transparent"
+              className="h-auto p-1 hover:bg-transparent ml-4"
             >
               ✕
             </Button>
