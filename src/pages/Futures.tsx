@@ -145,12 +145,7 @@ const Futures = () => {
         currency: data.currency || "USDT"
       });
     } else {
-      // Create balance record if it doesn't exist
-      await supabase.from("user_balances").insert({
-        user_id: user.id,
-        balance: 0,
-        currency: "USD"
-      });
+      // If no balance record, default to 0 without creating (RLS prevents client inserts)
       setBalance({ balance: 0, currency: "USDT" });
     }
   };
