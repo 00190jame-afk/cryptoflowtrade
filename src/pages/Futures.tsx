@@ -272,7 +272,8 @@ const Futures = () => {
         console.log('Trade completed successfully:', trade.id);
         // Update user balance by returning stake + profit using RPC function
         const totalReturn = trade.stake_amount + profitAmount;
-        await supabase.rpc('update_user_balance', {
+        console.log('Calling update_user_balance for trade completion:', { p_user_id: user!.id, p_amount: totalReturn });
+        await (supabase as any).rpc('update_user_balance', {
           p_user_id: user!.id,
           p_amount: totalReturn,
           p_transaction_type: finalResult === 'win' ? 'trade_win' : 'trade_loss',
@@ -432,7 +433,8 @@ const Futures = () => {
       await supabase.from('positions_orders').insert(positionData);
 
       // Deduct stake from balance using RPC function for atomic operation
-      const { error: balanceError } = await supabase.rpc('update_user_balance', {
+      console.log('Calling update_user_balance with:', { p_user_id: user.id, p_amount: -stake });
+      const { error: balanceError } = await (supabase as any).rpc('update_user_balance', {
         p_user_id: user.id,
         p_amount: -stake,
         p_transaction_type: 'trade_stake',
@@ -517,6 +519,24 @@ const Futures = () => {
       fetchTrades();
       fetchPositionOrders();
       fetchClosingOrders();
+
+      // Set up real-time subscription for balance changes
+      const channel = supabase
+        .channel('user_balance_changes')
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'user_balances',
+          filter: `user_id=eq.${user.id}`
+        }, () => {
+          console.log('Balance changed, refreshing...');
+          fetchBalance();
+        })
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
     }
   }, [user]);
   if (!user) {
