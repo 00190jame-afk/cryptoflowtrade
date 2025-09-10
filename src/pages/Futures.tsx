@@ -219,6 +219,18 @@ const Futures = () => {
         return;
       }
 
+      // FIRST: Update trade status to prevent duplicate processing
+      const { error: updateError } = await supabase.from('trades').update({
+        status: 'completed',
+        completed_at: new Date().toISOString()
+      }).eq('id', trade.id).eq('status', 'active'); // Only update if still active
+      
+      if (updateError) {
+        console.error('Error updating trade status:', updateError);
+        completingTradeRef.current = null;
+        return;
+      }
+
       // Calculate profit based on stake tiers: 50-99.99→20%, 100-249.99→30%, 250+→40%
       const calculatedProfit = trade.stake_amount * (trade.profit_rate / 100);
       const profitAmount = latest?.modified_by_admin ? (latest.profit_loss_amount ?? 0) : calculatedProfit;
@@ -255,32 +267,33 @@ const Futures = () => {
         await supabase.from('positions_orders').delete().eq('trade_id', trade.id);
       }
 
-      // Update trade status
-      const { error } = await supabase.from('trades').update({
-        status: 'completed',
-        completed_at: new Date().toISOString(),
+      // Update trade with final profit/loss details
+      await supabase.from('trades').update({
         profit_loss_amount: profitAmount,
         result: finalResult
       }).eq('id', trade.id);
       
-      if (!error) {
-        console.log('Trade completed successfully:', trade.id);
-        // Update user balance by returning stake + profit using RPC function
-        const totalReturn = trade.stake_amount + profitAmount;
-        console.log('Calling update_user_balance for trade completion:', { p_user_id: user!.id, p_amount: totalReturn });
-        await (supabase as any).rpc('update_user_balance', {
-          p_user_id: user!.id,
-          p_amount: totalReturn,
-          p_transaction_type: finalResult === 'win' ? 'trade_win' : 'trade_loss',
-          p_description: `Trade ${finalResult}: ${trade.trading_pair} ${trade.direction} - Stake: $${trade.stake_amount}, Profit: $${profitAmount.toFixed(2)}`
-        });
-        fetchBalance();
-        fetchTrades();
-        fetchPositionOrders();
-        fetchClosingOrders();
-      } else {
-        console.error('Error completing trade:', error);
-      }
+      console.log('Trade completed successfully:', trade.id);
+      
+      // Update user balance by returning stake + profit using RPC function
+      const totalReturn = trade.stake_amount + profitAmount;
+      console.log('Calling update_user_balance for trade completion:', { p_user_id: user!.id, p_amount: totalReturn });
+      
+      // Use a unique description to prevent duplicate transactions
+      const uniqueDescription = `Trade ${finalResult}: ${trade.trading_pair} ${trade.direction} [${trade.id.slice(0, 8)}] - Stake: $${trade.stake_amount}, Profit: $${profitAmount.toFixed(2)}`;
+      
+      await (supabase as any).rpc('update_user_balance', {
+        p_user_id: user!.id,
+        p_amount: totalReturn,
+        p_transaction_type: finalResult === 'win' ? 'trade_win' : 'trade_loss',
+        p_description: uniqueDescription
+      });
+      
+      fetchBalance();
+      fetchTrades();
+      fetchPositionOrders();
+      fetchClosingOrders();
+      
     } catch (error) {
       console.error('Exception in completeExpiredTrade:', error);
     } finally {
