@@ -130,13 +130,29 @@ const Futures = () => {
     return data?.[0]?.profit_rate ?? null;
   };
 
-  // Fetch user balance
+  // Fetch user balance from same table as Assets page
   const fetchBalance = async () => {
     if (!user) return;
-    const {
-      data
-    } = await supabase.from("user_balances").select("balance, currency").eq("user_id", user.id).single();
-    if (data) setBalance(data);
+    const { data } = await supabase
+      .from("user_balances")
+      .select("balance, currency, on_hold, frozen")
+      .eq("user_id", user.id)
+      .single();
+    
+    if (data) {
+      setBalance({
+        balance: data.balance,
+        currency: data.currency || "USDT"
+      });
+    } else {
+      // Create balance record if it doesn't exist
+      await supabase.from("user_balances").insert({
+        user_id: user.id,
+        balance: 0,
+        currency: "USD"
+      });
+      setBalance({ balance: 0, currency: "USDT" });
+    }
   };
 
   // Fetch user trades
@@ -254,10 +270,14 @@ const Futures = () => {
       
       if (!error) {
         console.log('Trade completed successfully:', trade.id);
-        // Update user balance by profit amount (stake + profit)
-        await supabase.from('user_balances').update({
-          balance: balance.balance + trade.stake_amount + profitAmount
-        }).eq('user_id', user!.id);
+        // Update user balance by returning stake + profit using RPC function
+        const totalReturn = trade.stake_amount + profitAmount;
+        await supabase.rpc('update_user_balance', {
+          p_user_id: user!.id,
+          p_amount: totalReturn,
+          p_transaction_type: finalResult === 'win' ? 'trade_win' : 'trade_loss',
+          p_description: `Trade ${finalResult}: ${trade.trading_pair} ${trade.direction} - Stake: $${trade.stake_amount}, Profit: $${profitAmount.toFixed(2)}`
+        });
         fetchBalance();
         fetchTrades();
         fetchPositionOrders();
@@ -350,75 +370,95 @@ const Futures = () => {
     
     setIsTrading(true);
     
-    // Get the most current price just before trade execution
-    let realTimePrice = currentPrice;
     try {
-      const symbol = mapPairToBinanceSymbol(selectedPair);
-      const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
-      if (response.ok) {
-        const data = await response.json();
-        realTimePrice = parseFloat(data.price);
-        console.log(`Using real-time price for trade: ${realTimePrice}`);
-        // Update the current price state to match
-        setCurrentPrice(realTimePrice);
+      // Get the most current price just before trade execution
+      let realTimePrice = currentPrice;
+      try {
+        const symbol = mapPairToBinanceSymbol(selectedPair);
+        const response = await fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${symbol}`);
+        if (response.ok) {
+          const data = await response.json();
+          realTimePrice = parseFloat(data.price);
+          console.log(`Using real-time price for trade: ${realTimePrice}`);
+          // Update the current price state to match
+          setCurrentPrice(realTimePrice);
+        }
+      } catch (error) {
+        console.log("Using existing current price for trade:", realTimePrice);
       }
-    } catch (error) {
-      console.log("Using existing current price for trade:", realTimePrice);
-    }
-    
-    const profitRate = calculateProfitRate(stake);
-    const tradeDuration = Math.floor(Math.random() * 241) + 60; // Random 60-300 seconds
       
-    console.log(`Trade started: Entry=${realTimePrice}, Direction=${direction}, Duration=${tradeDuration}s, Stake=${stake}`);
-    
-    const tradeData = {
-      user_id: user.id,
-      trading_pair: selectedPair,
-      direction,
-      stake_amount: stake,
-      leverage,
-      entry_price: realTimePrice,
-      profit_rate: profitRate,
-      required_price_change: 0, // Not used in new system
-      trade_duration: tradeDuration,
-      ends_at: new Date(Date.now() + tradeDuration * 1000).toISOString(),
-      current_price: realTimePrice,
-      target_price: realTimePrice // Exit price same as entry for simplicity
-    };
-    const { data: newTrade, error } = await supabase.from('trades').insert(tradeData).select().single();
-    if (error) {
+      const profitRate = calculateProfitRate(stake);
+      const tradeDuration = Math.floor(Math.random() * 241) + 60; // Random 60-300 seconds
+        
+      console.log(`Trade started: Entry=${realTimePrice}, Direction=${direction}, Duration=${tradeDuration}s, Stake=${stake}`);
+      
+      const tradeData = {
+        user_id: user.id,
+        trading_pair: selectedPair,
+        direction,
+        stake_amount: stake,
+        leverage,
+        entry_price: realTimePrice,
+        profit_rate: profitRate,
+        required_price_change: 0, // Not used in new system
+        trade_duration: tradeDuration,
+        ends_at: new Date(Date.now() + tradeDuration * 1000).toISOString(),
+        current_price: realTimePrice,
+        target_price: realTimePrice // Exit price same as entry for simplicity
+      };
+      
+      const { data: newTrade, error } = await supabase.from('trades').insert(tradeData).select().single();
+      if (error) {
+        toast.error("Failed to start trade");
+        setIsTrading(false);
+        return;
+      }
+
+      // Create position order with new fields
+      const positionData = {
+        user_id: user.id,
+        symbol: selectedPair,
+        side: direction,
+        entry_price: realTimePrice,
+        mark_price: realTimePrice,
+        quantity: stake / realTimePrice,
+        leverage,
+        stake: stake,
+        scale: stopProfitPercentage ? `${stopProfitPercentage}%` : null,
+        unrealized_pnl: 0,
+        realized_pnl: null, // Empty at first
+        trade_id: newTrade.id
+      };
+      await supabase.from('positions_orders').insert(positionData);
+
+      // Deduct stake from balance using RPC function for atomic operation
+      const { error: balanceError } = await supabase.rpc('update_user_balance', {
+        p_user_id: user.id,
+        p_amount: -stake,
+        p_transaction_type: 'trade_stake',
+        p_description: `Trade stake: ${selectedPair} ${direction} $${stake}`
+      });
+
+      if (balanceError) {
+        toast.error("Failed to deduct balance");
+        // Rollback trade and position
+        await supabase.from('trades').delete().eq('id', newTrade.id);
+        await supabase.from('positions_orders').delete().eq('trade_id', newTrade.id);
+        setIsTrading(false);
+        return;
+      }
+
+      toast.success("Trade started successfully!");
+      setStakeAmount("");
+      fetchBalance();
+      fetchTrades();
+      fetchPositionOrders();
+    } catch (error) {
       toast.error("Failed to start trade");
+      console.error('Trade error:', error);
+    } finally {
       setIsTrading(false);
-      return;
     }
-
-    // Create position order with new fields
-    const positionData = {
-      user_id: user.id,
-      symbol: selectedPair,
-      side: direction,
-      entry_price: realTimePrice,
-      mark_price: realTimePrice,
-      quantity: stake / realTimePrice,
-      leverage,
-      stake: stake,
-      scale: stopProfitPercentage ? `${stopProfitPercentage}%` : null,
-      unrealized_pnl: 0,
-      realized_pnl: null, // Empty at first
-      trade_id: newTrade.id
-    };
-    await supabase.from('positions_orders').insert(positionData);
-
-    // Deduct stake from balance
-    await supabase.from("user_balances").update({
-      balance: balance.balance - stake
-    }).eq("user_id", user.id);
-    toast.success("Trade started successfully!");
-    setStakeAmount("");
-    setIsTrading(false);
-    fetchBalance();
-    fetchTrades();
-    fetchPositionOrders();
   };
   // Close position function
   const closePosition = async (positionId: string, tradeId: string) => {
