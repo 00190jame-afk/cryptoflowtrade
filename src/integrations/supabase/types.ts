@@ -124,11 +124,14 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          avatar_url: string | null
           city: string | null
           country: string | null
           created_at: string
+          credit_score: number | null
           date_of_birth: string | null
           first_name: string | null
+          full_name: string | null
           id: string
           is_verified: boolean | null
           last_name: string | null
@@ -137,14 +140,19 @@ export type Database = {
           role: string | null
           updated_at: string
           user_id: string
+          username: string | null
+          wallet_address: string | null
         }
         Insert: {
           address?: string | null
+          avatar_url?: string | null
           city?: string | null
           country?: string | null
           created_at?: string
+          credit_score?: number | null
           date_of_birth?: string | null
           first_name?: string | null
+          full_name?: string | null
           id?: string
           is_verified?: boolean | null
           last_name?: string | null
@@ -153,14 +161,19 @@ export type Database = {
           role?: string | null
           updated_at?: string
           user_id: string
+          username?: string | null
+          wallet_address?: string | null
         }
         Update: {
           address?: string | null
+          avatar_url?: string | null
           city?: string | null
           country?: string | null
           created_at?: string
+          credit_score?: number | null
           date_of_birth?: string | null
           first_name?: string | null
+          full_name?: string | null
           id?: string
           is_verified?: boolean | null
           last_name?: string | null
@@ -169,6 +182,8 @@ export type Database = {
           role?: string | null
           updated_at?: string
           user_id?: string
+          username?: string | null
+          wallet_address?: string | null
         }
         Relationships: []
       }
