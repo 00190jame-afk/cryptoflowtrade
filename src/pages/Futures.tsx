@@ -437,7 +437,7 @@ const Futures = () => {
       });
 
       if (balanceError) {
-        toast.error("Failed to deduct balance");
+        toast.error(balanceError.message || "Failed to deduct balance");
         // Rollback trade and position
         await supabase.from('trades').delete().eq('id', newTrade.id);
         await supabase.from('positions_orders').delete().eq('trade_id', newTrade.id);
