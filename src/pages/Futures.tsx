@@ -277,16 +277,14 @@ const Futures = () => {
       
       // Update user balance by returning stake + profit using RPC function
       const totalReturn = trade.stake_amount + profitAmount;
-      console.log('Calling update_user_balance for trade completion:', { p_user_id: user!.id, p_amount: totalReturn });
-      
-      // Use a unique description to prevent duplicate transactions
-      const uniqueDescription = `Trade ${finalResult}: ${trade.trading_pair} ${trade.direction} [${trade.id.slice(0, 8)}] - Stake: $${trade.stake_amount}, Profit: $${profitAmount.toFixed(2)}`;
+      console.log('Calling update_user_balance for trade completion:', { p_user_id: user!.id, p_amount: totalReturn, p_trade_id: trade.id });
       
       await (supabase as any).rpc('update_user_balance', {
         p_user_id: user!.id,
         p_amount: totalReturn,
         p_transaction_type: finalResult === 'win' ? 'trade_win' : 'trade_loss',
-        p_description: uniqueDescription
+        p_description: `Trade ${finalResult}: ${trade.trading_pair} ${trade.direction} - Stake: $${trade.stake_amount}, Profit: $${profitAmount.toFixed(2)}`,
+        p_trade_id: trade.id
       });
       
       fetchBalance();

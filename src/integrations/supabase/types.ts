@@ -325,6 +325,7 @@ export type Database = {
           payment_method: string | null
           processed_by: string | null
           status: string | null
+          trade_id: string | null
           type: string
           updated_at: string
           user_id: string
@@ -340,6 +341,7 @@ export type Database = {
           payment_method?: string | null
           processed_by?: string | null
           status?: string | null
+          trade_id?: string | null
           type: string
           updated_at?: string
           user_id: string
@@ -355,11 +357,20 @@ export type Database = {
           payment_method?: string | null
           processed_by?: string | null
           status?: string | null
+          trade_id?: string | null
           type?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "transactions_trade_id_fkey"
+            columns: ["trade_id"]
+            isOneToOne: false
+            referencedRelation: "trades"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_balances: {
         Row: {
@@ -452,12 +463,20 @@ export type Database = {
         }[]
       }
       update_user_balance: {
-        Args: {
-          p_amount: number
-          p_description?: string
-          p_transaction_type?: string
-          p_user_id: string
-        }
+        Args:
+          | {
+              p_amount: number
+              p_description?: string
+              p_trade_id?: string
+              p_transaction_type?: string
+              p_user_id: string
+            }
+          | {
+              p_amount: number
+              p_description?: string
+              p_transaction_type?: string
+              p_user_id: string
+            }
         Returns: undefined
       }
     }
