@@ -283,7 +283,7 @@ const Futures = () => {
         p_user_id: user!.id,
         p_amount: totalReturn,
         p_transaction_type: finalResult === 'win' ? 'trade_win' : 'trade_loss',
-        p_description: `Trade ${finalResult}: ${trade.trading_pair} ${trade.direction} - Stake: $${trade.stake_amount}, Profit: $${profitAmount.toFixed(2)}`,
+        p_description: `Trade ${finalResult}: ${trade.trading_pair} ${trade.direction} [${trade.id.slice(0, 8)}] - Stake: $${trade.stake_amount}, Profit: $${profitAmount.toFixed(2)}`,
         p_trade_id: trade.id
       });
       
@@ -439,12 +439,13 @@ const Futures = () => {
       await supabase.from('positions_orders').insert(positionData);
 
       // Deduct stake from balance using RPC function for atomic operation
-      console.log('Calling update_user_balance with:', { p_user_id: user.id, p_amount: -stake });
+      console.log('Calling update_user_balance with:', { p_user_id: user.id, p_amount: -stake, p_trade_id: newTrade.id });
       const { error: balanceError } = await (supabase as any).rpc('update_user_balance', {
         p_user_id: user.id,
         p_amount: -stake,
         p_transaction_type: 'trade_stake',
-        p_description: `Trade stake: ${selectedPair} ${direction} $${stake}`
+        p_description: `Trade stake: ${selectedPair} ${direction} [${newTrade.id.slice(0, 8)}] $${stake}`,
+        p_trade_id: newTrade.id
       });
 
       if (balanceError) {
