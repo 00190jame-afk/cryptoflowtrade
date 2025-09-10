@@ -451,6 +451,15 @@ export type Database = {
           currency: string
         }[]
       }
+      update_user_balance: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_transaction_type?: string
+          p_user_id: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
