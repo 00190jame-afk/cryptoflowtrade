@@ -23,15 +23,32 @@ export const MarketPrices = () => {
 
   const fetchMarketData = async () => {
     try {
-      const response = await fetch(
-        'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false'
-      );
+      // Fetch from CoinGecko but update Bitcoin price from Binance for consistency
+      const [marketResponse, btcPriceResponse] = await Promise.all([
+        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false'),
+        fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
+      ]);
       
-      if (!response.ok) {
+      if (!marketResponse.ok) {
         throw new Error('Failed to fetch market data');
       }
       
-      const data: CoinData[] = await response.json();
+      const data: CoinData[] = await marketResponse.json();
+      
+      // Update Bitcoin price with Binance data for consistency with Futures page
+      if (btcPriceResponse.ok) {
+        const btcData = await btcPriceResponse.json();
+        const btcPrice = parseFloat(btcData.price);
+        
+        const btcIndex = data.findIndex(coin => coin.symbol === 'btc');
+        if (btcIndex !== -1) {
+          const originalPrice = data[btcIndex].current_price;
+          data[btcIndex].current_price = btcPrice;
+          // Recalculate market cap with new price
+          data[btcIndex].market_cap = (data[btcIndex].market_cap / originalPrice) * btcPrice;
+        }
+      }
+      
       setCoins(data);
       setLastUpdate(new Date());
     } catch (error) {
