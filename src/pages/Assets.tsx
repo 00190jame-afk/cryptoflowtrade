@@ -444,28 +444,6 @@ const Assets = () => {
           </Card>
         </div>
 
-        {/* Total Portfolio Value */}
-        <Card className="glass-card border-primary/20">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
-              Total Portfolio Value
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-4xl font-bold text-primary">
-              {((userBalance?.balance || 0) + (userBalance?.on_hold || 0) + (userBalance?.frozen || 0)).toFixed(2)} USDT
-            </div>
-            <div className="flex gap-4 mt-4">
-              <Badge variant="secondary">
-                Currency: {userBalance?.currency || 'USDT'}
-              </Badge>
-              <Badge variant="outline">
-                Last Updated: {new Date().toLocaleTimeString()}
-              </Badge>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Code Redemption Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
