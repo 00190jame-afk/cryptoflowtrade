@@ -201,29 +201,28 @@ const Futures = () => {
       return; // Already completing this trade
     }
     
-    console.log('Starting trade completion for expired trade:', trade.id);
+    console.log('Completing expired trade:', trade.id);
     completingTradeRef.current = trade.id;
 
     try {
-      // Re-fetch latest trade in case admin modified it
+      // Check if trade was already completed
       const { data: latest } = await supabase
         .from('trades')
-        .select('modified_by_admin, profit_loss_amount, result, status')
+        .select('status')
         .eq('id', trade.id)
         .single();
 
-      // Check if trade was already completed by another process
       if (latest?.status === 'completed') {
         console.log('Trade already completed:', trade.id);
         completingTradeRef.current = null;
         return;
       }
 
-      // FIRST: Update trade status to prevent duplicate processing
+      // Mark trade as completed
       const { error: updateError } = await supabase.from('trades').update({
         status: 'completed',
         completed_at: new Date().toISOString()
-      }).eq('id', trade.id).eq('status', 'active'); // Only update if still active
+      }).eq('id', trade.id).eq('status', 'active');
       
       if (updateError) {
         console.error('Error updating trade status:', updateError);
@@ -231,59 +230,28 @@ const Futures = () => {
         return;
       }
 
-      // Calculate profit based on stake tiers: 50-99.99→20%, 100-249.99→30%, 250+→40%
-      const calculatedProfit = trade.stake_amount * (trade.profit_rate / 100);
-      const profitAmount = latest?.modified_by_admin ? (latest.profit_loss_amount ?? 0) : calculatedProfit;
-      
-      // Determine result based on profit amount - negative = loss, positive = win
-      const finalResult = profitAmount < 0 ? 'loss' : 'win';
-      
-      console.log(`Trade ${trade.id}: admin_modified=${latest?.modified_by_admin}, profit=${profitAmount}, result=${finalResult}`);
+      // Calculate profit using trade rules only: stake * (profit_rate / 100)
+      const profitAmount = trade.stake_amount * (trade.profit_rate / 100);
+      console.log(`Trade completed: Stake=${trade.stake_amount}, ProfitRate=${trade.profit_rate}%, Profit=${profitAmount}`);
 
-      // Get position to move to closing orders
-      const { data: position } = await supabase
-        .from('positions_orders')
-        .select('*')
-        .eq('trade_id', trade.id)
-        .single();
+      // Remove position
+      await supabase.from('positions_orders').delete().eq('trade_id', trade.id);
 
-      if (position) {
-        // Move to closing orders with exit price same as entry price
-        const closingData = {
-          user_id: user!.id,
-          symbol: position.symbol,
-          side: position.side,
-          entry_price: position.entry_price,
-          exit_price: position.entry_price, // Same as entry for simplicity
-          quantity: position.stake || position.quantity, // Use stake as quantity for display
-          leverage: position.leverage,
-          realized_pnl: profitAmount,
-          original_trade_id: trade.id
-        };
-
-        await supabase.from('closing_orders').insert(closingData);
-        
-        // Remove from positions
-        await supabase.from('positions_orders').delete().eq('trade_id', trade.id);
-      }
-
-      // Update trade with final profit/loss details
+      // Update trade with profit details
       await supabase.from('trades').update({
         profit_loss_amount: profitAmount,
-        result: finalResult
+        result: 'win'
       }).eq('id', trade.id);
       
-      console.log('Trade completed successfully:', trade.id);
-      
-      // Update user balance by returning stake + profit using RPC function
+      // Return stake + profit to balance
       const totalReturn = trade.stake_amount + profitAmount;
-      console.log('Calling update_user_balance for trade completion:', { p_user_id: user!.id, p_amount: totalReturn, p_trade_id: trade.id });
+      console.log(`Returning to balance: ${totalReturn} USDT (${trade.stake_amount} stake + ${profitAmount} profit)`);
       
       await (supabase as any).rpc('update_user_balance', {
         p_user_id: user!.id,
         p_amount: totalReturn,
-        p_transaction_type: finalResult === 'win' ? 'trade_win' : 'trade_loss',
-        p_description: `Trade ${finalResult}: ${trade.trading_pair} ${trade.direction} [${trade.id.slice(0, 8)}] - Stake: $${trade.stake_amount}, Profit: $${profitAmount.toFixed(2)}`,
+        p_transaction_type: 'trade_win',
+        p_description: `Trade completed: ${totalReturn} USDT returned`,
         p_trade_id: trade.id
       });
       
@@ -378,7 +346,7 @@ const Futures = () => {
     setIsTrading(true);
     
     try {
-      // Get the most current price just before trade execution
+      // Get real-time price
       let realTimePrice = currentPrice;
       try {
         const symbol = mapPairToBinanceSymbol(selectedPair);
@@ -386,8 +354,6 @@ const Futures = () => {
         if (response.ok) {
           const data = await response.json();
           realTimePrice = parseFloat(data.price);
-          console.log(`Using real-time price for trade: ${realTimePrice}`);
-          // Update the current price state to match
           setCurrentPrice(realTimePrice);
         }
       } catch (error) {
@@ -397,7 +363,7 @@ const Futures = () => {
       const profitRate = calculateProfitRate(stake);
       const tradeDuration = Math.floor(Math.random() * 241) + 60; // Random 60-300 seconds
         
-      console.log(`Trade started: Entry=${realTimePrice}, Direction=${direction}, Duration=${tradeDuration}s, Stake=${stake}`);
+      console.log(`Trade started: Stake=${stake}, ProfitRate=${profitRate}%, Duration=${tradeDuration}s`);
       
       const tradeData = {
         user_id: user.id,
@@ -407,11 +373,11 @@ const Futures = () => {
         leverage,
         entry_price: realTimePrice,
         profit_rate: profitRate,
-        required_price_change: 0, // Not used in new system
+        required_price_change: 0,
         trade_duration: tradeDuration,
         ends_at: new Date(Date.now() + tradeDuration * 1000).toISOString(),
         current_price: realTimePrice,
-        target_price: realTimePrice // Exit price same as entry for simplicity
+        target_price: realTimePrice
       };
       
       const { data: newTrade, error } = await supabase.from('trades').insert(tradeData).select().single();
@@ -421,7 +387,7 @@ const Futures = () => {
         return;
       }
 
-      // Create position order with new fields
+      // Create position order
       const positionData = {
         user_id: user.id,
         symbol: selectedPair,
@@ -433,24 +399,21 @@ const Futures = () => {
         stake: stake,
         scale: stopProfitPercentage ? `${stopProfitPercentage}%` : null,
         unrealized_pnl: 0,
-        realized_pnl: null, // Empty at first
         trade_id: newTrade.id
       };
       await supabase.from('positions_orders').insert(positionData);
 
-      // Deduct stake from balance using RPC function for atomic operation
-      console.log('Calling update_user_balance with:', { p_user_id: user.id, p_amount: -stake, p_trade_id: newTrade.id });
+      // Deduct stake from balance
       const { error: balanceError } = await (supabase as any).rpc('update_user_balance', {
         p_user_id: user.id,
         p_amount: -stake,
         p_transaction_type: 'trade_stake',
-        p_description: `Trade stake: ${selectedPair} ${direction} [${newTrade.id.slice(0, 8)}] $${stake}`,
+        p_description: `Trade stake deducted: ${stake} USDT`,
         p_trade_id: newTrade.id
       });
 
       if (balanceError) {
         toast.error(balanceError.message || "Failed to deduct balance");
-        // Rollback trade and position
         await supabase.from('trades').delete().eq('id', newTrade.id);
         await supabase.from('positions_orders').delete().eq('trade_id', newTrade.id);
         setIsTrading(false);
