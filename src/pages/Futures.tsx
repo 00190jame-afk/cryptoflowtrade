@@ -15,6 +15,7 @@ import Header from "@/components/Header";
 import TradingChart from "@/components/TradingChart";
 const TRADING_PAIRS = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "ADA/USDT", "XRP/USDT", "DOT/USDT", "LTC/USDT", "DOGE/USDT", "MATIC/USDT", "AVAX/USDT", "ENR/USDT"];
 const LEVERAGES = [5, 10, 20, 50];
+const SCALE_OPTIONS = [10, 20, 30, 40, 50];
 const STOP_PROFIT_OPTIONS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
 interface Trade {
   id: string;
@@ -80,6 +81,7 @@ const Futures = () => {
   const [direction, setDirection] = useState<"LONG" | "SHORT">("LONG");
   const [stakeAmount, setStakeAmount] = useState("");
   const [leverage, setLeverage] = useState(5);
+  const [scale, setScale] = useState<number | null>(null);
   const [stopProfitPercentage, setStopProfitPercentage] = useState<number | null>(null);
   const [isTrading, setIsTrading] = useState(false);
   const [currentPrice, setCurrentPrice] = useState<number>(45000);
@@ -397,7 +399,7 @@ const Futures = () => {
         quantity: stake / realTimePrice,
         leverage,
         stake: stake,
-        scale: stopProfitPercentage ? `${stopProfitPercentage}%` : null,
+        scale: scale ? `${scale}%` : null,
         unrealized_pnl: 0,
         trade_id: newTrade.id
       };
@@ -582,28 +584,19 @@ const Futures = () => {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Scale</label>
-                  <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
-                    <Button
-                      variant={stopProfitPercentage === null ? "default" : "outline"}
-                      onClick={() => setStopProfitPercentage(null)}
-                      className="text-xs"
-                      size="sm"
-                    >
-                      None
-                    </Button>
-                    {STOP_PROFIT_OPTIONS.map(percentage => (
-                      <Button
-                        key={percentage}
-                        variant={stopProfitPercentage === percentage ? "default" : "outline"}
-                        onClick={() => setStopProfitPercentage(percentage)}
-                        className="text-xs"
-                        size="sm"
-                      >
-                        {percentage}%
-                      </Button>
-                    ))}
-                  </div>
-          </div>
+                  <Select value={scale ? scale.toString() : ""} onValueChange={(value) => setScale(value ? parseInt(value) : null)}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Optional" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {SCALE_OPTIONS.map((scaleOption) => (
+                        <SelectItem key={scaleOption} value={scaleOption.toString()}>
+                          {scaleOption}%
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
 
                 {stakeAmount && parseFloat(stakeAmount) >= 50 && <Card className="p-4 bg-muted/10">
                     <div className="grid grid-cols-3 gap-4 text-sm">
