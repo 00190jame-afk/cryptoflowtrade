@@ -15,6 +15,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
   sendVerificationCode: (identifier: string, type: 'email' | 'phone') => Promise<{ error: any; code?: string }>;
+  verifyEmailCode: (identifier: string, code: string) => Promise<{ error: any; valid?: boolean }>;
   validateInviteCode: (code: string) => Promise<{ error: any; valid?: boolean }>;
 }
 
@@ -74,14 +75,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
 
       toast({
-        title: "Verification email sent",
-        description: "Check your email for a verification link.",
+        title: "Verification code sent",
+        description: "Please check your email for the 6-digit code.",
       });
 
-      return { error: null };
+      return { error: null, code: (data as any)?.code };
     } catch (error: any) {
       toast({
-        title: "Failed to send verification email",
+        title: "Failed to send verification code",
         description: error.message,
         variant: "destructive",
       });
@@ -121,7 +122,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Invalid or expired invite code');
       }
 
-      // 2. Create user account using Supabase's built-in email verification
+      // 2. Create user account
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email,
         password,
@@ -145,7 +146,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       toast({
         title: "Registration successful",
-        description: "Please check your email and click the confirmation link to complete your registration.",
+        description: "Your account has been created.",
       });
 
       return { error: null };
@@ -197,7 +198,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
     }
 
-    return { error };
+  return { error };
+  };
+
+  const verifyEmailCode = async (identifier: string, code: string) => {
+    try {
+      const { data, error } = await supabase.rpc('verify_code', {
+        p_identifier: identifier,
+        p_code: code,
+        p_type: 'email'
+      });
+      if (error) throw error;
+      return { error: null, valid: data as boolean };
+    } catch (error: any) {
+      return { error, valid: false };
+    }
   };
 
   const value = {
@@ -208,6 +223,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signOut,
     sendVerificationCode,
+    verifyEmailCode,
     validateInviteCode,
   };
 

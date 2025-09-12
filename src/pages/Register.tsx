@@ -19,8 +19,9 @@ const Register = () => {
   const [verificationCode, setVerificationCode] = useState("");
   const [verificationSent, setVerificationSent] = useState(false);
   const [showVerification, setShowVerification] = useState(false);
+  const [devCode, setDevCode] = useState<string | null>(null);
   
-  const { signUp, user, validateInviteCode, sendVerificationCode } = useAuth();
+  const { signUp, user, validateInviteCode, sendVerificationCode, verifyEmailCode } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -36,11 +37,12 @@ const Register = () => {
     }
 
     setLoading(true);
-    const { error } = await sendVerificationCode(email, "email");
+    const { error, code } = await sendVerificationCode(email, "email");
     
     if (!error) {
       setVerificationSent(true);
       setShowVerification(true);
+      if (code) setDevCode(code);
       alert("Verification code sent to your email!");
     } else {
       alert("Failed to send verification code. Please try again.");
@@ -77,6 +79,13 @@ const Register = () => {
     }
 
     setLoading(true);
+
+    const { valid } = await verifyEmailCode(email, verificationCode);
+    if (!valid) {
+      alert("Invalid or expired verification code");
+      setLoading(false);
+      return;
+    }
     
     await signUp({
       email,
@@ -158,9 +167,16 @@ const Register = () => {
                       maxLength={6}
                       required
                     />
-                    <p className="text-xs text-green-600">
-                      Verification code sent to your email. Please check your inbox.
-                    </p>
+                    {devCode && (
+                      <p className="text-xs text-muted-foreground">
+                        Dev note: code is {devCode}
+                      </p>
+                    )}
+                    {verificationSent && (
+                      <p className="text-xs text-green-600">
+                        Verification code sent to your email. Please check your inbox.
+                      </p>
+                    )}
                   </>
                 )}
               </div>

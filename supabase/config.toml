@@ -52,3 +52,6 @@ max_frequency = "1s"
 
 [functions.crypto-news]
 verify_jwt = false
+
+[functions.send-verification]
+verify_jwt = false
