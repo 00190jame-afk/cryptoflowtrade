@@ -16,8 +16,11 @@ const Register = () => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [inviteCodeValid, setInviteCodeValid] = useState<boolean | null>(null);
+  const [verificationCode, setVerificationCode] = useState("");
+  const [verificationSent, setVerificationSent] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
   
-  const { signUp, user, validateInviteCode } = useAuth();
+  const { signUp, user, validateInviteCode, sendVerificationCode } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -26,11 +29,35 @@ const Register = () => {
     }
   }, [user, navigate]);
 
+  const handleSendVerification = async () => {
+    if (!email.trim()) {
+      alert("Email is required");
+      return;
+    }
+
+    setLoading(true);
+    const { error } = await sendVerificationCode(email, "email");
+    
+    if (!error) {
+      setVerificationSent(true);
+      setShowVerification(true);
+      alert("Verification code sent to your email!");
+    } else {
+      alert("Failed to send verification code. Please try again.");
+    }
+    setLoading(false);
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!email.trim()) {
       alert("Email is required");
+      return;
+    }
+    
+    if (!verificationCode.trim()) {
+      alert("Please enter the verification code");
       return;
     }
     
@@ -111,6 +138,34 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
+                <Label>Email Verification</Label>
+                {!showVerification ? (
+                  <Button
+                    type="button"
+                    onClick={handleSendVerification}
+                    variant="secondary"
+                    className="w-full"
+                    disabled={loading || !email.trim()}
+                  >
+                    {loading ? "Sending..." : "Send Verification Code"}
+                  </Button>
+                ) : (
+                  <>
+                    <Input
+                      placeholder="Enter 6-digit verification code"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      maxLength={6}
+                      required
+                    />
+                    <p className="text-xs text-green-600">
+                      Verification code sent to your email. Please check your inbox.
+                    </p>
+                  </>
+                )}
+              </div>
+
+              <div className="space-y-2">
                 <Label>Password</Label>
                 <Input
                   type="password"
@@ -175,7 +230,7 @@ const Register = () => {
               <Button
                 type="submit"
                 className="w-full gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300"
-                disabled={loading || !agreeToTerms || !inviteCode.trim() || inviteCodeValid === false}
+                disabled={loading || !agreeToTerms || !inviteCode.trim() || inviteCodeValid === false || !verificationCode.trim()}
               >
                 {loading ? "Creating account..." : "Register"}
               </Button>
