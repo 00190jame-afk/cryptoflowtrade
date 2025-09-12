@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { CountrySelector } from "@/components/ui/country-selector";
 import { ArrowLeft, TrendingUp } from "lucide-react";
 
 const ResetPassword = () => {
@@ -90,21 +90,16 @@ const ResetPassword = () => {
                 <div className="space-y-4">
                   <Label className="text-foreground">Mobile phone number</Label>
                   <div className="flex gap-2">
-                    <Select value={countryCode} onValueChange={setCountryCode}>
-                      <SelectTrigger className="w-24">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="+1">+1</SelectItem>
-                        <SelectItem value="+44">+44</SelectItem>
-                        <SelectItem value="+86">+86</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <CountrySelector
+                      value={countryCode}
+                      onValueChange={setCountryCode}
+                    />
                     <Input
                       placeholder="Mobile phone number"
                       value={resetIdentifier}
                       onChange={(e) => setResetIdentifier(e.target.value)}
                       required
+                      className="flex-1"
                     />
                   </div>
                 </div>
