@@ -67,6 +67,7 @@ interface ClosingOrder {
   leverage: number;
   realized_pnl: number;
   closed_at: string;
+  scale?: string;
 }
 const Futures = () => {
   const {
@@ -723,7 +724,7 @@ const Futures = () => {
                                  <TableCell>${order.quantity.toFixed(2)}</TableCell>
                                  <TableCell>${order.entry_price.toFixed(2)}</TableCell>
                                  <TableCell>{order.leverage}x</TableCell>
-                                  <TableCell>None</TableCell>
+                                  <TableCell>{order.scale || 'None'}</TableCell>
                                  <TableCell className={order.realized_pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
                                    ${order.realized_pnl.toFixed(2)}
                                  </TableCell>

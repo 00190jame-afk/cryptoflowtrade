@@ -25,6 +25,7 @@ export type Database = {
           original_trade_id: string | null
           quantity: number
           realized_pnl: number
+          scale: string | null
           side: string
           symbol: string
           user_id: string
@@ -39,6 +40,7 @@ export type Database = {
           original_trade_id?: string | null
           quantity: number
           realized_pnl: number
+          scale?: string | null
           side: string
           symbol: string
           user_id: string
@@ -53,6 +55,7 @@ export type Database = {
           original_trade_id?: string | null
           quantity?: number
           realized_pnl?: number
+          scale?: string | null
           side?: string
           symbol?: string
           user_id?: string
