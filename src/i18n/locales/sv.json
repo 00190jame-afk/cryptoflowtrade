@@ -23,69 +23,138 @@
   "advantages": {
     "title": "Varför Välja CryptoFlow?",
     "subtitle": "Upptäck fördelarna som gör oss till det föredragna valet för kryptovalutahandel.",
-    "realTimeData": {
-      "title": "Realtidsdata",
-      "description": "Få tillgång till live marknadsdata och utför affärer omedelbart med vår avancerade handelsmotor."
+    "bankSecurity": {
+      "title": "Banknivå-säkerhet",
+      "description": "Multi-signatur plånböcker, kall lagring och avancerad kryptering skyddar dina tillgångar med institutionella säkerhetsåtgärder."
     },
-    "advancedSecurity": {
-      "title": "Avancerad Säkerhet",
-      "description": "Dina tillgångar skyddas av säkerhetsåtgärder på banknivå och cold storage-lösningar."
+    "lightningFast": {
+      "title": "Blixtsnabb",
+      "description": "Utför affärer på under 1ms med vår banbrytande matchningsmotor som hanterar 300 000+ transaktioner per sekund."
     },
-    "lowFees": {
-      "title": "Låga Handelsavgifter", 
-      "description": "Njut av konkurrenskraftiga handelsavgifter från bara 0,1% med volymbaserade rabatter."
+    "globalCommunity": {
+      "title": "Global Gemenskap",
+      "description": "Anslut dig till miljontals handlare världen över med 24/7 flerspråkig support och en aktiv gemenskap i alla tidszoner."
     },
-    "support": {
-      "title": "24/7 Support",
-      "description": "Få hjälp när du behöver det med vårt dygnet-runt-kundsupportteam."
+    "advancedAnalytics": {
+      "title": "Avancerad Analys",
+      "description": "Professionella handelsverktyg med realtidsdiagram, tekniska indikatorer och marknadsintelligens för välgrundade beslut."
     },
-    "advancedOrders": {
-      "title": "Avancerade Order",
-      "description": "Använd sofistikerade ordertyper som stop-loss, take-profit och trailing stops."
+    "operations247": {
+      "title": "24/7 Verksamhet",
+      "description": "Missa aldrig en möjlighet med dygnet-runt-handel, kontinuerlig marknadstillgång och sömlös global verksamhet."
     },
-    "globalAccess": {
-      "title": "Global Åtkomst",
-      "description": "Handla från var som helst i världen med vår säkra och regelenliga plattform."
+    "regulatoryCompliance": {
+      "title": "Regelefterlevnad",
+      "description": "Fullt licensierat och förenligt med internationella regleringar, vilket säkerställer en säker och laglig handelsmiljö."
     },
+    "assetProtection": {
+      "title": "Tillgångsskydd",
+      "description": "100% reservstöd med transparent bevis på reserver och omfattande försäkringsskydd för digitala tillgångar."
+    },
+    "expertSupport": {
+      "title": "Expertstöd",
+      "description": "Dedikerat kundframgångsteam med djup kryptoexpertis, tillgängligt via chatt, e-post och telefonsupport."
+    },
+    "readyDifference": "Redo att uppleva skillnaden?",
+    "joinTraders": "Anslut dig till tusentals handlare som litar på CryptoFlow för sina digitala tillgångshandel.",
     "startTrading": "Börja Handla Idag",
     "learnMore": "Läs Mer"
   },
   "about": {
-    "title": "Sömlös Handelsupplevelse",
-    "subtitle": "Handla kryptovalutor på alla dina enheter med vår responsiva plattform.",
-    "features": {
-      "realTimeData": {
-        "title": "Realtidsmarknadsdata och analyser",
-        "description": "Håll dig före med live prisflöden och omfattande marknadsanalysverktyg."
-      },
-      "advancedOrders": {
-        "title": "Avancerade ordertyper och handelsverktyg",
-        "description": "Utför komplexa handelsstrategier med vår professionella orderhantering."
-      },
-      "secureTrading": {
-        "title": "Säker och regelenlig handelsmiljö",
-        "description": "Handla med förtroende i vetskap om att dina medel skyddas av branschledande säkerhet."
-      }
+    "title": "Upplev Sömlös Handel",
+    "subtitle": "CryptoFlow levererar en konsekvent, kraftfull handelsupplevelse på alla plattformar. Oavsett om du är vid ditt skrivbord eller på språng, få tillgång till hela kraften i vårt handelsekosystem.",
+    "whyChoose": "Varför Välja Vår Plattform?",
+    "realTimeMarketData": {
+      "title": "Realtidsmarknadsdata",
+      "description": "Tillgång till live kryptovalutapriser, diagram och marknadsdjup på alla dina enheter."
+    },
+    "advancedOrderTypes": {
+      "title": "Avancerade Ordertyper",
+      "description": "Utför sofistikerade handelsstrategier med limit-, marknads-, stop-loss- och algoritmiska order."
+    },
+    "portfolioManagement": {
+      "title": "Portföljhantering",
+      "description": "Spåra dina investeringar med omfattande portföljanalys och prestationsmått."
+    },
+    "instantNotifications": {
+      "title": "Direkta Aviseringar",
+      "description": "Håll dig informerad med anpassningsbara prisvarningar och marknadsrörelseaviseringar."
+    },
+    "secureTrading": {
+      "title": "Säker Handel",
+      "description": "Multifaktorautentisering och biometrisk säkerhet skyddar dina handelsaktiviteter."
+    },
+    "access247": {
+      "title": "24/7 Tillgång",
+      "description": "Handla kryptovalutor när som helst, var som helst med sömlös tvärplattformssynkronisering."
     },
     "platforms": {
       "desktop": {
         "name": "Desktop",
-        "description": "Fullt utrustad handelsplattform",
-        "available": "Tillgänglig"
+        "description": "Fullt utrustad handelsterminal"
       },
       "mobile": {
-        "name": "Mobilapp",
-        "description": "Handla på språng",
-        "available": "Tillgänglig"
+        "name": "Mobil",
+        "description": "Handla på språng"
       },
       "tablet": {
         "name": "Surfplatta",
-        "description": "Optimerad för surfplattor",
-        "available": "Tillgänglig"
+        "description": "Optimerad för surfplattor"
       }
     },
-    "createAccount": "Skapa Ditt Konto Idag",
-    "getStarted": "Kom Igång"
+    "createAccount": "Redo att Börja Handla?",
+    "joinDescription": "Anslut dig till miljontals handlare som litar på CryptoFlow för säker, snabb och pålitlig kryptovalutahandel.",
+    "getStarted": "Skapa Konto Nu"
+  },
+  "footer": {
+    "trustedBy": "Betrodd av Miljoner Världen Över",
+    "trustedDescription": "Anslut dig till den globala gemenskapen av handlare som väljer CryptoFlow för säker och pålitlig kryptovalutahandel.",
+    "tradingVolume": "Handelsvolym (24h)",
+    "activeUsers": "Aktiva Användare",
+    "countriesServed": "Länder Betjänade",
+    "cryptocurrencies": "Kryptovalutor",
+    "description": "Världens mest avancerade kryptovalutahandelsplattform. Handla med förtroende med vår institutionella säkerhet och banbrytande teknik.",
+    "sections": {
+      "products": {
+        "title": "Produkter",
+        "spotTrading": "Spothandel",
+        "futures": "Terminer",
+        "options": "Optioner",
+        "staking": "Staking",
+        "nftMarketplace": "NFT-marknadsplats"
+      },
+      "resources": {
+        "title": "Resurser",
+        "helpCenter": "Hjälpcenter",
+        "apiDocs": "API-dokumentation",
+        "tradingGuides": "Handelsguider",
+        "marketAnalysis": "Marknadsanalys",
+        "educational": "Utbildningsinnehåll"
+      },
+      "company": {
+        "title": "Företag",
+        "aboutUs": "Om Oss",
+        "careers": "Karriärer",
+        "pressKit": "Presskit",
+        "blog": "Blogg",
+        "contact": "Kontakt"
+      },
+      "legal": {
+        "title": "Juridiskt",
+        "terms": "Användarvillkor",
+        "privacy": "Integritetspolicy",
+        "cookies": "Cookie-policy",
+        "compliance": "Efterlevnad",
+        "riskDisclosure": "Riskupplysning"
+      }
+    },
+    "stayUpdated": "Håll dig Uppdaterad",
+    "newsletterDescription": "Få de senaste marknadsinsikterna, plattformsuppdateringarna och exklusiva handelstips levererade till din inkorg.",
+    "emailPlaceholder": "Ange din e-postadress",
+    "subscribe": "Prenumerera",
+    "noSpam": "Ingen spam, avsluta prenumerationen när som helst.",
+    "copyright": "© 2024 CryptoFlow. Alla rättigheter förbehållna. | Riskvarning: Handel med kryptovalutor innebär betydande risk för förlust.",
+    "followUs": "Följ oss:"
   },
   "profile": {
     "title": "Profilinställningar",

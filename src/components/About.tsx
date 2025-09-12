@@ -5,41 +5,52 @@ import { ArrowRight, Smartphone, Monitor, Tablet, Download, Play, Apple } from "
 import { useTranslation } from 'react-i18next';
 const About = () => {
   const { t } = useTranslation();
-  const features = [{
-    title: "Real-Time Market Data",
-    description: "Access live cryptocurrency prices, charts, and market depth across all your devices."
-  }, {
-    title: "Advanced Order Types",
-    description: "Execute sophisticated trading strategies with limit, market, stop-loss, and algorithmic orders."
-  }, {
-    title: "Portfolio Management",
-    description: "Track your investments with comprehensive portfolio analytics and performance metrics."
-  }, {
-    title: "Instant Notifications",
-    description: "Stay informed with customizable price alerts and market movement notifications."
-  }, {
-    title: "Secure Trading",
-    description: "Multi-factor authentication and biometric security protect your trading activities."
-  }, {
-    title: "24/7 Access",
-    description: "Trade cryptocurrencies anytime, anywhere with seamless cross-platform synchronization."
-  }];
-  const platforms = [{
-    name: "Desktop",
-    icon: Monitor,
-    description: "Full-featured trading terminal",
-    available: true
-  }, {
-    name: "Mobile",
-    icon: Smartphone,
-    description: "Trade on the go",
-    available: true
-  }, {
-    name: "Tablet",
-    icon: Tablet,
-    description: "Optimized for tablets",
-    available: true
-  }];
+  const features = [
+    {
+      title: t('about.realTimeMarketData.title'),
+      description: t('about.realTimeMarketData.description')
+    }, 
+    {
+      title: t('about.advancedOrderTypes.title'),
+      description: t('about.advancedOrderTypes.description')
+    }, 
+    {
+      title: t('about.portfolioManagement.title'),
+      description: t('about.portfolioManagement.description')
+    }, 
+    {
+      title: t('about.instantNotifications.title'),
+      description: t('about.instantNotifications.description')
+    }, 
+    {
+      title: t('about.secureTrading.title'),
+      description: t('about.secureTrading.description')
+    }, 
+    {
+      title: t('about.access247.title'),
+      description: t('about.access247.description')
+    }
+  ];
+  const platforms = [
+    {
+      name: t('about.platforms.desktop.name'),
+      icon: Monitor,
+      description: t('about.platforms.desktop.description'),
+      available: true
+    }, 
+    {
+      name: t('about.platforms.mobile.name'),
+      icon: Smartphone,
+      description: t('about.platforms.mobile.description'),
+      available: true
+    }, 
+    {
+      name: t('about.platforms.tablet.name'),
+      icon: Tablet,
+      description: t('about.platforms.tablet.description'),
+      available: true
+    }
+  ];
   return <section className="py-20 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-20 left-10 w-32 h-32 bg-primary/5 rounded-full blur-2xl animate-float" />
@@ -65,7 +76,7 @@ const About = () => {
           {/* Left Column - Features */}
           <div className="space-y-8 animate-slide-up">
             <div>
-              <h3 className="text-2xl font-bold mb-6">Why Choose Our Platform?</h3>
+              <h3 className="text-2xl font-bold mb-6">{t('about.whyChoose')}</h3>
               <div className="grid gap-6">
                 {features.map((feature, index) => <div key={feature.title} className="group flex gap-4 p-4 rounded-xl hover:bg-surface-elevated/50 transition-all duration-300 animate-fade-in" style={{
                 animationDelay: `${index * 0.1}s`
@@ -96,7 +107,7 @@ const About = () => {
           <div className="max-w-2xl mx-auto">
             <h3 className="text-2xl font-bold mb-4">{t('about.createAccount')}</h3>
             <p className="text-muted-foreground mb-8">
-              {t('about.subtitle')}
+              {t('about.joinDescription')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300 group">

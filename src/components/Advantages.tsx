@@ -7,50 +7,50 @@ const Advantages = () => {
   const advantages = [
     {
       icon: Shield,
-      title: "Bank-Level Security",
-      description: "Multi-signature wallets, cold storage, and advanced encryption protect your assets with institutional-grade security measures.",
+      title: t('advantages.bankSecurity.title'),
+      description: t('advantages.bankSecurity.description'),
       gradient: "from-blue-500 to-cyan-500"
     },
     {
       icon: Zap,
-      title: "Lightning Fast",
-      description: "Execute trades in under 1ms with our cutting-edge matching engine, handling 300,000+ transactions per second.",
+      title: t('advantages.lightningFast.title'),
+      description: t('advantages.lightningFast.description'),
       gradient: "from-purple-500 to-pink-500"
     },
     {
       icon: Users,
-      title: "Global Community",
-      description: "Join millions of traders worldwide with 24/7 multi-language support and an active community across all time zones.",
+      title: t('advantages.globalCommunity.title'),
+      description: t('advantages.globalCommunity.description'),
       gradient: "from-green-500 to-emerald-500"
     },
     {
       icon: BarChart3,
-      title: "Advanced Analytics",
-      description: "Professional trading tools with real-time charts, technical indicators, and market intelligence for informed decisions.",
+      title: t('advantages.advancedAnalytics.title'),
+      description: t('advantages.advancedAnalytics.description'),
       gradient: "from-orange-500 to-red-500"
     },
     {
       icon: Clock,
-      title: "24/7 Operations",
-      description: "Never miss an opportunity with round-the-clock trading, continuous market access, and seamless global operations.",
+      title: t('advantages.operations247.title'),
+      description: t('advantages.operations247.description'),
       gradient: "from-indigo-500 to-blue-500"
     },
     {
       icon: Globe,
-      title: "Regulatory Compliance",
-      description: "Fully licensed and compliant with international regulations, ensuring a safe and legal trading environment.",
+      title: t('advantages.regulatoryCompliance.title'),
+      description: t('advantages.regulatoryCompliance.description'),
       gradient: "from-teal-500 to-green-500"
     },
     {
       icon: Lock,
-      title: "Asset Protection",
-      description: "100% reserve backing with transparent proof-of-reserves and comprehensive insurance coverage for digital assets.",
+      title: t('advantages.assetProtection.title'),
+      description: t('advantages.assetProtection.description'),
       gradient: "from-violet-500 to-purple-500"
     },
     {
       icon: Headphones,
-      title: "Expert Support",
-      description: "Dedicated customer success team with deep crypto expertise, available via chat, email, and phone support.",
+      title: t('advantages.expertSupport.title'),
+      description: t('advantages.expertSupport.description'),
       gradient: "from-rose-500 to-pink-500"
     }
   ];
@@ -108,9 +108,9 @@ const Advantages = () => {
         {/* CTA Section */}
         <div className="text-center mt-16 animate-slide-up">
           <div className="glass-card rounded-2xl p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold mb-4">Ready to experience the difference?</h3>
+            <h3 className="text-2xl font-bold mb-4">{t('advantages.readyDifference')}</h3>
             <p className="text-muted-foreground mb-6">
-              Join thousands of traders who trust CryptoFlow for their digital asset trading needs.
+              {t('advantages.joinTraders')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="px-8 py-3 gradient-primary rounded-lg font-medium hover:shadow-primary transition-all duration-300">

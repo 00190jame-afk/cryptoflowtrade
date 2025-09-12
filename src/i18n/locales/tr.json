@@ -23,69 +23,138 @@
   "advantages": {
     "title": "Neden CryptoFlow'u Seçmelisiniz?",
     "subtitle": "Bizi kripto para ticareti için tercih edilen seçenek yapan avantajları keşfedin.",
-    "realTimeData": {
-      "title": "Gerçek Zamanlı Veri",
-      "description": "Gelişmiş ticaret motorumuzla canlı piyasa verilerine erişin ve anında işlem yapın."
+    "bankSecurity": {
+      "title": "Banka Seviyesi Güvenlik",
+      "description": "Çoklu imza cüzdanları, soğuk depolama ve gelişmiş şifreleme ile varlıklarınızı kurumsal seviye güvenlik önlemleriyle koruyoruz."
     },
-    "advancedSecurity": {
-      "title": "Gelişmiş Güvenlik",
-      "description": "Varlıklarınız banka seviyesi güvenlik önlemleri ve soğuk depolama çözümleriyle korunur."
+    "lightningFast": {
+      "title": "Yıldırım Hızında",
+      "description": "1ms'den kısa sürede işlem yapın, saniyede 300.000+ işlem işleyen son teknoloji eşleştirme motorumuzla."
     },
-    "lowFees": {
-      "title": "Düşük İşlem Ücretleri", 
-      "description": "Hacim bazlı indirimlerle sadece %0,1'den başlayan rekabetçi işlem ücretlerinin keyfini çıkarın."
+    "globalCommunity": {
+      "title": "Küresel Topluluk",
+      "description": "24/7 çok dilli destek ve tüm saat dilimlerinde aktif topluluk ile dünya çapında milyonlarca tüccara katılın."
     },
-    "support": {
-      "title": "7/24 Destek",
-      "description": "7/24 müşteri destek ekibimizle ihtiyacınız olduğunda yardım alın."
+    "advancedAnalytics": {
+      "title": "Gelişmiş Analitik",
+      "description": "Bilinçli kararlar için gerçek zamanlı grafikler, teknik göstergeler ve pazar zekası ile profesyonel ticaret araçları."
     },
-    "advancedOrders": {
-      "title": "Gelişmiş Emirler",
-      "description": "Stop-loss, take-profit ve trailing stop gibi gelişmiş emir türlerini kullanın."
+    "operations247": {
+      "title": "7/24 Operasyonlar",
+      "description": "Gece gündüz ticaret, sürekli pazar erişimi ve kesintisiz küresel operasyonlarla hiçbir fırsatı kaçırmayın."
     },
-    "globalAccess": {
-      "title": "Küresel Erişim",
-      "description": "Güvenli ve uyumlu platformumuzla dünyanın her yerinden ticaret yapın."
+    "regulatoryCompliance": {
+      "title": "Düzenleyici Uyumluluk",
+      "description": "Uluslararası düzenlemelere tam uyumlu ve lisanslı, güvenli ve yasal ticaret ortamı sağlar."
     },
+    "assetProtection": {
+      "title": "Varlık Koruması",
+      "description": "Şeffaf rezerv kanıtı ve dijital varlıklar için kapsamlı sigorta kapsamı ile %100 rezerv desteği."
+    },
+    "expertSupport": {
+      "title": "Uzman Desteği",
+      "description": "Derin kripto uzmanlığına sahip özel müşteri başarı ekibi, chat, e-posta ve telefon desteği ile kullanılabilir."
+    },
+    "readyDifference": "Farkı deneyimlemeye hazır mısınız?",
+    "joinTraders": "Dijital varlık ticareti ihtiyaçları için CryptoFlow'a güvenen binlerce tüccara katılın.",
     "startTrading": "Bugün Ticarete Başlayın",
     "learnMore": "Daha Fazla Bilgi"
   },
   "about": {
-    "title": "Sorunsuz Ticaret Deneyimi",
-    "subtitle": "Duyarlı platformumuzla tüm cihazlarınızda kripto para ticareti yapın.",
-    "features": {
-      "realTimeData": {
-        "title": "Gerçek zamanlı piyasa verileri ve analitik",
-        "description": "Canlı fiyat akışları ve kapsamlı piyasa analizi araçlarıyla önde kalın."
-      },
-      "advancedOrders": {
-        "title": "Gelişmiş emir türleri ve ticaret araçları",
-        "description": "Profesyonel sınıf emir yönetimimizle karmaşık ticaret stratejilerini uygulayın."
-      },
-      "secureTrading": {
-        "title": "Güvenli ve uyumlu ticaret ortamı",
-        "description": "Fonlarınızın endüstri lideri güvenlikle korunduğunu bilerek güvenle ticaret yapın."
-      }
+    "title": "Sorunsuz Ticaret Deneyimi Yaşayın",
+    "subtitle": "CryptoFlow tüm platformlarda tutarlı, güçlü bir ticaret deneyimi sunar. Masanızda veya hareket halinde olun, ticaret ekosistemimizin tüm gücüne erişin.",
+    "whyChoose": "Neden Platformumuzu Seçmelisiniz?",
+    "realTimeMarketData": {
+      "title": "Gerçek Zamanlı Pazar Verileri",
+      "description": "Tüm cihazlarınızda canlı kripto para fiyatlarına, grafiklere ve pazar derinliğine erişin."
+    },
+    "advancedOrderTypes": {
+      "title": "Gelişmiş Emir Türleri",
+      "description": "Limit, piyasa, stop-loss ve algoritmik emirlerle sofistike ticaret stratejileri uygulayın."
+    },
+    "portfolioManagement": {
+      "title": "Portföy Yönetimi",
+      "description": "Kapsamlı portföy analitiği ve performans metrikleri ile yatırımlarınızı takip edin."
+    },
+    "instantNotifications": {
+      "title": "Anında Bildirimler",
+      "description": "Özelleştirilebilir fiyat uyarıları ve pazar hareket bildirimleri ile bilgili kalın."
+    },
+    "secureTrading": {
+      "title": "Güvenli Ticaret",
+      "description": "Çok faktörlü kimlik doğrulama ve biyometrik güvenlik ticaret faaliyetlerinizi korur."
+    },
+    "access247": {
+      "title": "7/24 Erişim",
+      "description": "Kesintisiz çapraz platform senkronizasyonu ile her zaman, her yerde kripto para ticareti yapın."
     },
     "platforms": {
       "desktop": {
         "name": "Masaüstü",
-        "description": "Tam özellikli ticaret platformu",
-        "available": "Mevcut"
+        "description": "Tam özellikli ticaret terminali"
       },
       "mobile": {
-        "name": "Mobil Uygulama",
-        "description": "Hareket halindeyken ticaret",
-        "available": "Mevcut"
+        "name": "Mobil",
+        "description": "Hareket halinde ticaret"
       },
       "tablet": {
         "name": "Tablet",
-        "description": "Tabletler için optimize edilmiş",
-        "available": "Mevcut"
+        "description": "Tabletler için optimize edilmiş"
       }
     },
-    "createAccount": "Bugün Hesabınızı Oluşturun",
-    "getStarted": "Başlayın"
+    "createAccount": "Ticarete Başlamaya Hazır mısınız?",
+    "joinDescription": "Güvenli, hızlı ve güvenilir kripto para ticareti için CryptoFlow'a güvenen milyonlarca tüccara katılın.",
+    "getStarted": "Şimdi Hesap Oluşturun"
+  },
+  "footer": {
+    "trustedBy": "Dünya Çapında Milyonlarca Kişi Tarafından Güvenilir",
+    "trustedDescription": "Güvenli ve güvenilir kripto para ticareti için CryptoFlow'u seçen küresel tüccar topluluğuna katılın.",
+    "tradingVolume": "Ticaret Hacmi (24s)",
+    "activeUsers": "Aktif Kullanıcılar",
+    "countriesServed": "Hizmet Verilen Ülkeler",
+    "cryptocurrencies": "Kripto Paralar",
+    "description": "Dünyanın en gelişmiş kripto para ticaret platformu. Kurumsal güvenliğimiz ve son teknoloji ile güvenle ticaret yapın.",
+    "sections": {
+      "products": {
+        "title": "Ürünler",
+        "spotTrading": "Spot Ticaret",
+        "futures": "Vadeli İşlemler",
+        "options": "Opsiyonlar",
+        "staking": "Staking",
+        "nftMarketplace": "NFT Pazarı"
+      },
+      "resources": {
+        "title": "Kaynaklar",
+        "helpCenter": "Yardım Merkezi",
+        "apiDocs": "API Dokümantasyonu",
+        "tradingGuides": "Ticaret Kılavuzları",
+        "marketAnalysis": "Pazar Analizi",
+        "educational": "Eğitim İçeriği"
+      },
+      "company": {
+        "title": "Şirket",
+        "aboutUs": "Hakkımızda",
+        "careers": "Kariyer",
+        "pressKit": "Basın Kiti",
+        "blog": "Blog",
+        "contact": "İletişim"
+      },
+      "legal": {
+        "title": "Hukuki",
+        "terms": "Hizmet Şartları",
+        "privacy": "Gizlilik Politikası",
+        "cookies": "Çerez Politikası",
+        "compliance": "Uyumluluk",
+        "riskDisclosure": "Risk Açıklaması"
+      }
+    },
+    "stayUpdated": "Güncel Kalın",
+    "newsletterDescription": "En son pazar içgörüleri, platform güncellemeleri ve özel ticaret ipuçlarını doğrudan gelen kutunuza alın.",
+    "emailPlaceholder": "E-posta adresinizi girin",
+    "subscribe": "Abone Ol",
+    "noSpam": "Spam yok, istediğiniz zaman abonelikten çıkabilirsiniz.",
+    "copyright": "© 2024 CryptoFlow. Tüm hakları saklıdır. | Risk Uyarısı: Kripto para ticareti önemli kayıp riski içerir.",
+    "followUs": "Bizi takip edin:"
   },
   "profile": {
     "title": "Profil Ayarları",

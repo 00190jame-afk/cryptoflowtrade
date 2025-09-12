@@ -23,69 +23,138 @@
   "advantages": {
     "title": "Waarom Kiezen voor CryptoFlow?",
     "subtitle": "Ontdek de voordelen die ons de voorkeurspartner maken voor cryptocurrency handel.",
-    "realTimeData": {
-      "title": "Real-Time Gegevens",
-      "description": "Toegang tot live marktgegevens en direct handelen met onze geavanceerde handelsengine."
+    "bankSecurity": {
+      "title": "Bankbeveiliging",
+      "description": "Multi-signature wallets, cold storage en geavanceerde encryptie beschermen uw activa met institutionele beveiligingsmaatregelen."
     },
-    "advancedSecurity": {
-      "title": "Geavanceerde Beveiliging",
-      "description": "Uw activa worden beschermd door bankbeveiliging en cold storage oplossingen."
+    "lightningFast": {
+      "title": "Bliksemsnelle Uitvoering",
+      "description": "Voer trades uit in minder dan 1ms met onze geavanceerde matching engine, met meer dan 300.000 transacties per seconde."
     },
-    "lowFees": {
-      "title": "Lage Handelskosten", 
-      "description": "Geniet van concurrerende handelskosten vanaf slechts 0,1% met volumekortingen."
+    "globalCommunity": {
+      "title": "Wereldwijde Gemeenschap",
+      "description": "Sluit je aan bij miljoenen handelaren wereldwijd met 24/7 meertalige ondersteuning en een actieve gemeenschap in alle tijdzones."
     },
-    "support": {
-      "title": "24/7 Ondersteuning",
-      "description": "Krijg hulp wanneer je het nodig hebt met ons 24/7 klantenserviceteam."
+    "advancedAnalytics": {
+      "title": "Geavanceerde Analytics",
+      "description": "Professionele handelstools met real-time grafieken, technische indicatoren en marktintelligentie voor geïnformeerde beslissingen."
     },
-    "advancedOrders": {
-      "title": "Geavanceerde Orders",
-      "description": "Gebruik geavanceerde ordertypen zoals stop-loss, take-profit en trailing stops."
+    "operations247": {
+      "title": "24/7 Operaties",
+      "description": "Mis nooit een kans met 24/7 handel, continue markttoegang en naadloze wereldwijde operaties."
     },
-    "globalAccess": {
-      "title": "Wereldwijde Toegang",
-      "description": "Handel overal ter wereld met ons veilige en conforme platform."
+    "regulatoryCompliance": {
+      "title": "Regelgevingsnaleving",
+      "description": "Volledig gelicenseerd en conform internationale regelgeving, wat een veilige en legale handelsomgeving garandeert."
     },
+    "assetProtection": {
+      "title": "Activabescherming",
+      "description": "100% reserve-ondersteuning met transparant bewijs van reserves en uitgebreide verzekeringsdekking voor digitale activa."
+    },
+    "expertSupport": {
+      "title": "Expertondersteuning",
+      "description": "Toegewijd klantsuccesteam met diepe crypto-expertise, beschikbaar via chat, e-mail en telefonische ondersteuning."
+    },
+    "readyDifference": "Klaar om het verschil te ervaren?",
+    "joinTraders": "Sluit je aan bij duizenden handelaren die CryptoFlow vertrouwen voor hun digitale activahandel.",
     "startTrading": "Begin Vandaag met Handelen",
     "learnMore": "Meer Informatie"
   },
   "about": {
-    "title": "Naadloze Handelservaring",
-    "subtitle": "Handel cryptocurrency op al je apparaten met ons responsieve platform.",
-    "features": {
-      "realTimeData": {
-        "title": "Real-time marktgegevens en analyses",
-        "description": "Blijf voorop met live prijsfeeds en uitgebreide marktanalyse tools."
-      },
-      "advancedOrders": {
-        "title": "Geavanceerde ordertypen en handelstools",
-        "description": "Voer complexe handelsstrategieën uit met ons professionele orderbeheer."
-      },
-      "secureTrading": {
-        "title": "Veilige en conforme handelsomgeving",
-        "description": "Handel met vertrouwen wetende dat je fondsen beschermd zijn door toonaangevende beveiliging."
-      }
+    "title": "Ervaar Naadloze Handel",
+    "subtitle": "CryptoFlow levert een consistente, krachtige handelservaring op alle platforms. Of je nu aan je bureau zit of onderweg bent, krijg toegang tot de volledige kracht van ons handelsecosysteem.",
+    "whyChoose": "Waarom Kiezen voor Ons Platform?",
+    "realTimeMarketData": {
+      "title": "Real-time Marktgegevens",
+      "description": "Toegang tot live cryptocurrency prijzen, grafieken en marktdiepte op al je apparaten."
+    },
+    "advancedOrderTypes": {
+      "title": "Geavanceerde Ordertypen",
+      "description": "Voer geavanceerde handelsstrategieën uit met limit, market, stop-loss en algoritmische orders."
+    },
+    "portfolioManagement": {
+      "title": "Portefeuillbeheer",
+      "description": "Volg je investeringen met uitgebreide portfolioanalyses en prestatiemetrieken."
+    },
+    "instantNotifications": {
+      "title": "Directe Meldingen",
+      "description": "Blijf op de hoogte met aanpasbare prijswaarschuwingen en marktbewegingsmeldingen."
+    },
+    "secureTrading": {
+      "title": "Veilige Handel",
+      "description": "Multi-factor authenticatie en biometrische beveiliging beschermen je handelsactiviteiten."
+    },
+    "access247": {
+      "title": "24/7 Toegang",
+      "description": "Handel cryptocurrencies altijd en overal met naadloze cross-platform synchronisatie."
     },
     "platforms": {
       "desktop": {
         "name": "Desktop",
-        "description": "Volledig uitgerust handelsplatform",
-        "available": "Beschikbaar"
+        "description": "Volledig uitgerust handelsterminal"
       },
       "mobile": {
-        "name": "Mobiele App",
-        "description": "Handel onderweg",
-        "available": "Beschikbaar"
+        "name": "Mobiel",
+        "description": "Handel onderweg"
       },
       "tablet": {
         "name": "Tablet",
-        "description": "Geoptimaliseerd voor tablets",
-        "available": "Beschikbaar"
+        "description": "Geoptimaliseerd voor tablets"
       }
     },
-    "createAccount": "Maak Vandaag Je Account Aan",
-    "getStarted": "Begin Nu"
+    "createAccount": "Klaar om te Beginnen met Handelen?",
+    "joinDescription": "Sluit je aan bij miljoenen handelaren die CryptoFlow vertrouwen voor veilige, snelle en betrouwbare cryptocurrency handel.",
+    "getStarted": "Maak Nu Account Aan"
+  },
+  "footer": {
+    "trustedBy": "Vertrouwd door Miljoenen Wereldwijd",
+    "trustedDescription": "Sluit je aan bij de wereldwijde gemeenschap van handelaren die CryptoFlow kiezen voor veilige en betrouwbare cryptocurrency handel.",
+    "tradingVolume": "Handelsvolume (24u)",
+    "activeUsers": "Actieve Gebruikers",
+    "countriesServed": "Landen Bediend",
+    "cryptocurrencies": "Cryptocurrencies",
+    "description": "'s Werelds meest geavanceerde cryptocurrency handelsplatform. Handel met vertrouwen met onze institutionele beveiliging en geavanceerde technologie.",
+    "sections": {
+      "products": {
+        "title": "Producten",
+        "spotTrading": "Spot Handel",
+        "futures": "Futures",
+        "options": "Opties",
+        "staking": "Staking",
+        "nftMarketplace": "NFT Marktplaats"
+      },
+      "resources": {
+        "title": "Bronnen",
+        "helpCenter": "Helpcentrum",
+        "apiDocs": "API Documentatie",
+        "tradingGuides": "Handelsgidsen",
+        "marketAnalysis": "Marktanalyse",
+        "educational": "Educatieve Content"
+      },
+      "company": {
+        "title": "Bedrijf",
+        "aboutUs": "Over Ons",
+        "careers": "Carrières",
+        "pressKit": "Perskit",
+        "blog": "Blog",
+        "contact": "Contact"
+      },
+      "legal": {
+        "title": "Juridisch",
+        "terms": "Servicevoorwaarden",
+        "privacy": "Privacybeleid",
+        "cookies": "Cookiebeleid",
+        "compliance": "Naleving",
+        "riskDisclosure": "Risico Disclosure"
+      }
+    },
+    "stayUpdated": "Blijf op de Hoogte",
+    "newsletterDescription": "Ontvang de laatste marktinzichten, platformupdates en exclusieve handelstips in je inbox.",
+    "emailPlaceholder": "Voer je e-mailadres in",
+    "subscribe": "Abonneren",
+    "noSpam": "Geen spam, op elk moment uitschrijven.",
+    "copyright": "© 2024 CryptoFlow. Alle rechten voorbehouden. | Risicowaarschuwing: Het handelen in cryptocurrencies houdt aanzienlijk verliesrisico in.",
+    "followUs": "Volg ons:"
   },
   "profile": {
     "title": "Profielinstellingen",
