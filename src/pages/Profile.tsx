@@ -150,8 +150,8 @@ export default function Profile() {
       const { error } = await supabase
         .from('profiles')
         .update({
-          username: editForm.username,
-          full_name: editForm.full_name,
+        username: editForm.username,
+        full_name: '',
           avatar_url: avatarUrl
         })
         .eq('user_id', user.id);
@@ -319,23 +319,12 @@ export default function Profile() {
               <div className="flex-1 text-center md:text-left">
                 <h1 className="text-3xl font-bold mb-2">{getDisplayName()}</h1>
                 <p className="text-muted-foreground mb-2">{user.email}</p>
-                <Badge variant="secondary" className="mb-4">
-                  UID: {user.id.slice(0, 16)}...
+                <Badge variant="secondary" className="mb-2">
+                  UID: {user.id}
                 </Badge>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
-                  <div className="bg-background/50 rounded-lg p-4">
-                    <Label className="text-sm font-medium text-muted-foreground">Credit Score</Label>
-                    <div className="text-2xl font-bold text-primary">{profile.credit_score}</div>
-                  </div>
-                  
-                  <div className="bg-background/50 rounded-lg p-4">
-                    <Label className="text-sm font-medium text-muted-foreground">Available Balance</Label>
-                    <div className="text-2xl font-bold text-green-600">
-                      {balance?.balance?.toFixed(2) || '0.00'} {balance?.currency || 'USD'}
-                    </div>
-                  </div>
-                </div>
+                <p className="text-sm text-muted-foreground">
+                  Credit Score: {profile.credit_score}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -372,21 +361,12 @@ export default function Profile() {
                       </DialogHeader>
                       <div className="space-y-4">
                         <div>
-                          <Label htmlFor="username">Username</Label>
+                          <Label htmlFor="username">Name</Label>
                           <Input
                             id="username"
                             value={editForm.username}
                             onChange={(e) => setEditForm({...editForm, username: e.target.value})}
-                            placeholder="Enter username"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="fullName">Full Name</Label>
-                          <Input
-                            id="fullName"
-                            value={editForm.full_name}
-                            onChange={(e) => setEditForm({...editForm, full_name: e.target.value})}
-                            placeholder="Enter full name"
+                            placeholder="Enter your name"
                           />
                         </div>
                         <div>
