@@ -26,6 +26,11 @@ interface UserProfile {
   wallet_address: string | null;
 }
 
+interface UserBalance {
+  balance: number;
+  currency: string;
+}
+
 const languages = [
   { code: 'en', name: 'English', flag: '🇬🇧🇺🇸' },
   { code: 'de', name: 'German', flag: '🇩🇪🇦🇹🇨🇭' },
@@ -43,6 +48,7 @@ export default function Profile() {
   const { toast } = useToast();
   
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [balance, setBalance] = useState<UserBalance | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
@@ -83,22 +89,31 @@ export default function Profile() {
 
   const fetchProfile = async () => {
     try {
-      const { data, error } = await supabase
+      // Fetch profile data
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', user?.id)
         .single();
         
-      if (error) throw error;
+      if (profileError) throw profileError;
       
-      setProfile(data);
+      // Fetch balance data
+      const { data: balanceData, error: balanceError } = await supabase
+        .from('user_balances')
+        .select('balance, currency')
+        .eq('user_id', user?.id)
+        .single();
+      
+      setProfile(profileData);
+      setBalance(balanceData || { balance: 0, currency: 'USD' });
       setEditForm({
-        username: data.username || '',
-        full_name: data.full_name || '',
+        username: profileData.username || '',
+        full_name: profileData.full_name || '',
         avatar: null
       });
-      setWalletAddress(data.wallet_address || '');
-      setWalletAddressInput(data.wallet_address || '');
+      setWalletAddress(profileData.wallet_address || '');
+      setWalletAddressInput(profileData.wallet_address || '');
     } catch (error: any) {
       toast({
         title: "Error",
@@ -291,56 +306,43 @@ export default function Profile() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Profile Overview Card */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-6">
-              <CardContent className="p-6 text-center">
-                <div className="mb-6">
-                  <Avatar className="h-24 w-24 mx-auto mb-4">
-                    <AvatarImage src={getAvatarUrl()} alt="Profile picture" />
-                    <AvatarFallback className="text-lg">{getInitials()}</AvatarFallback>
-                  </Avatar>
-                  
-                  <h2 className="text-2xl font-bold mb-2">{getDisplayName()}</h2>
-                  <p className="text-muted-foreground mb-2">{user.email}</p>
-                  <Badge variant="secondary" className="mb-4">
-                    acct_{user.id.slice(0, 8)}...
-                  </Badge>
-                </div>
+      <main className="container mx-auto px-4 py-8 max-w-4xl">
+        {/* Full Width Profile Header */}
+        <Card className="mb-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
+          <CardContent className="p-8">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <Avatar className="h-24 w-24 ring-4 ring-primary/20">
+                <AvatarImage src={getAvatarUrl()} alt="Profile picture" />
+                <AvatarFallback className="text-lg">{getInitials()}</AvatarFallback>
+              </Avatar>
+              
+              <div className="flex-1 text-center md:text-left">
+                <h1 className="text-3xl font-bold mb-2">{getDisplayName()}</h1>
+                <p className="text-muted-foreground mb-2">{user.email}</p>
+                <Badge variant="secondary" className="mb-4">
+                  UID: {user.id.slice(0, 16)}...
+                </Badge>
                 
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium">Credit Score</Label>
-                    <div className="mt-2">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-2xl font-bold">{profile.credit_score}</span>
-                        <Badge variant={profile.credit_score >= 80 ? "default" : profile.credit_score >= 60 ? "secondary" : "destructive"}>
-                          {profile.credit_score >= 80 ? "Excellent" : profile.credit_score >= 60 ? "Good" : "Poor"}
-                        </Badge>
-                      </div>
-                      <Progress value={profile.credit_score} className="h-2" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                  <div className="bg-background/50 rounded-lg p-4">
+                    <Label className="text-sm font-medium text-muted-foreground">Credit Score</Label>
+                    <div className="text-2xl font-bold text-primary">{profile.credit_score}</div>
+                  </div>
+                  
+                  <div className="bg-background/50 rounded-lg p-4">
+                    <Label className="text-sm font-medium text-muted-foreground">Available Balance</Label>
+                    <div className="text-2xl font-bold text-green-600">
+                      {balance?.balance?.toFixed(2) || '0.00'} {balance?.currency || 'USD'}
                     </div>
                   </div>
-                  
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">Linked Wallet Address</Label>
-                    {walletAddress ? (
-                      <div className="text-sm bg-muted p-2 rounded break-all">
-                        {walletAddress}
-                      </div>
-                    ) : (
-                      <p className="text-sm text-muted-foreground">No wallet address linked</p>
-                    )}
-                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-          
-          {/* Settings Section */}
-          <div className="lg:col-span-2 space-y-6">
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        
+        {/* Settings Section */}
+        <div className="space-y-6">
             {/* Account Settings */}
             <Card>
               <CardHeader>
@@ -459,13 +461,22 @@ export default function Profile() {
                     </DialogContent>
                   </Dialog>
                 </div>
-                
-                {/* Wallet Address Section */}
-                <div className="pt-4 border-t">
-                  <Label className="text-sm font-medium mb-3 block flex items-center gap-2">
-                    <Wallet className="h-4 w-4" />
-                    Crypto Wallet Address
-                  </Label>
+              </CardContent>
+            </Card>
+            
+            {/* Wallet Settings */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Wallet className="h-5 w-5" />
+                  Wallet Settings
+                </CardTitle>
+                <CardDescription>
+                  Link your crypto wallet address
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
                   <div className="flex gap-2">
                     <Input
                       value={walletAddressInput}
@@ -480,6 +491,12 @@ export default function Profile() {
                       Save
                     </Button>
                   </div>
+                  {walletAddress && (
+                    <div className="text-sm bg-muted p-3 rounded break-all">
+                      <Label className="text-xs text-muted-foreground">Current Address:</Label>
+                      <div className="mt-1">{walletAddress}</div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -567,7 +584,6 @@ export default function Profile() {
               </CardContent>
             </Card>
             
-          </div>
         </div>
       </main>
     </div>
