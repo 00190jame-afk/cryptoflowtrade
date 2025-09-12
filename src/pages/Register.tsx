@@ -21,12 +21,9 @@ const Register = () => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [verificationSent, setVerificationSent] = useState(false);
-  const [verificationVerified, setVerificationVerified] = useState(false);
-  const [sendingCode, setSendingCode] = useState(false);
-  const [verifyingCode, setVerifyingCode] = useState(false);
-  const [inviteValid, setInviteValid] = useState<boolean | null>(null);
+  const [inviteCodeValid, setInviteCodeValid] = useState<boolean | null>(null);
   
-  const { signUp, user, sendVerificationCode, verifyCode, validateInviteCode } = useAuth();
+  const { signUp, user, sendVerificationCode, validateInviteCode } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -38,6 +35,16 @@ const Register = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!inviteCode.trim()) {
+      alert("Invite code is required");
+      return;
+    }
+    
+    if (!verificationCode.trim()) {
+      alert("Verification code is required");
+      return;
+    }
+    
     if (!agreeToTerms) {
       alert("Please agree to the Terms of Service");
       return;
@@ -48,19 +55,17 @@ const Register = () => {
       return;
     }
 
-    if (!inviteCode.trim()) {
-      alert("Invite code is required");
-      return;
-    }
-
-    if (!verificationVerified) {
-      alert("Please verify your email or phone number first");
-      return;
-    }
-
     setLoading(true);
-    const emailToUse = authMethod === "email" ? email : `${countryCode}${mobileNumber}@phone.temp`;
-    await signUp(emailToUse, password, inviteCode);
+    const identifier = authMethod === "email" ? email : `${countryCode}${mobileNumber}`;
+    
+    await signUp({
+      email: authMethod === "email" ? email : undefined,
+      phone: authMethod === "mobile" ? `${countryCode}${mobileNumber}` : undefined,
+      password,
+      verificationCode,
+      inviteCode,
+      authMethod: authMethod === "mobile" ? "phone" : "email"
+    });
     setLoading(false);
   };
 
@@ -68,42 +73,28 @@ const Register = () => {
     const identifier = authMethod === "email" ? email : `${countryCode}${mobileNumber}`;
     
     if (!identifier.trim()) {
-      alert(`Please enter your ${authMethod === "email" ? "email" : "phone number"}`);
+      alert(`Please enter your ${authMethod === "email" ? "email" : "mobile number"}`);
       return;
     }
 
-    setSendingCode(true);
-    const { error } = await sendVerificationCode(identifier, authMethod === "email" ? "email" : "phone");
+    const { error, code } = await sendVerificationCode(identifier, authMethod === "mobile" ? "phone" : "email");
     if (!error) {
       setVerificationSent(true);
+      // For demo purposes, show the code in an alert
+      if (code) {
+        alert(`Demo: Your verification code is ${code}`);
+      }
     }
-    setSendingCode(false);
-  };
-
-  const handleVerifyCode = async () => {
-    const identifier = authMethod === "email" ? email : `${countryCode}${mobileNumber}`;
-    
-    if (!verificationCode.trim()) {
-      alert("Please enter the verification code");
-      return;
-    }
-
-    setVerifyingCode(true);
-    const { error, verified } = await verifyCode(identifier, verificationCode, authMethod === "email" ? "email" : "phone");
-    if (!error && verified) {
-      setVerificationVerified(true);
-    }
-    setVerifyingCode(false);
   };
 
   const handleInviteCodeChange = async (value: string) => {
     setInviteCode(value);
     
-    if (value.trim().length >= 6) {
-      const { error, valid } = await validateInviteCode(value);
-      setInviteValid(!error && valid);
+    if (value.trim().length >= 4) {
+      const { valid } = await validateInviteCode(value);
+      setInviteCodeValid(valid);
     } else {
-      setInviteValid(null);
+      setInviteCodeValid(null);
     }
   };
 
@@ -199,42 +190,19 @@ const Register = () => {
                     value={verificationCode}
                     onChange={(e) => setVerificationCode(e.target.value)}
                     required
-                    disabled={!verificationSent}
                   />
-                  {!verificationVerified ? (
-                    <div className="flex gap-2">
-                      <Button
-                        type="button"
-                        onClick={handleGetVerificationCode}
-                        variant="secondary"
-                        className="px-4"
-                        disabled={sendingCode || verificationSent}
-                      >
-                        {sendingCode ? "Sending..." : verificationSent ? "Sent" : "Send"}
-                      </Button>
-                      {verificationSent && (
-                        <Button
-                          type="button"
-                          onClick={handleVerifyCode}
-                          variant="secondary"
-                          className="px-4"
-                          disabled={verifyingCode}
-                        >
-                          {verifyingCode ? "Verifying..." : "Verify"}
-                        </Button>
-                      )}
-                    </div>
-                  ) : (
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      className="px-4 bg-green-100 text-green-700 border-green-300"
-                      disabled
-                    >
-                      ✓ Verified
-                    </Button>
-                  )}
+                  <Button
+                    type="button"
+                    onClick={handleGetVerificationCode}
+                    variant="secondary"
+                    className="px-6"
+                  >
+                    Obtain
+                  </Button>
                 </div>
+                {verificationSent && (
+                  <p className="text-sm text-green-600">Verification code sent!</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -267,28 +235,19 @@ const Register = () => {
                     value={inviteCode}
                     onChange={(e) => handleInviteCodeChange(e.target.value)}
                     required
-                    className={
-                      inviteValid === true 
-                        ? "border-green-500 bg-green-50" 
-                        : inviteValid === false 
-                        ? "border-red-500 bg-red-50" 
-                        : ""
-                    }
+                    className={inviteCodeValid === false ? "border-destructive" : inviteCodeValid === true ? "border-green-500" : ""}
                   />
-                  {inviteValid === true && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-600">
-                      ✓
-                    </div>
+                  {inviteCodeValid === true && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-green-500 text-sm">✓</div>
                   )}
-                  {inviteValid === false && (
-                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-red-600">
-                      ✗
-                    </div>
+                  {inviteCodeValid === false && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-destructive text-sm">✗</div>
                   )}
                 </div>
-                {inviteValid === false && (
-                  <p className="text-sm text-red-600">Invalid invite code</p>
+                {inviteCodeValid === false && (
+                  <p className="text-destructive text-xs">Invalid invite code</p>
                 )}
+                <p className="text-xs text-muted-foreground">Try: WELCOME1, BETA2024, or TESTCODE</p>
               </div>
 
               <div className="flex items-center space-x-2">
@@ -308,7 +267,7 @@ const Register = () => {
               <Button
                 type="submit"
                 className="w-full gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300"
-                disabled={loading || !agreeToTerms || !verificationVerified || !inviteCode.trim() || inviteValid !== true}
+                disabled={loading || !agreeToTerms || !inviteCode.trim() || !verificationCode.trim() || inviteCodeValid === false}
               >
                 {loading ? "Creating account..." : "Register"}
               </Button>

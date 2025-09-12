@@ -7,11 +7,17 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, inviteCode: string) => Promise<{ error: any }>;
+  signUp: (data: {
+    email?: string;
+    phone?: string;
+    password: string;
+    verificationCode: string;
+    inviteCode: string;
+    authMethod: 'email' | 'phone';
+  }) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
-  sendVerificationCode: (identifier: string, type: 'email' | 'phone') => Promise<{ error: any }>;
-  verifyCode: (identifier: string, code: string, type: 'email' | 'phone') => Promise<{ error: any; verified?: boolean }>;
+  sendVerificationCode: (identifier: string, type: 'email' | 'phone') => Promise<{ error: any; code?: string }>;
   validateInviteCode: (code: string) => Promise<{ error: any; valid?: boolean }>;
 }
 
@@ -51,65 +57,115 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, inviteCode: string) => {
+  const sendVerificationCode = async (identifier: string, type: 'email' | 'phone') => {
     try {
-      // First validate invite code
-      const { data: inviteValid } = await supabase.rpc('validate_invite_code', { p_code: inviteCode });
-      
-      if (!inviteValid) {
-        const error = new Error('Invalid or expired invite code');
-        toast({
-          title: "Invalid invite code",
-          description: "Please check your invite code and try again.",
-          variant: "destructive",
-        });
-        return { error };
+      const { data, error } = await supabase.functions.invoke('send-verification', {
+        body: { identifier, type }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Verification code sent",
+        description: `A verification code has been sent to your ${type}.`,
+      });
+
+      return { error: null, code: data?.code };
+    } catch (error: any) {
+      toast({
+        title: "Failed to send verification code",
+        description: error.message,
+        variant: "destructive",
+      });
+      return { error };
+    }
+  };
+
+  const validateInviteCode = async (code: string) => {
+    try {
+      const { data, error } = await supabase.rpc('validate_invite_code', {
+        p_code: code
+      });
+
+      if (error) throw error;
+
+      return { error: null, valid: data };
+    } catch (error: any) {
+      return { error, valid: false };
+    }
+  };
+
+  const signUp = async (signUpData: {
+    email?: string;
+    phone?: string;
+    password: string;
+    verificationCode: string;
+    inviteCode: string;
+    authMethod: 'email' | 'phone';
+  }) => {
+    try {
+      const { email, phone, password, verificationCode, inviteCode, authMethod } = signUpData;
+      const identifier = authMethod === 'email' ? email! : phone!;
+
+      // 1. Validate invite code
+      const { error: inviteError, valid } = await validateInviteCode(inviteCode);
+      if (inviteError || !valid) {
+        throw new Error('Invalid or expired invite code');
       }
 
+      // 2. Verify the verification code
+      const { data: verifyData, error: verifyError } = await supabase.rpc('verify_code', {
+        p_identifier: identifier,
+        p_code: verificationCode,
+        p_type: authMethod
+      });
+
+      if (verifyError || !verifyData) {
+        throw new Error('Invalid or expired verification code');
+      }
+
+      // 3. Create user account
+      const emailToUse = authMethod === 'email' ? email! : `${phone}@temp.com`;
       const redirectUrl = `${window.location.origin}/`;
       
-      const { data: authData, error } = await supabase.auth.signUp({
-        email,
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: emailToUse,
         password,
         options: {
-          emailRedirectTo: redirectUrl
+          emailRedirectTo: redirectUrl,
+          data: {
+            phone: authMethod === 'phone' ? phone : undefined,
+            auth_method: authMethod,
+            invite_code: inviteCode
+          }
         }
       });
 
-      if (error) {
-        toast({
-          title: "Sign up failed",
-          description: error.message,
-          variant: "destructive",
-        });
-        return { error };
-      }
+      if (authError) throw authError;
 
-      // Use invite code if signup successful
+      // 4. Use the invite code if signup was successful
       if (authData.user) {
-        const { error: useCodeError } = await supabase.rpc('use_invite_code', { 
-          p_code: inviteCode, 
-          p_user_id: authData.user.id 
+        await supabase.rpc('use_invite_code', {
+          p_code: inviteCode,
+          p_user_id: authData.user.id
         });
-        
-        if (useCodeError) {
-          console.warn('Error using invite code:', useCodeError);
-        }
       }
 
       toast({
-        title: "Check your email",
-        description: "We've sent you a confirmation link to complete your registration.",
+        title: "Account created successfully",
+        description: authMethod === 'email' 
+          ? "Please check your email to verify your account."
+          : "Your account has been created successfully.",
       });
 
       return { error: null };
-    } catch (err: any) {
+    } catch (error: any) {
       toast({
         title: "Sign up failed",
-        description: err.message || "An unexpected error occurred",
+        description: error.message,
         variant: "destructive",
       });
-      return { error: err };
+      return { error };
     }
   };
 
@@ -154,93 +210,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
-  const sendVerificationCode = async (identifier: string, type: 'email' | 'phone') => {
-    try {
-      const { data, error } = await supabase.rpc('create_verification_code', {
-        p_identifier: identifier,
-        p_type: type
-      });
-
-      if (error) {
-        toast({
-          title: "Failed to send verification code",
-          description: error.message,
-          variant: "destructive",
-        });
-        return { error };
-      }
-
-      toast({
-        title: "Verification code sent",
-        description: `A verification code has been sent to your ${type}.`,
-      });
-
-      return { error: null };
-    } catch (err: any) {
-      toast({
-        title: "Failed to send verification code",
-        description: err.message || "An unexpected error occurred",
-        variant: "destructive",
-      });
-      return { error: err };
-    }
-  };
-
-  const verifyCode = async (identifier: string, code: string, type: 'email' | 'phone') => {
-    try {
-      const { data: verified, error } = await supabase.rpc('verify_code', {
-        p_identifier: identifier,
-        p_code: code,
-        p_type: type
-      });
-
-      if (error) {
-        toast({
-          title: "Verification failed",
-          description: error.message,
-          variant: "destructive",
-        });
-        return { error };
-      }
-
-      if (verified) {
-        toast({
-          title: "Verification successful",
-          description: "Your verification code is valid.",
-        });
-        return { error: null, verified: true };
-      } else {
-        toast({
-          title: "Invalid verification code",
-          description: "Please check your code and try again.",
-          variant: "destructive",
-        });
-        return { error: new Error('Invalid code'), verified: false };
-      }
-    } catch (err: any) {
-      toast({
-        title: "Verification failed",
-        description: err.message || "An unexpected error occurred",
-        variant: "destructive",
-      });
-      return { error: err };
-    }
-  };
-
-  const validateInviteCode = async (code: string) => {
-    try {
-      const { data: valid, error } = await supabase.rpc('validate_invite_code', { p_code: code });
-
-      if (error) {
-        return { error };
-      }
-
-      return { error: null, valid };
-    } catch (err: any) {
-      return { error: err };
-    }
-  };
-
   const value = {
     user,
     session,
@@ -249,7 +218,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signOut,
     sendVerificationCode,
-    verifyCode,
     validateInviteCode,
   };
 
