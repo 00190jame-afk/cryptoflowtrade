@@ -586,7 +586,7 @@ const Futures = () => {
                   <label className="text-sm font-medium">Scale</label>
                   <Select value={scale ? scale.toString() : ""} onValueChange={(value) => setScale(value ? parseInt(value) : null)}>
                     <SelectTrigger>
-                      <SelectValue placeholder="Optional" />
+                      <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       {SCALE_OPTIONS.map((scaleOption) => (
@@ -723,7 +723,7 @@ const Futures = () => {
                                  <TableCell>${order.quantity.toFixed(2)}</TableCell>
                                  <TableCell>${order.entry_price.toFixed(2)}</TableCell>
                                  <TableCell>{order.leverage}x</TableCell>
-                                 <TableCell>None</TableCell>
+                                  <TableCell>None</TableCell>
                                  <TableCell className={order.realized_pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
                                    ${order.realized_pnl.toFixed(2)}
                                  </TableCell>

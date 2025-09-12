@@ -151,7 +151,7 @@ const Assets = () => {
       const {
         data,
         error
-      } = await supabase.from('transactions').select('*').eq('user_id', user?.id).order('created_at', {
+      } = await supabase.from('transactions').select('*').eq('user_id', user?.id).not('payment_method', 'eq', 'system_trade').order('created_at', {
         ascending: false
       }).limit(10);
       if (error) throw error;
