@@ -68,6 +68,7 @@ interface ClosingOrder {
   realized_pnl: number;
   closed_at: string;
   scale?: string;
+  stake?: number;
 }
 const Futures = () => {
   const {
@@ -721,7 +722,7 @@ const Futures = () => {
                                      {order.side}
                                    </Badge>
                                  </TableCell>
-                                 <TableCell>${order.quantity.toFixed(2)}</TableCell>
+                                 <TableCell>${order.stake?.toFixed(2) || order.quantity.toFixed(2)}</TableCell>
                                  <TableCell>${order.entry_price.toFixed(2)}</TableCell>
                                  <TableCell>{order.leverage}x</TableCell>
                                   <TableCell>{order.scale || 'None'}</TableCell>

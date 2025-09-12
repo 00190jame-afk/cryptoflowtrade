@@ -27,6 +27,7 @@ export type Database = {
           realized_pnl: number
           scale: string | null
           side: string
+          stake: number | null
           symbol: string
           user_id: string
         }
@@ -42,6 +43,7 @@ export type Database = {
           realized_pnl: number
           scale?: string | null
           side: string
+          stake?: number | null
           symbol: string
           user_id: string
         }
@@ -57,6 +59,7 @@ export type Database = {
           realized_pnl?: number
           scale?: string | null
           side?: string
+          stake?: number | null
           symbol?: string
           user_id?: string
         }
