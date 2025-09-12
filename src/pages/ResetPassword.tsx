@@ -4,27 +4,85 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowLeft, TrendingUp } from "lucide-react";
+import { ArrowLeft, TrendingUp, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const ResetPassword = () => {
   const [email, setEmail] = useState("");
   const [resetVerificationCode, setResetVerificationCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [sending, setSending] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [devCode, setDevCode] = useState<string | null>(null);
   
   const navigate = useNavigate();
+  const { sendVerificationCode, verifyEmailCode, session } = useAuth();
+  const { toast } = useToast();
 
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmNewPassword) {
-      alert("Passwords don't match");
+      toast({
+        title: "Passwords don't match",
+        description: "Please ensure both passwords are identical.",
+        variant: "destructive",
+      });
       return;
     }
-    alert("Password reset would be implemented here");
+
+    setSubmitting(true);
+    try {
+      const { valid } = await verifyEmailCode(email, resetVerificationCode);
+      if (!valid) {
+        toast({ title: "Invalid code", description: "The verification code is incorrect or expired.", variant: "destructive" });
+        return;
+      }
+
+      if (session) {
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        if (error) throw error;
+        toast({ title: "Password updated", description: "Your password has been changed successfully." });
+        navigate("/login");
+      } else {
+        // Fallback for signed-out users: send a secure recovery email
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: window.location.origin,
+        } as any);
+        if (error) throw error;
+        toast({
+          title: "Code verified",
+          description: "We've sent a secure password reset email. Please follow the link to finish.",
+        });
+      }
+    } catch (err: any) {
+      toast({ title: "Reset failed", description: err.message ?? "Something went wrong", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
-  const handleGetVerificationCode = () => {
-    alert("Verification code would be sent here");
+  const handleGetVerificationCode = async () => {
+    if (!email) {
+      toast({ title: "Email required", description: "Please enter your email first.", variant: "destructive" });
+      return;
+    }
+
+    setSending(true);
+    try {
+      const { error, code } = await sendVerificationCode(email, "email");
+      if (!error) {
+        setDevCode(code ?? null);
+        toast({ title: "Verification sent", description: "Check your inbox for the 6‑digit code." });
+      }
+    } catch (err: any) {
+      toast({ title: "Failed to send code", description: err.message ?? "Please try again.", variant: "destructive" });
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -70,22 +128,35 @@ const ResetPassword = () => {
 
               <div className="space-y-2">
                 <Label>Verification code</Label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Enter verification code"
+                <div className="flex items-center gap-2">
+                  <InputOTP
+                    maxLength={6}
                     value={resetVerificationCode}
-                    onChange={(e) => setResetVerificationCode(e.target.value)}
-                    required
-                  />
+                    onChange={(v) => setResetVerificationCode(v)}
+                  >
+                    <InputOTPGroup>
+                      {[0,1,2,3,4,5].map((i) => (
+                        <InputOTPSlot key={i} index={i} />
+                      ))}
+                    </InputOTPGroup>
+                  </InputOTP>
                   <Button
                     type="button"
                     onClick={handleGetVerificationCode}
                     variant="secondary"
                     className="px-6"
+                    disabled={sending || !email}
                   >
-                    Obtain
+                    {sending ? (
+                      <span className="inline-flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Sending</span>
+                    ) : (
+                      "Obtain"
+                    )}
                   </Button>
                 </div>
+                {devCode && (
+                  <p className="text-xs text-muted-foreground">Dev code: <span className="font-mono tracking-widest">{devCode}</span></p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -113,8 +184,9 @@ const ResetPassword = () => {
               <Button
                 type="submit"
                 className="w-full gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300"
+                disabled={submitting}
               >
-                Submit
+                {submitting ? <span className="inline-flex items-center gap-2"><Loader2 className="h-4 w-4 animate-spin" /> Processing</span> : "Submit"}
               </Button>
             </form>
           </CardContent>
