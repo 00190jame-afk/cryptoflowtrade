@@ -91,24 +91,6 @@ const About = () => {
           {/* Right Column - App Preview & Downloads */}
           
         </div>
-
-        {/* CTA Section */}
-        <div className="text-center mt-16 animate-fade-in">
-          <div className="max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold mb-4">Ready to Start Trading?</h3>
-            <p className="text-muted-foreground mb-8">
-              Join millions of traders who trust CryptoFlow for secure, fast, and reliable cryptocurrency trading.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button asChild size="lg" className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300 group">
-                <Link to="/register">
-                  Create Account Now
-                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
       </div>
     </section>;
 };
