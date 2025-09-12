@@ -28,24 +28,30 @@ interface UserProfile {
 }
 
 const languages = [
-  { code: 'en', name: 'English', flag: '🇬🇧🇺🇸' },
-  { code: 'de', name: 'German', flag: '🇩🇪🇦🇹🇨🇭' },
-  { code: 'fr', name: 'French', flag: '🇫🇷🇧🇪🇨🇭🇱🇺' },
-  { code: 'es', name: 'Spanish', flag: '🇪🇸🇦🇷🇲🇽' },
-  { code: 'it', name: 'Italian', flag: '🇮🇹🇨🇭' },
-  { code: 'pt', name: 'Portuguese', flag: '🇵🇹🇧🇷' },
-  { code: 'ru', name: 'Russian', flag: '🇷🇺🇪🇪🇱🇻🇱🇹' },
-  { code: 'pl', name: 'Polish', flag: '🇵🇱' },
+  { code: 'en', name: 'English' },
+  { code: 'de', name: 'Deutsch' },
+  { code: 'fr', name: 'Français' },
+  { code: 'es', name: 'Español' },
+  { code: 'it', name: 'Italiano' },
+  { code: 'pt', name: 'Português' },
+  { code: 'ru', name: 'Русский' },
+  { code: 'nl', name: 'Nederlands' },
+  { code: 'sv', name: 'Svenska' },
+  { code: 'tr', name: 'Türkçe' },
+  { code: 'el', name: 'Ελληνικά' },
+  { code: 'cs', name: 'Čeština' },
+  { code: 'ro', name: 'Română' },
+  { code: 'hu', name: 'Magyar' },
 ];
 
 export default function Profile() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+  const { t, i18n } = useTranslation();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedLanguage, setSelectedLanguage] = useState('en');
+  const [selectedLanguage, setSelectedLanguage] = useState(i18n.language || (typeof localStorage !== 'undefined' ? localStorage.getItem('language') || 'en' : 'en'));
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   
   // Modal states
@@ -518,7 +524,7 @@ export default function Profile() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Settings className="h-5 w-5" />
-                  Preferences
+                  {t('profile.preferences')}
                 </CardTitle>
                 <CardDescription>
                   Customize your experience
@@ -527,8 +533,8 @@ export default function Profile() {
               <CardContent>
                 <div className="space-y-4">
                   <div>
-                    <Label className="text-sm font-medium mb-2 block">Language</Label>
-                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
+                    <Label className="text-sm font-medium mb-2 block">{t('profile.language')}</Label>
+                    <Select value={selectedLanguage} onValueChange={(value) => { setSelectedLanguage(value); i18n.changeLanguage(value); try { localStorage.setItem('language', value); } catch {} }}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
