@@ -216,8 +216,15 @@ const Futures = () => {
         .eq('id', trade.id)
         .single();
 
-      if (latest?.status === 'completed') {
-        console.log('Trade already completed:', trade.id);
+      // If already completed or already has a closing order, stop here
+      const { data: alreadyClosed } = await supabase
+        .from('closing_orders')
+        .select('id')
+        .eq('original_trade_id', trade.id)
+        .maybeSingle();
+
+      if (latest?.status === 'completed' || alreadyClosed) {
+        console.log('Trade already finalized, skipping:', trade.id);
         completingTradeRef.current = null;
         return;
       }
@@ -260,7 +267,16 @@ const Futures = () => {
         stake: position?.stake ?? trade.stake_amount,
       };
 
-      await supabase.from('closing_orders').insert(closingData);
+      // Idempotency: only insert a closing order once per trade
+      const { data: existingClose } = await supabase
+        .from('closing_orders')
+        .select('id')
+        .eq('original_trade_id', trade.id)
+        .maybeSingle();
+
+      if (!existingClose) {
+        await supabase.from('closing_orders').insert(closingData);
+      }
       
       // Remove position after recording closing order
       await supabase.from('positions_orders').delete().eq('trade_id', trade.id);
@@ -491,7 +507,16 @@ const Futures = () => {
         stake: position.stake ?? null,
       };
 
-      await supabase.from('closing_orders').insert(closingData);
+      // Idempotency: avoid duplicate closing orders for the same trade
+      const { data: existingClose } = await supabase
+        .from('closing_orders')
+        .select('id')
+        .eq('original_trade_id', tradeId)
+        .maybeSingle();
+
+      if (!existingClose) {
+        await supabase.from('closing_orders').insert(closingData);
+      }
       
       // Remove from positions orders
       await supabase.from('positions_orders').delete().eq('id', positionId);
