@@ -55,7 +55,7 @@ serve(async (req) => {
     if (resend) {
       try {
         const emailResponse = await resend.emails.send({
-          from: "CryptoFlow <no-reply@resend.dev>",
+          from: "CryptoFlow <onboarding@resend.dev>",
           to: [identifier],
           subject: "Your CryptoFlow verification code",
           html: `
