@@ -2,6 +2,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Smartphone, Monitor, Tablet, Download, Play, Apple } from "lucide-react";
+import { Link } from "react-router-dom";
 const About = () => {
   const features = [{
     title: "Real-Time Market Data",
@@ -99,11 +100,12 @@ const About = () => {
               Join millions of traders who trust CryptoFlow for secure, fast, and reliable cryptocurrency trading.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300 group">
-                Create Account Now
-                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              <Button asChild size="lg" className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300 group">
+                <Link to="/register">
+                  Create Account Now
+                  <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
               </Button>
-              
             </div>
           </div>
         </div>

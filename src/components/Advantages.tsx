@@ -1,5 +1,7 @@
 import { Shield, Zap, Users, BarChart3, Clock, Globe, Lock, Headphones } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Advantages = () => {
   const advantages = [
@@ -113,12 +115,9 @@ const Advantages = () => {
               Join thousands of traders who trust CryptoFlow for their digital asset trading needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <button className="px-8 py-3 gradient-primary rounded-lg font-medium hover:shadow-primary transition-all duration-300">
-                Start Trading Today
-              </button>
-              <button className="px-8 py-3 border border-primary/30 rounded-lg font-medium hover:bg-primary/10 transition-colors">
-                Learn More
-              </button>
+              <Button asChild className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300">
+                <Link to="/futures">Start Trading Today</Link>
+              </Button>
             </div>
           </div>
         </div>

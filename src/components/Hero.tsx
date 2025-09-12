@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Shield, Zap, Globe, TrendingUp } from "lucide-react";
+import { Link } from "react-router-dom";
 import heroBackground from "@/assets/hero-bg.jpg";
 
 const Hero = () => {
@@ -52,18 +53,24 @@ const Hero = () => {
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center animate-fade-in" style={{ animationDelay: '0.3s' }}>
             <Button 
+              asChild
               size="lg" 
               className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300 text-lg px-8 py-6 group"
             >
-              Start Trading Now
-              <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              <Link to="/futures">
+                Start Trading Now
+                <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
             </Button>
             <Button 
+              asChild
               variant="outline" 
               size="lg" 
               className="border-primary/30 hover:bg-primary/10 text-lg px-8 py-6 glass-card"
             >
-              Explore Markets
+              <Link to="/markets">
+                Explore Markets
+              </Link>
             </Button>
           </div>
 
