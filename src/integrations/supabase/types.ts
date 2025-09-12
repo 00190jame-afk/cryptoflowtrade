@@ -65,6 +65,45 @@ export type Database = {
         }
         Relationships: []
       }
+      invite_codes: {
+        Row: {
+          code: string
+          created_at: string | null
+          created_by: string | null
+          current_uses: number | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          max_uses: number | null
+          updated_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          created_by?: string | null
+          current_uses?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          updated_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          created_by?: string | null
+          current_uses?: number | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          max_uses?: number | null
+          updated_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
       positions_orders: {
         Row: {
           created_at: string
@@ -411,6 +450,42 @@ export type Database = {
         }
         Relationships: []
       }
+      verification_codes: {
+        Row: {
+          attempts: number | null
+          code: string
+          created_at: string | null
+          expires_at: string
+          id: string
+          identifier: string
+          max_attempts: number | null
+          type: string
+          verified: boolean | null
+        }
+        Insert: {
+          attempts?: number | null
+          code: string
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          identifier: string
+          max_attempts?: number | null
+          type: string
+          verified?: boolean | null
+        }
+        Update: {
+          attempts?: number | null
+          code?: string
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          identifier?: string
+          max_attempts?: number | null
+          type?: string
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       withdraw_requests: {
         Row: {
           admin_notes: string | null
@@ -449,8 +524,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_verification_code: {
+        Args: { p_identifier: string; p_type: string }
+        Returns: string
+      }
       create_withdrawal_request: {
         Args: { p_amount: number; p_user_id: string }
+        Returns: string
+      }
+      generate_invite_code: {
+        Args: Record<PropertyKey, never>
         Returns: string
       }
       generate_recharge_code: {
@@ -484,6 +567,18 @@ export type Database = {
               p_user_id: string
             }
         Returns: undefined
+      }
+      use_invite_code: {
+        Args: { p_code: string; p_user_id: string }
+        Returns: boolean
+      }
+      validate_invite_code: {
+        Args: { p_code: string }
+        Returns: boolean
+      }
+      verify_code: {
+        Args: { p_code: string; p_identifier: string; p_type: string }
+        Returns: boolean
       }
     }
     Enums: {
