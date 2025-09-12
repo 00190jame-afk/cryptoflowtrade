@@ -26,9 +26,9 @@ const Header = () => {
   const handleNavClick = (item: any, subItem?: any) => {
     const target = subItem || item;
     
-    // Redirect to auth for Trading and Assets if user is not logged in
+    // Redirect to login for Trading and Assets if user is not logged in
     if (!user && (item.title === "Trading" || item.title === "Assets")) {
-      navigate("/auth");
+      navigate("/login");
       return;
     }
     
@@ -168,10 +168,10 @@ const Header = () => {
             </DropdownMenu>
           ) : (
             <>
-              <Button variant="ghost" className="hover:bg-muted/50" onClick={() => navigate("/auth")}>
+              <Button variant="ghost" className="hover:bg-muted/50" onClick={() => navigate("/login")}>
                 Login
               </Button>
-              <Button className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300" onClick={() => navigate("/auth")}>
+              <Button className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300" onClick={() => navigate("/register")}>
                 Register
               </Button>
             </>
@@ -245,10 +245,10 @@ const Header = () => {
                   </>
                 ) : (
                   <>
-                    <Button variant="ghost" className="w-full justify-start hover:bg-muted/50" onClick={() => navigate("/auth")}>
+                    <Button variant="ghost" className="w-full justify-start hover:bg-muted/50" onClick={() => navigate("/login")}>
                       Login
                     </Button>
-                    <Button className="w-full gradient-primary shadow-primary" onClick={() => navigate("/auth")}>
+                    <Button className="w-full gradient-primary shadow-primary" onClick={() => navigate("/register")}>
                       Register
                     </Button>
                   </>
