@@ -238,7 +238,31 @@ const Futures = () => {
       const profitAmount = trade.stake_amount * (trade.profit_rate / 100);
       console.log(`Trade completed: Stake=${trade.stake_amount}, ProfitRate=${trade.profit_rate}%, Profit=${profitAmount}`);
 
-      // Remove position
+      // Create closing order record before removing position
+      const { data: position } = await supabase
+        .from('positions_orders')
+        .select('*')
+        .eq('trade_id', trade.id)
+        .maybeSingle();
+
+      const exitPrice = position?.mark_price ?? trade.entry_price;
+      const closingData = {
+        user_id: user!.id,
+        symbol: trade.trading_pair,
+        side: trade.direction,
+        entry_price: trade.entry_price,
+        exit_price: exitPrice,
+        quantity: position?.quantity ?? (trade.stake_amount / trade.entry_price),
+        leverage: trade.leverage,
+        realized_pnl: profitAmount,
+        original_trade_id: trade.id,
+        scale: position?.scale ?? null,
+        stake: position?.stake ?? trade.stake_amount,
+      };
+
+      await supabase.from('closing_orders').insert(closingData);
+      
+      // Remove position after recording closing order
       await supabase.from('positions_orders').delete().eq('trade_id', trade.id);
 
       // Update trade with profit details
@@ -462,7 +486,9 @@ const Futures = () => {
         quantity: position.quantity,
         leverage: position.leverage,
         realized_pnl: realizedPnl,
-        original_trade_id: tradeId
+        original_trade_id: tradeId,
+        scale: position.scale ?? null,
+        stake: position.stake ?? null,
       };
 
       await supabase.from('closing_orders').insert(closingData);
