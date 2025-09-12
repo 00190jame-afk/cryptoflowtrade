@@ -106,11 +106,11 @@ export function CountrySelector({ value, onValueChange, disabled }: CountrySelec
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-auto justify-between px-3 py-2 h-10"
+          className="w-auto justify-between px-3 py-2 h-10 bg-muted border-border"
           disabled={disabled}
         >
           <div className="flex items-center gap-2">
-            <span className="text-lg">{selectedCountry.flag}</span>
+            <span className="text-sm font-medium">{selectedCountry.code}</span>
             <span className="font-mono text-sm">{selectedCountry.dial_code}</span>
           </div>
         </Button>
