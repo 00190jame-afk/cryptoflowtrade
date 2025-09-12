@@ -23,41 +23,45 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const { identifier, type }: VerificationRequest = await req.json();
-
-    console.log(`Sending ${type} verification code to: ${identifier}`);
-
-    // Create verification code in database
-    const { data, error } = await supabase.rpc('create_verification_code', {
-      p_identifier: identifier,
-      p_type: type
+    
+    // Only support email verification now
+    if (type !== 'email') {
+      return new Response(
+        JSON.stringify({ error: 'Only email verification is supported' }),
+        { 
+          status: 400,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        }
+      );
+    }
+    
+    console.log(`Sending email verification to: ${identifier}`);
+    
+    // Use Supabase's built-in email verification
+    const { error } = await supabase.auth.signUp({
+      email: identifier,
+      password: 'temp_password_for_verification', // This won't be used for verification-only
+      options: {
+        emailRedirectTo: `${req.headers.get('origin') || 'http://localhost:5173'}/register`
+      }
     });
 
     if (error) {
-      console.error('Error creating verification code:', error);
-      throw error;
+      console.error('Error sending verification email:', error);
+      return new Response(
+        JSON.stringify({ error: 'Failed to send verification email' }),
+        { 
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders }
+        }
+      );
     }
 
-    const verificationCode = data;
-    console.log(`Generated verification code: ${verificationCode}`);
-
-    // For demo purposes, we'll just log the code
-    // In production, you would:
-    // - For email: Send via email service (like Resend)
-    // - For phone: Send via SMS service (like Twilio)
-    
-    if (type === 'email') {
-      // Email sending logic would go here
-      console.log(`Email verification code ${verificationCode} would be sent to ${identifier}`);
-    } else if (type === 'phone') {
-      // SMS sending logic would go here
-      console.log(`SMS verification code ${verificationCode} would be sent to ${identifier}`);
-    }
+    console.log(`Verification email sent to ${identifier}`);
 
     return new Response(JSON.stringify({ 
-      success: true, 
-      message: `Verification code sent to ${identifier}`,
-      // For demo purposes, include the code in response
-      code: verificationCode 
+      success: true,
+      message: `Verification email sent to ${identifier}`
     }), {
       status: 200,
       headers: {

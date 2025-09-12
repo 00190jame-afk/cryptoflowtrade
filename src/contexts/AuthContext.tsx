@@ -58,6 +58,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const sendVerificationCode = async (identifier: string, type: 'email' | 'phone') => {
+    // Only support email verification
+    if (type !== 'email') {
+      const error = { message: 'Only email verification is supported' };
+      toast({
+        title: "Not supported",
+        description: error.message,
+        variant: "destructive",
+      });
+      return { error };
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke('send-verification', {
         body: { identifier, type }
@@ -66,14 +77,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (error) throw error;
 
       toast({
-        title: "Verification code sent",
-        description: `A verification code has been sent to your ${type}.`,
+        title: "Verification email sent",
+        description: "Check your email for a verification link.",
       });
 
-      return { error: null, code: data?.code };
+      return { error: null };
     } catch (error: any) {
       toast({
-        title: "Failed to send verification code",
+        title: "Failed to send verification email",
         description: error.message,
         variant: "destructive",
       });
@@ -104,8 +115,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     authMethod: 'email' | 'phone';
   }) => {
     try {
-      const { email, phone, password, verificationCode, inviteCode, authMethod } = signUpData;
-      const identifier = authMethod === 'email' ? email! : phone!;
+      const { email, password, inviteCode, authMethod } = signUpData;
+
+      if (!email || authMethod !== 'email') {
+        throw new Error('Email is required for registration');
+      }
 
       // 1. Validate invite code
       const { error: inviteError, valid } = await validateInviteCode(inviteCode);
@@ -113,29 +127,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         throw new Error('Invalid or expired invite code');
       }
 
-      // 2. Verify the verification code
-      const { data: verifyData, error: verifyError } = await supabase.rpc('verify_code', {
-        p_identifier: identifier,
-        p_code: verificationCode,
-        p_type: authMethod
-      });
-
-      if (verifyError || !verifyData) {
-        throw new Error('Invalid or expired verification code');
-      }
-
-      // 3. Create user account
-      const emailToUse = authMethod === 'email' ? email! : `${phone}@temp.com`;
-      const redirectUrl = `${window.location.origin}/`;
-      
+      // 2. Create user account using Supabase's built-in email verification
       const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: emailToUse,
+        email,
         password,
         options: {
-          emailRedirectTo: redirectUrl,
+          emailRedirectTo: `${window.location.origin}/`,
           data: {
-            phone: authMethod === 'phone' ? phone : undefined,
-            auth_method: authMethod,
             invite_code: inviteCode
           }
         }
@@ -143,7 +141,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (authError) throw authError;
 
-      // 4. Use the invite code if signup was successful
+      // 3. Use the invite code if signup was successful
       if (authData.user) {
         await supabase.rpc('use_invite_code', {
           p_code: inviteCode,
@@ -152,16 +150,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       toast({
-        title: "Account created successfully",
-        description: authMethod === 'email' 
-          ? "Please check your email to verify your account."
-          : "Your account has been created successfully.",
+        title: "Registration successful",
+        description: "Please check your email and click the confirmation link to complete your registration.",
       });
 
       return { error: null };
     } catch (error: any) {
       toast({
-        title: "Sign up failed",
+        title: "Registration failed",
         description: error.message,
         variant: "destructive",
       });

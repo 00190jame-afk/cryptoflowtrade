@@ -10,7 +10,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, TrendingUp } from "lucide-react";
 
 const Register = () => {
-  const [authMethod, setAuthMethod] = useState<"email" | "mobile">("mobile");
+  const [authMethod, setAuthMethod] = useState<"email" | "mobile">("email");
   const [email, setEmail] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
   const [countryCode, setCountryCode] = useState("+1");
@@ -35,13 +35,13 @@ const Register = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!inviteCode.trim()) {
-      alert("Invite code is required");
+    if (!email.trim()) {
+      alert("Email is required");
       return;
     }
     
-    if (!verificationCode.trim()) {
-      alert("Verification code is required");
+    if (!inviteCode.trim()) {
+      alert("Invite code is required");
       return;
     }
     
@@ -56,34 +56,26 @@ const Register = () => {
     }
 
     setLoading(true);
-    const identifier = authMethod === "email" ? email : `${countryCode}${mobileNumber}`;
     
     await signUp({
-      email: authMethod === "email" ? email : undefined,
-      phone: authMethod === "mobile" ? `${countryCode}${mobileNumber}` : undefined,
+      email,
       password,
-      verificationCode,
+      verificationCode: '', // Not needed for Supabase's built-in email verification
       inviteCode,
-      authMethod: authMethod === "mobile" ? "phone" : "email"
+      authMethod: "email"
     });
     setLoading(false);
   };
 
   const handleGetVerificationCode = async () => {
-    const identifier = authMethod === "email" ? email : `${countryCode}${mobileNumber}`;
-    
-    if (!identifier.trim()) {
-      alert(`Please enter your ${authMethod === "email" ? "email" : "mobile number"}`);
+    if (!email.trim()) {
+      alert("Please enter your email");
       return;
     }
 
-    const { error, code } = await sendVerificationCode(identifier, authMethod === "mobile" ? "phone" : "email");
+    const { error } = await sendVerificationCode(email, "email");
     if (!error) {
       setVerificationSent(true);
-      // For demo purposes, show the code in an alert
-      if (code) {
-        alert(`Demo: Your verification code is ${code}`);
-      }
     }
   };
 
@@ -125,83 +117,33 @@ const Register = () => {
             <p className="text-muted-foreground text-sm">Register with your email or mobile number</p>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Auth Method Toggle */}
-            <div className="flex rounded-lg bg-muted p-1">
-              <button
-                type="button"
-                onClick={() => setAuthMethod("mobile")}
-                className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-                  authMethod === "mobile"
-                    ? "gradient-primary text-white shadow-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Mobile number
-              </button>
-              <button
-                type="button"
-                onClick={() => setAuthMethod("email")}
-                className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-                  authMethod === "email"
-                    ? "gradient-primary text-white shadow-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Email
-              </button>
-            </div>
-
             <form onSubmit={handleSignUp} className="space-y-4">
-              {authMethod === "mobile" ? (
-                <div className="space-y-4">
-                  <Label>Mobile phone number</Label>
-                  <div className="flex gap-2">
-                    <CountrySelector
-                      value={countryCode}
-                      onValueChange={setCountryCode}
-                    />
-                    <Input
-                      placeholder="Mobile phone number"
-                      value={mobileNumber}
-                      onChange={(e) => setMobileNumber(e.target.value)}
-                      required
-                      className="flex-1"
-                    />
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <Label>Email</Label>
-                  <Input
-                    type="email"
-                    placeholder="Please enter your email address"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-              )}
+              <div className="space-y-2">
+                <Label>Email</Label>
+                <Input
+                  type="email"
+                  placeholder="Please enter your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
 
               <div className="space-y-2">
-                <Label>Verification code</Label>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Enter verification code"
-                    value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value)}
-                    required
-                  />
-                  <Button
-                    type="button"
-                    onClick={handleGetVerificationCode}
-                    variant="secondary"
-                    className="px-6"
-                  >
-                    Obtain
-                  </Button>
-                </div>
+                <Label>Email verification</Label>
+                <Button
+                  type="button"
+                  onClick={handleGetVerificationCode}
+                  variant="secondary"
+                  className="w-full"
+                  disabled={verificationSent}
+                >
+                  {verificationSent ? "Verification email sent" : "Send verification email"}
+                </Button>
                 {verificationSent && (
-                  <p className="text-sm text-green-600">Verification code sent!</p>
+                  <p className="text-sm text-green-600">
+                    Check your email and click the verification link before completing registration.
+                  </p>
                 )}
               </div>
 
@@ -267,7 +209,7 @@ const Register = () => {
               <Button
                 type="submit"
                 className="w-full gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300"
-                disabled={loading || !agreeToTerms || !inviteCode.trim() || !verificationCode.trim() || inviteCodeValid === false}
+                disabled={loading || !agreeToTerms || !inviteCode.trim() || inviteCodeValid === false}
               >
                 {loading ? "Creating account..." : "Register"}
               </Button>
