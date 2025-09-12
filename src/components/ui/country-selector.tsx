@@ -144,13 +144,17 @@ export function CountrySelector({ value, onValueChange, disabled }: CountrySelec
                 className="flex items-center justify-between px-3 py-3 cursor-pointer hover:bg-muted/50 transition-colors"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-lg w-6 h-4 flex items-center justify-center">{country.flag}</span>
+                  <div className="w-8 h-6 bg-muted rounded flex items-center justify-center text-xs font-bold">
+                    {country.code}
+                  </div>
                   <span className="text-sm font-medium text-foreground">{country.name}</span>
                 </div>
-                <span className="text-sm font-medium text-foreground">{country.dial_code}</span>
-                {value === country.dial_code && (
-                  <Check className="ml-2 h-4 w-4 text-primary" />
-                )}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-foreground">{country.dial_code}</span>
+                  {value === country.dial_code && (
+                    <Check className="ml-2 h-4 w-4 text-primary" />
+                  )}
+                </div>
               </div>
             ))
           )}
