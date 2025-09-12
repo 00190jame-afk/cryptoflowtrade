@@ -46,11 +46,21 @@ i18n
   .use(initReactI18next)
   .init({
     resources,
-    lng: localStorage.getItem('language') || 'en',
+    lng: (typeof localStorage !== 'undefined' && localStorage.getItem('language')) || 'en',
     fallbackLng: 'en',
     interpolation: {
       escapeValue: false,
     },
   });
 
-export default i18n;
+if (typeof window !== 'undefined') {
+  const setDir = (lng: string) => {
+    document.documentElement.lang = lng;
+    document.documentElement.dir = ['ar', 'he', 'fa', 'ur'].includes(lng) ? 'rtl' : 'ltr';
+  };
+  setDir(i18n.language);
+  i18n.on('languageChanged', (lng) => {
+    try { localStorage.setItem('language', lng); } catch {}
+    setDir(lng);
+  });
+}

@@ -2,7 +2,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Smartphone, Monitor, Tablet, Download, Play, Apple } from "lucide-react";
+import { useTranslation } from 'react-i18next';
 const About = () => {
+  const { t } = useTranslation();
   const features = [{
     title: "Real-Time Market Data",
     description: "Access live cryptocurrency prices, charts, and market depth across all your devices."
@@ -52,12 +54,10 @@ const About = () => {
             🎯 Trade Anywhere, Anytime
           </Badge>
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            Experience 
-            <span className="text-gradient"> Seamless Trading</span>
+            {t('about.title')}
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            CryptoFlow delivers a consistent, powerful trading experience across all platforms. 
-            Whether you're at your desk or on the move, access the full power of our trading ecosystem.
+            {t('about.subtitle')}
           </p>
         </div>
 
@@ -94,13 +94,13 @@ const About = () => {
         {/* CTA Section */}
         <div className="text-center mt-16 animate-fade-in">
           <div className="max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold mb-4">Ready to Start Trading?</h3>
+            <h3 className="text-2xl font-bold mb-4">{t('about.createAccount')}</h3>
             <p className="text-muted-foreground mb-8">
-              Join millions of traders who trust CryptoFlow for secure, fast, and reliable cryptocurrency trading.
+              {t('about.subtitle')}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300 group">
-                Create Account Now
+                {t('about.getStarted')}
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Button>
               

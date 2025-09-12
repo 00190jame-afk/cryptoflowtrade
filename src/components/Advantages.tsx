@@ -1,7 +1,9 @@
 import { Shield, Zap, Users, BarChart3, Clock, Globe, Lock, Headphones } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { useTranslation } from 'react-i18next';
 
 const Advantages = () => {
+  const { t } = useTranslation();
   const advantages = [
     {
       icon: Shield,
@@ -62,12 +64,10 @@ const Advantages = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            Why Choose 
-            <span className="text-gradient"> CryptoFlow</span>
+            {t('advantages.title')}
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Built for traders by traders, CryptoFlow combines cutting-edge technology with 
-            institutional-grade security to deliver the ultimate cryptocurrency trading experience.
+            {t('advantages.subtitle')}
           </p>
         </div>
 
@@ -114,10 +114,10 @@ const Advantages = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="px-8 py-3 gradient-primary rounded-lg font-medium hover:shadow-primary transition-all duration-300">
-                Start Trading Today
+                {t('advantages.startTrading')}
               </button>
               <button className="px-8 py-3 border border-primary/30 rounded-lg font-medium hover:bg-primary/10 transition-colors">
-                Learn More
+                {t('advantages.learnMore')}
               </button>
             </div>
           </div>
