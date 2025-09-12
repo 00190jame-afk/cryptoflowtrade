@@ -2,15 +2,13 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Shield, Zap, Globe, TrendingUp } from "lucide-react";
 import heroBackground from "@/assets/hero-bg.jpg";
-import { useTranslation } from 'react-i18next';
 
 const Hero = () => {
-  const { t } = useTranslation();
   const stats = [
-    { label: t('hero.dailyVolume'), value: "$2.4B", icon: TrendingUp },
-    { label: t('hero.usersWorldwide'), value: "50M+", icon: Globe },
-    { label: t('hero.supportedCoins'), value: "500+", icon: Shield },
-    { label: t('hero.successRate'), value: "99%", icon: Zap }
+    { label: "Daily Volume", value: "$2.4B", icon: TrendingUp },
+    { label: "Users Worldwide", value: "50M+", icon: Globe },
+    { label: "Uptime", value: "99.9%", icon: Shield },
+    { label: "Trade Speed", value: "<1ms", icon: Zap }
   ];
 
   return (
@@ -32,18 +30,22 @@ const Hero = () => {
           {/* Badge */}
           <div className="animate-fade-in">
             <Badge variant="secondary" className="mb-6 px-4 py-2 text-sm glass-card border-primary/20">
-              {t('hero.badge')}
+              🚀 Now supporting 500+ digital assets
             </Badge>
           </div>
 
           {/* Main Heading */}
           <div className="space-y-6 animate-slide-up">
             <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight">
-              {t('hero.title')}
+              Trade Crypto with
+              <span className="block text-gradient animate-glow">
+                Confidence & Speed
+              </span>
             </h1>
             
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              {t('hero.subtitle')}
+              Professional-grade cryptocurrency trading platform with advanced tools, 
+              lightning-fast execution, and institutional-level security.
             </p>
           </div>
 
@@ -53,7 +55,7 @@ const Hero = () => {
               size="lg" 
               className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300 text-lg px-8 py-6 group"
             >
-              {t('hero.getStarted')}
+              Start Trading Now
               <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
             </Button>
             <Button 
@@ -61,7 +63,7 @@ const Hero = () => {
               size="lg" 
               className="border-primary/30 hover:bg-primary/10 text-lg px-8 py-6 glass-card"
             >
-              {t('hero.learnMore')}
+              Explore Markets
             </Button>
           </div>
 

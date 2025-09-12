@@ -12,14 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { useTranslation } from 'react-i18next';
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation();
 
   const handleSignOut = async () => {
     await signOut();
@@ -27,14 +25,13 @@ const Header = () => {
 
   const handleNavClick = (item: any, subItem?: any) => {
     const target = subItem || item;
-
+    
     // Redirect to login for Trading and Assets if user is not logged in
-    const isProtected = item.key === 'trading' || item.key === 'assets';
-    if (!user && isProtected) {
+    if (!user && (item.title === "Trading" || item.title === "Assets")) {
       navigate("/login");
       return;
     }
-
+    
     // For other items, navigate normally
     if (target.href) {
       // If we're already on the target page, scroll to top
@@ -57,44 +54,38 @@ const Header = () => {
 
   const navigationItems = [
     {
-      key: 'home',
-      title: t('nav.home'),
-      href: '/',
-      description: 'Go back to homepage'
+      title: "Home",
+      href: "/",
+      description: "Go back to homepage"
     },
     {
-      key: 'markets',
-      title: t('nav.markets'),
-      href: '/markets',
-      description: 'Explore all available trading pairs'
+      title: "Markets",
+      href: "/markets",
+      description: "Explore all available trading pairs"
     },
     {
-      key: 'trading',
-      title: t('nav.futures'),
+      title: "Trading",
       items: [
-        { key: 'futures', title: t('nav.futures'), href: '/futures', description: 'Advanced trading with leverage' }
+        { title: "Futures", href: "/futures", description: "Advanced trading with leverage" }
       ]
     },
     {
-      key: 'assets',
-      title: t('nav.assets'),
-      href: '/assets',
-      description: 'Manage your portfolio'
+      title: "Assets",
+      href: "/assets",
+      description: "Manage your portfolio"
     },
     {
-      key: 'support',
-      title: 'Support',
+      title: "Support",
       items: [
-        { key: 'help', title: 'Help Center', href: '/help', description: 'Find answers to common questions' },
-        { key: 'contact', title: 'Contact Us', href: '/contact', description: 'Get in touch with our team' },
-        { key: 'api', title: 'API Docs', href: '/api', description: 'Developer documentation' }
+        { title: "Help Center", href: "/help", description: "Find answers to common questions" },
+        { title: "Contact Us", href: "/contact", description: "Get in touch with our team" },
+        { title: "API Docs", href: "/api", description: "Developer documentation" }
       ]
     },
     {
-      key: 'news',
-      title: t('nav.news'),
-      href: '/news',
-      description: 'Latest cryptocurrency news'
+      title: "News",
+      href: "/news",
+      description: "Latest cryptocurrency news"
     }
   ];
 
@@ -116,7 +107,7 @@ const Header = () => {
         <NavigationMenu className="hidden lg:flex">
           <NavigationMenuList>
             {navigationItems.map((item) => (
-              <NavigationMenuItem key={item.key || item.title}>
+              <NavigationMenuItem key={item.title}>
                 {item.items ? (
                   <>
                     <NavigationMenuTrigger className="bg-transparent hover:bg-muted/50 data-[state=open]:bg-muted/50">
@@ -126,7 +117,7 @@ const Header = () => {
                       <div className="grid w-[300px] gap-3 p-4">
                         {item.items.map((subItem) => (
                           <div
-                            key={subItem.key || subItem.title}
+                            key={subItem.title}
                             onClick={() => handleNavClick(item, subItem)}
                             className={cn(
                               "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-muted/50 focus:bg-muted/50 cursor-pointer"
@@ -167,7 +158,7 @@ const Header = () => {
               <DropdownMenuContent align="end">
                 <DropdownMenuItem onClick={() => navigate("/profile")}>
                   <User className="h-4 w-4 mr-2" />
-                  {t('nav.profile')}
+                  Profile
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                   <LogOut className="h-4 w-4 mr-2" />
@@ -178,10 +169,10 @@ const Header = () => {
           ) : (
             <>
               <Button variant="ghost" className="hover:bg-muted/50" onClick={() => navigate("/login")}>
-                {t('nav.login')}
+                Login
               </Button>
               <Button className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300" onClick={() => navigate("/register")}>
-                {t('nav.register')}
+                Register
               </Button>
             </>
           )}
@@ -197,7 +188,7 @@ const Header = () => {
           <SheetContent side="right" className="w-[300px] glass-card">
             <div className="flex flex-col space-y-4 mt-6">
               {navigationItems.map((item) => (
-                <div key={item.key || item.title}>
+                <div key={item.title}>
                   {item.items ? (
                     <div className="space-y-2">
                       <div className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
@@ -205,7 +196,7 @@ const Header = () => {
                       </div>
                       {item.items.map((subItem) => (
                         <div
-                          key={subItem.key || subItem.title}
+                          key={subItem.title}
                           className="block py-2 text-sm hover:text-primary transition-colors cursor-pointer"
                           onClick={() => {
                             handleNavClick(item, subItem);
@@ -241,7 +232,7 @@ const Header = () => {
                       }}
                     >
                       <User className="h-4 w-4 mr-2" />
-                      {t('nav.profile')}
+                      Profile
                     </Button>
                     <Button
                       variant="ghost"
@@ -253,14 +244,14 @@ const Header = () => {
                     </Button>
                   </>
                 ) : (
-            <>
-              <Button variant="ghost" className="w-full justify-start hover:bg-muted/50" onClick={() => navigate("/login")}> 
-                {t('nav.login')}
-              </Button>
-              <Button className="w-full gradient-primary shadow-primary" onClick={() => navigate("/register")}> 
-                {t('nav.register')}
-              </Button>
-            </>
+                  <>
+                    <Button variant="ghost" className="w-full justify-start hover:bg-muted/50" onClick={() => navigate("/login")}>
+                      Login
+                    </Button>
+                    <Button className="w-full gradient-primary shadow-primary" onClick={() => navigate("/register")}>
+                      Register
+                    </Button>
+                  </>
                 )}
               </div>
             </div>

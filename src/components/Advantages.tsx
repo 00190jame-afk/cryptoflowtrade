@@ -1,56 +1,54 @@
 import { Shield, Zap, Users, BarChart3, Clock, Globe, Lock, Headphones } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { useTranslation } from 'react-i18next';
 
 const Advantages = () => {
-  const { t } = useTranslation();
   const advantages = [
     {
       icon: Shield,
-      title: t('advantages.bankSecurity.title'),
-      description: t('advantages.bankSecurity.description'),
+      title: "Bank-Level Security",
+      description: "Multi-signature wallets, cold storage, and advanced encryption protect your assets with institutional-grade security measures.",
       gradient: "from-blue-500 to-cyan-500"
     },
     {
       icon: Zap,
-      title: t('advantages.lightningFast.title'),
-      description: t('advantages.lightningFast.description'),
+      title: "Lightning Fast",
+      description: "Execute trades in under 1ms with our cutting-edge matching engine, handling 300,000+ transactions per second.",
       gradient: "from-purple-500 to-pink-500"
     },
     {
       icon: Users,
-      title: t('advantages.globalCommunity.title'),
-      description: t('advantages.globalCommunity.description'),
+      title: "Global Community",
+      description: "Join millions of traders worldwide with 24/7 multi-language support and an active community across all time zones.",
       gradient: "from-green-500 to-emerald-500"
     },
     {
       icon: BarChart3,
-      title: t('advantages.advancedAnalytics.title'),
-      description: t('advantages.advancedAnalytics.description'),
+      title: "Advanced Analytics",
+      description: "Professional trading tools with real-time charts, technical indicators, and market intelligence for informed decisions.",
       gradient: "from-orange-500 to-red-500"
     },
     {
       icon: Clock,
-      title: t('advantages.operations247.title'),
-      description: t('advantages.operations247.description'),
+      title: "24/7 Operations",
+      description: "Never miss an opportunity with round-the-clock trading, continuous market access, and seamless global operations.",
       gradient: "from-indigo-500 to-blue-500"
     },
     {
       icon: Globe,
-      title: t('advantages.regulatoryCompliance.title'),
-      description: t('advantages.regulatoryCompliance.description'),
+      title: "Regulatory Compliance",
+      description: "Fully licensed and compliant with international regulations, ensuring a safe and legal trading environment.",
       gradient: "from-teal-500 to-green-500"
     },
     {
       icon: Lock,
-      title: t('advantages.assetProtection.title'),
-      description: t('advantages.assetProtection.description'),
+      title: "Asset Protection",
+      description: "100% reserve backing with transparent proof-of-reserves and comprehensive insurance coverage for digital assets.",
       gradient: "from-violet-500 to-purple-500"
     },
     {
       icon: Headphones,
-      title: t('advantages.expertSupport.title'),
-      description: t('advantages.expertSupport.description'),
+      title: "Expert Support",
+      description: "Dedicated customer success team with deep crypto expertise, available via chat, email, and phone support.",
       gradient: "from-rose-500 to-pink-500"
     }
   ];
@@ -64,10 +62,12 @@ const Advantages = () => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-3xl md:text-5xl font-bold mb-6">
-            {t('advantages.title')}
+            Why Choose 
+            <span className="text-gradient"> CryptoFlow</span>
           </h2>
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            {t('advantages.subtitle')}
+            Built for traders by traders, CryptoFlow combines cutting-edge technology with 
+            institutional-grade security to deliver the ultimate cryptocurrency trading experience.
           </p>
         </div>
 
@@ -108,16 +108,16 @@ const Advantages = () => {
         {/* CTA Section */}
         <div className="text-center mt-16 animate-slide-up">
           <div className="glass-card rounded-2xl p-8 max-w-2xl mx-auto">
-            <h3 className="text-2xl font-bold mb-4">{t('advantages.readyDifference')}</h3>
+            <h3 className="text-2xl font-bold mb-4">Ready to experience the difference?</h3>
             <p className="text-muted-foreground mb-6">
-              {t('advantages.joinTraders')}
+              Join thousands of traders who trust CryptoFlow for their digital asset trading needs.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <button className="px-8 py-3 gradient-primary rounded-lg font-medium hover:shadow-primary transition-all duration-300">
-                {t('advantages.startTrading')}
+                Start Trading Today
               </button>
               <button className="px-8 py-3 border border-primary/30 rounded-lg font-medium hover:bg-primary/10 transition-colors">
-                {t('advantages.learnMore')}
+                Learn More
               </button>
             </div>
           </div>

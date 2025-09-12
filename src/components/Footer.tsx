@@ -1,48 +1,46 @@
 import { TrendingUp, Twitter, Github, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTranslation } from 'react-i18next';
 
 const Footer = () => {
-  const { t } = useTranslation();
   const footerSections = [
     {
-      title: t('footer.sections.products.title'),
+      title: "Products",
       links: [
-        { name: t('footer.sections.products.spotTrading'), href: "/spot" },
-        { name: t('footer.sections.products.futures'), href: "/futures" },
-        { name: t('footer.sections.products.options'), href: "/options" },
-        { name: t('footer.sections.products.staking'), href: "/staking" },
-        { name: t('footer.sections.products.nftMarketplace'), href: "/nft" }
+        { name: "Spot Trading", href: "/spot" },
+        { name: "Futures", href: "/futures" },
+        { name: "Options", href: "/options" },
+        { name: "Staking", href: "/staking" },
+        { name: "NFT Marketplace", href: "/nft" }
       ]
     },
     {
-      title: t('footer.sections.resources.title'),
+      title: "Resources",
       links: [
-        { name: t('footer.sections.resources.helpCenter'), href: "/help" },
-        { name: t('footer.sections.resources.apiDocs'), href: "/api" },
-        { name: t('footer.sections.resources.tradingGuides'), href: "/guides" },
-        { name: t('footer.sections.resources.marketAnalysis'), href: "/analysis" },
-        { name: t('footer.sections.resources.educational'), href: "/learn" }
+        { name: "Help Center", href: "/help" },
+        { name: "API Documentation", href: "/api" },
+        { name: "Trading Guides", href: "/guides" },
+        { name: "Market Analysis", href: "/analysis" },
+        { name: "Educational Content", href: "/learn" }
       ]
     },
     {
-      title: t('footer.sections.company.title'),
+      title: "Company",
       links: [
-        { name: t('footer.sections.company.aboutUs'), href: "/about" },
-        { name: t('footer.sections.company.careers'), href: "/careers" },
-        { name: t('footer.sections.company.pressKit'), href: "/press" },
-        { name: t('footer.sections.company.blog'), href: "/blog" },
-        { name: t('footer.sections.company.contact'), href: "/contact" }
+        { name: "About Us", href: "/about" },
+        { name: "Careers", href: "/careers" },
+        { name: "Press Kit", href: "/press" },
+        { name: "Blog", href: "/blog" },
+        { name: "Contact", href: "/contact" }
       ]
     },
     {
-      title: t('footer.sections.legal.title'),
+      title: "Legal",
       links: [
-        { name: t('footer.sections.legal.terms'), href: "/terms" },
-        { name: t('footer.sections.legal.privacy'), href: "/privacy" },
-        { name: t('footer.sections.legal.cookies'), href: "/cookies" },
-        { name: t('footer.sections.legal.compliance'), href: "/compliance" },
-        { name: t('footer.sections.legal.riskDisclosure'), href: "/risk" }
+        { name: "Terms of Service", href: "/terms" },
+        { name: "Privacy Policy", href: "/privacy" },
+        { name: "Cookie Policy", href: "/cookies" },
+        { name: "Compliance", href: "/compliance" },
+        { name: "Risk Disclosure", href: "/risk" }
       ]
     }
   ];
@@ -55,10 +53,10 @@ const Footer = () => {
   ];
 
   const stats = [
-    { label: t('footer.tradingVolume'), value: "$2.4B+" },
-    { label: t('footer.activeUsers'), value: "50M+" },
-    { label: t('footer.countriesServed'), value: "180+" },
-    { label: t('footer.cryptocurrencies'), value: "500+" }
+    { label: "Trading Volume (24h)", value: "$2.4B+" },
+    { label: "Active Users", value: "50M+" },
+    { label: "Countries Served", value: "180+" },
+    { label: "Cryptocurrencies", value: "500+" }
   ];
 
   return (
@@ -74,10 +72,11 @@ const Footer = () => {
           <div className="mb-16">
             <div className="text-center mb-12">
               <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                {t('footer.trustedBy')}
+                Trusted by Millions
+                <span className="text-gradient"> Worldwide</span>
               </h2>
               <p className="text-muted-foreground max-w-2xl mx-auto">
-                {t('footer.trustedDescription')}
+                Join the global community of traders who choose CryptoFlow for secure and reliable cryptocurrency trading.
               </p>
             </div>
             
@@ -110,7 +109,8 @@ const Footer = () => {
                 <span className="text-xl font-bold text-gradient">CryptoFlow</span>
               </div>
               <p className="text-muted-foreground mb-6 leading-relaxed">
-                {t('footer.description')}
+                The world's most advanced cryptocurrency trading platform. 
+                Trade with confidence using our institutional-grade security and cutting-edge technology.
               </p>
               
               {/* Contact Info */}
@@ -153,22 +153,22 @@ const Footer = () => {
           {/* Newsletter Signup */}
           <div className="glass-card rounded-2xl p-8 mb-12">
             <div className="max-w-2xl mx-auto text-center">
-              <h3 className="text-xl font-bold mb-4">{t('footer.stayUpdated')}</h3>
+              <h3 className="text-xl font-bold mb-4">Stay Updated</h3>
               <p className="text-muted-foreground mb-6">
-                {t('footer.newsletterDescription')}
+                Get the latest market insights, platform updates, and exclusive trading tips delivered to your inbox.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
                 <input 
                   type="email" 
-                  placeholder={t('footer.emailPlaceholder')}
+                  placeholder="Enter your email address"
                   className="flex-1 px-4 py-3 rounded-lg bg-background border border-border focus:border-primary outline-none transition-colors"
                 />
                 <Button className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300">
-                  {t('footer.subscribe')}
+                  Subscribe
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground mt-3">
-                {t('footer.noSpam')}
+                No spam, unsubscribe at any time.
               </p>
             </div>
           </div>
@@ -179,12 +179,12 @@ const Footer = () => {
           <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
             {/* Copyright */}
             <div className="text-sm text-muted-foreground">
-              {t('footer.copyright')}
+              © 2024 CryptoFlow. All rights reserved. | Risk Warning: Trading cryptocurrencies involves substantial risk of loss.
             </div>
 
             {/* Social Links */}
             <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground mr-2">{t('footer.followUs')}</span>
+              <span className="text-sm text-muted-foreground mr-2">Follow us:</span>
               {socialLinks.map((social) => (
                 <a
                   key={social.label}
