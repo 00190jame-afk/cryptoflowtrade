@@ -3,71 +3,62 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Clock, TrendingUp, ArrowRight, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
-
 const News = () => {
-  const newsItems = [
-    {
-      id: 1,
-      category: "Market Analysis",
-      title: "Bitcoin Reaches New All-Time High Amid Institutional Adoption",
-      excerpt: "Major financial institutions continue to embrace Bitcoin, driving unprecedented market growth and mainstream acceptance.",
-      timestamp: "2 hours ago",
-      readTime: "3 min read",
-      trend: "bullish",
-      image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop"
-    },
-    {
-      id: 2,
-      category: "Technology",
-      title: "Ethereum 2.0 Staking Rewards Hit Record High",
-      excerpt: "The latest network upgrade has significantly improved staking yields, attracting more validators to the ecosystem.",
-      timestamp: "4 hours ago",
-      readTime: "5 min read",
-      trend: "neutral",
-      image: "https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=400&h=250&fit=crop"
-    },
-    {
-      id: 3,
-      category: "Regulation",
-      title: "New Cryptocurrency Guidelines Released by Financial Authorities",
-      excerpt: "Clearer regulatory framework provides enhanced clarity for institutional investors and retail traders alike.",
-      timestamp: "6 hours ago",
-      readTime: "4 min read",
-      trend: "neutral",
-      image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=250&fit=crop"
-    },
-    {
-      id: 4,
-      category: "DeFi",
-      title: "Decentralized Finance TVL Surpasses $100B Milestone",
-      excerpt: "Total value locked in DeFi protocols reaches historic levels as adoption accelerates across various sectors.",
-      timestamp: "8 hours ago",
-      readTime: "6 min read",
-      trend: "bullish",
-      image: "https://images.unsplash.com/photo-1639322537228-f710d846310a?w=400&h=250&fit=crop"
-    },
-    {
-      id: 5,
-      category: "Platform",
-      title: "CryptoFlow Introduces Advanced Portfolio Analytics",
-      excerpt: "New AI-powered insights help traders optimize their strategies with real-time risk assessment and performance tracking.",
-      timestamp: "12 hours ago",
-      readTime: "3 min read",
-      trend: "neutral",
-      image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop"
-    },
-    {
-      id: 6,
-      category: "Market Analysis",
-      title: "Altcoin Season: Emerging Opportunities in Layer 1 Protocols",
-      excerpt: "Analysis of promising blockchain platforms and their potential impact on the broader cryptocurrency ecosystem.",
-      timestamp: "1 day ago",
-      readTime: "7 min read",
-      trend: "bullish",
-      image: "https://images.unsplash.com/photo-1640340434855-6084b1f4901c?w=400&h=250&fit=crop"
-    }
-  ];
-
+  const newsItems = [{
+    id: 1,
+    category: "Market Analysis",
+    title: "Bitcoin Reaches New All-Time High Amid Institutional Adoption",
+    excerpt: "Major financial institutions continue to embrace Bitcoin, driving unprecedented market growth and mainstream acceptance.",
+    timestamp: "2 hours ago",
+    readTime: "3 min read",
+    trend: "bullish",
+    image: "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=400&h=250&fit=crop"
+  }, {
+    id: 2,
+    category: "Technology",
+    title: "Ethereum 2.0 Staking Rewards Hit Record High",
+    excerpt: "The latest network upgrade has significantly improved staking yields, attracting more validators to the ecosystem.",
+    timestamp: "4 hours ago",
+    readTime: "5 min read",
+    trend: "neutral",
+    image: "https://images.unsplash.com/photo-1622630998477-20aa696ecb05?w=400&h=250&fit=crop"
+  }, {
+    id: 3,
+    category: "Regulation",
+    title: "New Cryptocurrency Guidelines Released by Financial Authorities",
+    excerpt: "Clearer regulatory framework provides enhanced clarity for institutional investors and retail traders alike.",
+    timestamp: "6 hours ago",
+    readTime: "4 min read",
+    trend: "neutral",
+    image: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=250&fit=crop"
+  }, {
+    id: 4,
+    category: "DeFi",
+    title: "Decentralized Finance TVL Surpasses $100B Milestone",
+    excerpt: "Total value locked in DeFi protocols reaches historic levels as adoption accelerates across various sectors.",
+    timestamp: "8 hours ago",
+    readTime: "6 min read",
+    trend: "bullish",
+    image: "https://images.unsplash.com/photo-1639322537228-f710d846310a?w=400&h=250&fit=crop"
+  }, {
+    id: 5,
+    category: "Platform",
+    title: "CryptoFlow Introduces Advanced Portfolio Analytics",
+    excerpt: "New AI-powered insights help traders optimize their strategies with real-time risk assessment and performance tracking.",
+    timestamp: "12 hours ago",
+    readTime: "3 min read",
+    trend: "neutral",
+    image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=250&fit=crop"
+  }, {
+    id: 6,
+    category: "Market Analysis",
+    title: "Altcoin Season: Emerging Opportunities in Layer 1 Protocols",
+    excerpt: "Analysis of promising blockchain platforms and their potential impact on the broader cryptocurrency ecosystem.",
+    timestamp: "1 day ago",
+    readTime: "7 min read",
+    trend: "bullish",
+    image: "https://images.unsplash.com/photo-1640340434855-6084b1f4901c?w=400&h=250&fit=crop"
+  }];
   const getCategoryColor = (category: string) => {
     const colors = {
       "Market Analysis": "bg-blue-500/10 text-blue-400 border-blue-500/20",
@@ -78,14 +69,11 @@ const News = () => {
     };
     return colors[category as keyof typeof colors] || "bg-muted text-muted-foreground";
   };
-
   const getTrendIcon = (trend: string) => {
     if (trend === "bullish") return <TrendingUp className="h-3 w-3 text-success" />;
     return <div className="h-3 w-3 rounded-full bg-muted-foreground/50" />;
   };
-
-  return (
-    <section className="py-20 relative overflow-hidden">
+  return <section className="py-20 relative overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-0 left-1/3 w-72 h-72 bg-primary/3 rounded-full blur-3xl" />
       <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-secondary/3 rounded-full blur-3xl" />
@@ -116,11 +104,7 @@ const News = () => {
             <Card className="glass-card border-border/50 overflow-hidden group hover:shadow-elevated transition-all duration-500 cursor-pointer">
             <div className="lg:flex">
               <div className="lg:w-1/2">
-                <img 
-                  src={newsItems[0].image} 
-                  alt={newsItems[0].title}
-                  className="w-full h-64 lg:h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
+                <img src={newsItems[0].image} alt={newsItems[0].title} className="w-full h-64 lg:h-full object-cover group-hover:scale-105 transition-transform duration-700" />
               </div>
               <div className="lg:w-1/2 p-8">
                 <div className="flex items-center gap-3 mb-4">
@@ -157,18 +141,12 @@ const News = () => {
 
         {/* News Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {newsItems.slice(1).map((article, index) => (
-            <Link key={article.id} to="/news">
-              <Card 
-                className="glass-card border-border/50 overflow-hidden group hover:shadow-card transition-all duration-500 hover:-translate-y-1 animate-fade-in cursor-pointer"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
+          {newsItems.slice(1).map((article, index) => <Link key={article.id} to="/news">
+              <Card className="glass-card border-border/50 overflow-hidden group hover:shadow-card transition-all duration-500 hover:-translate-y-1 animate-fade-in cursor-pointer" style={{
+            animationDelay: `${index * 0.1}s`
+          }}>
               <div className="relative">
-                <img 
-                  src={article.image} 
-                  alt={article.title}
-                  className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-700"
-                />
+                <img src={article.image} alt={article.title} className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-700" />
                 <div className="absolute top-4 left-4">
                   <Badge className={getCategoryColor(article.category)}>
                     {article.category}
@@ -195,34 +173,16 @@ const News = () => {
                 </div>
               </CardContent>
             </Card>
-            </Link>
-          ))}
+            </Link>)}
         </div>
 
         {/* Newsletter Signup */}
         <div className="mt-16 animate-slide-up">
           <Card className="glass-card border-primary/20 text-center">
-            <CardContent className="p-8">
-              <h3 className="text-2xl font-bold mb-4">Stay in the Loop</h3>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Get the latest crypto news and market insights delivered directly to your inbox.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
-                <input 
-                  type="email" 
-                  placeholder="Enter your email"
-                  className="flex-1 px-4 py-3 rounded-lg bg-surface border border-border focus:border-primary outline-none transition-colors"
-                />
-                <Button className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300">
-                  Subscribe
-                </Button>
-              </div>
-            </CardContent>
+            
           </Card>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default News;
