@@ -9,9 +9,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, TrendingUp } from "lucide-react";
 
 const Login = () => {
-  const [authMethod, setAuthMethod] = useState<"email" | "mobile">("email");
-  const [loginIdentifier, setLoginIdentifier] = useState("");
-  const [loginPassword, setLoginPassword] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberPassword, setRememberPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   
@@ -27,8 +26,7 @@ const Login = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const emailToUse = authMethod === "email" ? loginIdentifier : `${loginIdentifier}@temp.com`;
-    await signIn(emailToUse, loginPassword);
+    await signIn(email, password);
     setLoading(false);
   };
 
@@ -56,43 +54,17 @@ const Login = () => {
         <Card className="glass-card shadow-elevated">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl mb-2">CryptoFlow Account Login</CardTitle>
-            <p className="text-muted-foreground text-sm">Welcome back! Sign in with your email or phone number</p>
+            <p className="text-muted-foreground text-sm">Welcome back! Sign in with your email</p>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Auth Method Toggle */}
-            <div className="flex rounded-lg bg-muted p-1">
-              <button
-                type="button"
-                onClick={() => setAuthMethod("email")}
-                className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-                  authMethod === "email"
-                    ? "gradient-primary text-white shadow-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Email
-              </button>
-              <button
-                type="button"
-                onClick={() => setAuthMethod("mobile")}
-                className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
-                  authMethod === "mobile"
-                    ? "gradient-primary text-white shadow-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Mobile number
-              </button>
-            </div>
-
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
-                <Label>{authMethod === "email" ? "Email" : "Mobile number"}</Label>
+                <Label>Email</Label>
                 <Input
-                  type={authMethod === "email" ? "email" : "tel"}
-                  placeholder={authMethod === "email" ? "Please enter your email address" : "Please enter your mobile number"}
-                  value={loginIdentifier}
-                  onChange={(e) => setLoginIdentifier(e.target.value)}
+                  type="email"
+                  placeholder="Please enter your email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   required
                 />
               </div>
@@ -102,8 +74,8 @@ const Login = () => {
                 <Input
                   type="password"
                   placeholder="Please enter your password"
-                  value={loginPassword}
-                  onChange={(e) => setLoginPassword(e.target.value)}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   required
                 />
               </div>
