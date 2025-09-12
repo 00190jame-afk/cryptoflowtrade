@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Edit, Shield, Settings, Mail, LogOut, User, Wallet } from "lucide-react";
+import { Loader2, Edit, Shield, Settings, Mail, User, Wallet } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Header from "@/components/Header";
 
@@ -534,10 +534,7 @@ export default function Profile() {
                       <SelectContent>
                         {languages.map((lang) => (
                           <SelectItem key={lang.code} value={lang.code}>
-                            <span className="flex items-center gap-2">
-                              <span>{lang.flag}</span>
-                              <span>{lang.name}</span>
-                            </span>
+                            {lang.name}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -570,28 +567,6 @@ export default function Profile() {
               </CardContent>
             </Card>
             
-            {/* Danger Zone */}
-            <Card className="border-destructive">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-destructive">
-                  <LogOut className="h-5 w-5" />
-                  Danger Zone
-                </CardTitle>
-                <CardDescription>
-                  Actions that affect your account
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  variant="outline" 
-                  onClick={handleSignOut}
-                  className="border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
-                >
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Log Out
-                </Button>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </main>
