@@ -3,20 +3,11 @@ import { useState, useMemo, useEffect } from "react";
 import { Check, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
 
 interface Country {
   name: string;
@@ -124,49 +115,46 @@ export function CountrySelector({ value, onValueChange, disabled }: CountrySelec
           </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0" align="start">
-        <Command>
-          <div className="flex items-center border-b px-3">
-            <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-            <CommandInput
-              placeholder="Search country or dial code..."
+      <PopoverContent className="w-80 p-0 bg-background border shadow-lg" align="start">
+        <div className="border-b border-border">
+          <div className="flex items-center px-3 py-2">
+            <Search className="mr-2 h-4 w-4 text-muted-foreground" />
+            <input
+              placeholder="Please select an area code"
               value={searchValue}
-              onValueChange={setSearchValue}
-              className="flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+              onChange={(e) => setSearchValue(e.target.value)}
+              className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
             />
           </div>
-          <CommandList className="max-h-60 overflow-y-auto">
-            <CommandEmpty>No country found.</CommandEmpty>
-            <CommandGroup>
-              {filteredCountries.map((country) => (
-                <CommandItem
-                  key={country.code}
-                  value={`${country.name} ${country.dial_code} ${country.code}`}
-                  onSelect={() => {
-                    onValueChange(country.dial_code);
-                    setOpen(false);
-                    setSearchValue("");
-                  }}
-                  className="flex items-center justify-between cursor-pointer"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-lg">{country.flag}</span>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">{country.name}</span>
-                      <span className="text-xs text-muted-foreground font-mono">{country.dial_code}</span>
-                    </div>
-                  </div>
-                  <Check
-                    className={cn(
-                      "ml-auto h-4 w-4",
-                      value === country.dial_code ? "opacity-100" : "opacity-0"
-                    )}
-                  />
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </CommandList>
-        </Command>
+        </div>
+        <div className="max-h-60 overflow-y-auto">
+          {filteredCountries.length === 0 ? (
+            <div className="py-4 text-center text-sm text-muted-foreground">
+              No country found.
+            </div>
+          ) : (
+            filteredCountries.map((country) => (
+              <div
+                key={country.code}
+                onClick={() => {
+                  onValueChange(country.dial_code);
+                  setOpen(false);
+                  setSearchValue("");
+                }}
+                className="flex items-center justify-between px-3 py-3 cursor-pointer hover:bg-muted/50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-lg w-6 h-4 flex items-center justify-center">{country.flag}</span>
+                  <span className="text-sm font-medium text-foreground">{country.name}</span>
+                </div>
+                <span className="text-sm font-medium text-foreground">{country.dial_code}</span>
+                {value === country.dial_code && (
+                  <Check className="ml-2 h-4 w-4 text-primary" />
+                )}
+              </div>
+            ))
+          )}
+        </div>
       </PopoverContent>
     </Popover>
   );
