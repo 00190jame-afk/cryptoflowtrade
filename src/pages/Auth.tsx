@@ -92,25 +92,43 @@ const Auth = () => {
 
   if (currentView === "reset") {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6">
-          <Card className="bg-gray-800 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white text-2xl">Reset Password</CardTitle>
-              <p className="text-gray-400 text-sm">
+          <div className="text-center space-y-2">
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <div className="h-8 w-8 rounded-lg gradient-primary">
+                <TrendingUp className="h-5 w-5 text-white m-1.5" />
+              </div>
+              <span className="text-xl font-bold text-gradient">CryptoFlow</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/")}
+              className="mb-4"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Home
+            </Button>
+          </div>
+
+          <Card className="glass-card shadow-elevated">
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-bold">Reset Password</CardTitle>
+              <p className="text-muted-foreground text-sm">
                 For the safety of your assets, transactions are prohibited for 24 hours after changing your password.
               </p>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Auth Method Toggle */}
-              <div className="flex rounded-lg bg-gray-700 p-1">
+              <div className="flex rounded-lg bg-muted p-1">
                 <button
                   type="button"
                   onClick={() => setAuthMethod("mobile")}
                   className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
                     authMethod === "mobile"
-                      ? "bg-gray-600 text-white"
-                      : "text-gray-300 hover:text-white"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Mobile number
@@ -120,8 +138,8 @@ const Auth = () => {
                   onClick={() => setAuthMethod("email")}
                   className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
                     authMethod === "email"
-                      ? "bg-gray-600 text-white"
-                      : "text-gray-300 hover:text-white"
+                      ? "bg-card text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Email
@@ -131,13 +149,13 @@ const Auth = () => {
               <form onSubmit={handleResetPassword} className="space-y-4">
                 {authMethod === "mobile" ? (
                   <div className="space-y-4">
-                    <Label className="text-white">Mobile phone number</Label>
+                    <Label className="text-foreground">Mobile phone number</Label>
                     <div className="flex gap-2">
                       <Select value={countryCode} onValueChange={setCountryCode}>
-                        <SelectTrigger className="w-24 bg-gray-700 border-gray-600 text-white">
+                        <SelectTrigger className="w-24">
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="bg-gray-700 border-gray-600">
+                        <SelectContent>
                           <SelectItem value="+1">+1</SelectItem>
                           <SelectItem value="+44">+44</SelectItem>
                           <SelectItem value="+86">+86</SelectItem>
@@ -147,39 +165,37 @@ const Auth = () => {
                         placeholder="Mobile phone number"
                         value={resetIdentifier}
                         onChange={(e) => setResetIdentifier(e.target.value)}
-                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                         required
                       />
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <Label className="text-white">Email</Label>
+                    <Label>Email</Label>
                     <Input
                       type="email"
                       placeholder="Please enter your email address"
                       value={resetIdentifier}
                       onChange={(e) => setResetIdentifier(e.target.value)}
-                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                       required
                     />
                   </div>
                 )}
 
                 <div className="space-y-2">
-                  <Label className="text-white">Verification code</Label>
+                  <Label>Verification code</Label>
                   <div className="flex gap-2">
                     <Input
                       placeholder="Enter verification code"
                       value={resetVerificationCode}
                       onChange={(e) => setResetVerificationCode(e.target.value)}
-                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                       required
                     />
                     <Button
                       type="button"
                       onClick={handleGetVerificationCode}
-                      className="bg-yellow-500 hover:bg-yellow-600 text-black px-6"
+                      variant="secondary"
+                      className="px-6"
                     >
                       Obtain
                     </Button>
@@ -187,32 +203,30 @@ const Auth = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-white">Password</Label>
+                  <Label>Password</Label>
                   <Input
                     type="password"
                     placeholder="Please enter your password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                     required
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-white">Confirm Password</Label>
+                  <Label>Confirm Password</Label>
                   <Input
                     type="password"
                     placeholder="Please enter your password again"
                     value={confirmNewPassword}
                     onChange={(e) => setConfirmNewPassword(e.target.value)}
-                    className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                     required
                   />
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-medium"
+                  className="w-full gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300"
                   disabled={loading}
                 >
                   Submit
@@ -226,35 +240,53 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
-        <Card className="bg-gray-800 border-gray-700">
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <div className="h-8 w-8 rounded-lg gradient-primary">
+              <TrendingUp className="h-5 w-5 text-white m-1.5" />
+            </div>
+            <span className="text-xl font-bold text-gradient">CryptoFlow</span>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/")}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
+        </div>
+
+        <Card className="glass-card shadow-elevated">
           <CardContent className="p-0">
             <Tabs defaultValue="register" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-gray-700 rounded-none">
-                <TabsTrigger value="register" className="text-white data-[state=active]:bg-gray-600">
+              <TabsList className="grid w-full grid-cols-2 bg-muted rounded-none">
+                <TabsTrigger value="register" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">
                   Register
                 </TabsTrigger>
-                <TabsTrigger value="login" className="text-white data-[state=active]:bg-gray-600">
+                <TabsTrigger value="login" className="data-[state=active]:bg-card data-[state=active]:shadow-sm">
                   Login
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="register" className="p-6 space-y-6">
                 <div>
-                  <CardTitle className="text-white text-2xl mb-2">Create BT Exchange Account</CardTitle>
-                  <p className="text-gray-400 text-sm">Register with your email or mobile number</p>
+                  <CardTitle className="text-2xl mb-2">Create CryptoFlow Account</CardTitle>
+                  <p className="text-muted-foreground text-sm">Register with your email or mobile number</p>
                 </div>
 
                 {/* Auth Method Toggle */}
-                <div className="flex rounded-lg bg-gray-700 p-1">
+                <div className="flex rounded-lg bg-muted p-1">
                   <button
                     type="button"
                     onClick={() => setAuthMethod("mobile")}
                     className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
                       authMethod === "mobile"
-                        ? "bg-yellow-500 text-black"
-                        : "text-gray-300 hover:text-white"
+                        ? "gradient-primary text-white shadow-primary"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     Mobile number
@@ -264,8 +296,8 @@ const Auth = () => {
                     onClick={() => setAuthMethod("email")}
                     className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
                       authMethod === "email"
-                        ? "bg-yellow-500 text-black"
-                        : "text-gray-300 hover:text-white"
+                        ? "gradient-primary text-white shadow-primary"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     Email
@@ -275,13 +307,13 @@ const Auth = () => {
                 <form onSubmit={handleSignUp} className="space-y-4">
                   {authMethod === "mobile" ? (
                     <div className="space-y-4">
-                      <Label className="text-white">Mobile phone number</Label>
+                      <Label>Mobile phone number</Label>
                       <div className="flex gap-2">
                         <Select value={countryCode} onValueChange={setCountryCode}>
-                          <SelectTrigger className="w-24 bg-gray-700 border-gray-600 text-white">
+                          <SelectTrigger className="w-24">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-gray-700 border-gray-600">
+                          <SelectContent>
                             <SelectItem value="+1">+1</SelectItem>
                             <SelectItem value="+44">+44</SelectItem>
                             <SelectItem value="+86">+86</SelectItem>
@@ -291,39 +323,37 @@ const Auth = () => {
                           placeholder="Mobile phone number"
                           value={mobileNumber}
                           onChange={(e) => setMobileNumber(e.target.value)}
-                          className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                           required
                         />
                       </div>
                     </div>
                   ) : (
                     <div className="space-y-2">
-                      <Label className="text-white">Email</Label>
+                      <Label>Email</Label>
                       <Input
                         type="email"
                         placeholder="Please enter your email address"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                         required
                       />
                     </div>
                   )}
 
                   <div className="space-y-2">
-                    <Label className="text-white">Verification code</Label>
+                    <Label>Verification code</Label>
                     <div className="flex gap-2">
                       <Input
                         placeholder="Enter verification code"
                         value={verificationCode}
                         onChange={(e) => setVerificationCode(e.target.value)}
-                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                         required
                       />
                       <Button
                         type="button"
                         onClick={handleGetVerificationCode}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-black px-6"
+                        variant="secondary"
+                        className="px-6"
                       >
                         Obtain
                       </Button>
@@ -331,35 +361,32 @@ const Auth = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-white">Password</Label>
+                    <Label>Password</Label>
                     <Input
                       type="password"
                       placeholder="Please enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label className="text-white">Confirm Password</Label>
+                    <Label>Confirm Password</Label>
                     <Input
                       type="password"
                       placeholder="Please enter your password again"
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                       required
                     />
                   </div>
 
                   <div className="space-y-2">
                     <Input
-                      placeholder="Invite code"
+                      placeholder="Invite code (optional)"
                       value={inviteCode}
                       onChange={(e) => setInviteCode(e.target.value)}
-                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                     />
                   </div>
 
@@ -368,19 +395,18 @@ const Auth = () => {
                       id="terms"
                       checked={agreeToTerms}
                       onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
-                      className="border-gray-600 data-[state=checked]:bg-yellow-500"
                     />
-                    <label htmlFor="terms" className="text-sm text-gray-300">
+                    <label htmlFor="terms" className="text-sm text-muted-foreground">
                       I have read and agree to{" "}
-                      <span className="text-yellow-500 cursor-pointer hover:underline">
-                        BT Exchange Terms of Service
+                      <span className="text-primary cursor-pointer hover:underline">
+                        CryptoFlow Terms of Service
                       </span>
                     </label>
                   </div>
 
                   <Button
                     type="submit"
-                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-medium"
+                    className="w-full gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300"
                     disabled={loading || !agreeToTerms}
                   >
                     {loading ? "Creating account..." : "Register"}
@@ -390,19 +416,19 @@ const Auth = () => {
 
               <TabsContent value="login" className="p-6 space-y-6">
                 <div>
-                  <CardTitle className="text-white text-2xl mb-2">BT Exchange Account Login</CardTitle>
-                  <p className="text-gray-400 text-sm">Welcome back! Sign in with your email, phone number</p>
+                  <CardTitle className="text-2xl mb-2">CryptoFlow Account Login</CardTitle>
+                  <p className="text-muted-foreground text-sm">Welcome back! Sign in with your email or phone number</p>
                 </div>
 
                 {/* Auth Method Toggle */}
-                <div className="flex rounded-lg bg-gray-700 p-1">
+                <div className="flex rounded-lg bg-muted p-1">
                   <button
                     type="button"
                     onClick={() => setAuthMethod("email")}
                     className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
                       authMethod === "email"
-                        ? "bg-yellow-500 text-black"
-                        : "text-gray-300 hover:text-white"
+                        ? "gradient-primary text-white shadow-primary"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     Email
@@ -412,8 +438,8 @@ const Auth = () => {
                     onClick={() => setAuthMethod("mobile")}
                     className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
                       authMethod === "mobile"
-                        ? "bg-yellow-500 text-black"
-                        : "text-gray-300 hover:text-white"
+                        ? "gradient-primary text-white shadow-primary"
+                        : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     Mobile number
@@ -423,25 +449,24 @@ const Auth = () => {
                 <form onSubmit={handleSignIn} className="space-y-4">
                   {authMethod === "email" ? (
                     <div className="space-y-2">
-                      <Label className="text-white">Email</Label>
+                      <Label>Email</Label>
                       <Input
                         type="email"
                         placeholder="Please enter your email address"
                         value={loginIdentifier}
                         onChange={(e) => setLoginIdentifier(e.target.value)}
-                        className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                         required
                       />
                     </div>
                   ) : (
                     <div className="space-y-4">
-                      <Label className="text-white">Mobile phone number</Label>
+                      <Label>Mobile phone number</Label>
                       <div className="flex gap-2">
                         <Select value={countryCode} onValueChange={setCountryCode}>
-                          <SelectTrigger className="w-24 bg-gray-700 border-gray-600 text-white">
+                          <SelectTrigger className="w-24">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-gray-700 border-gray-600">
+                          <SelectContent>
                             <SelectItem value="+1">+1</SelectItem>
                             <SelectItem value="+44">+44</SelectItem>
                             <SelectItem value="+86">+86</SelectItem>
@@ -451,7 +476,6 @@ const Auth = () => {
                           placeholder="Mobile phone number"
                           value={loginIdentifier}
                           onChange={(e) => setLoginIdentifier(e.target.value)}
-                          className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                           required
                         />
                       </div>
@@ -459,13 +483,12 @@ const Auth = () => {
                   )}
 
                   <div className="space-y-2">
-                    <Label className="text-white">Password</Label>
+                    <Label>Password</Label>
                     <Input
                       type="password"
                       placeholder="Please enter your password"
                       value={loginPassword}
                       onChange={(e) => setLoginPassword(e.target.value)}
-                      className="bg-gray-700 border-gray-600 text-white placeholder-gray-400"
                       required
                     />
                   </div>
@@ -475,16 +498,15 @@ const Auth = () => {
                       id="remember"
                       checked={rememberPassword}
                       onCheckedChange={(checked) => setRememberPassword(checked as boolean)}
-                      className="border-gray-600 data-[state=checked]:bg-yellow-500"
                     />
-                    <label htmlFor="remember" className="text-sm text-gray-300">
+                    <label htmlFor="remember" className="text-sm text-muted-foreground">
                       Remember my password
                     </label>
                   </div>
 
                   <Button
                     type="submit"
-                    className="w-full bg-yellow-500 hover:bg-yellow-600 text-black font-medium"
+                    className="w-full gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300"
                     disabled={loading}
                   >
                     {loading ? "Signing in..." : "Login"}
@@ -495,7 +517,7 @@ const Auth = () => {
                   <button
                     type="button"
                     onClick={() => setCurrentView("reset")}
-                    className="text-yellow-500 hover:underline text-sm"
+                    className="text-primary hover:underline text-sm"
                   >
                     Forget password?
                   </button>
