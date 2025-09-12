@@ -167,11 +167,6 @@ const Register = () => {
                       maxLength={6}
                       required
                     />
-                    {devCode && (
-                      <p className="text-xs text-muted-foreground">
-                        Dev note: code is {devCode}
-                      </p>
-                    )}
                     {verificationSent && (
                       <p className="text-xs text-green-600">
                         Verification code sent to your email. Please check your inbox.
@@ -207,7 +202,7 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Invite code *</Label>
+                <Label>Invite code</Label>
                 <div className="relative">
                   <Input
                     placeholder="Enter invite code (required)"
@@ -226,7 +221,7 @@ const Register = () => {
                 {inviteCodeValid === false && (
                   <p className="text-destructive text-xs">Invalid invite code</p>
                 )}
-                <p className="text-xs text-muted-foreground">Try: WELCOME1, BETA2024, or TESTCODE</p>
+                
               </div>
 
               <div className="flex items-center space-x-2">

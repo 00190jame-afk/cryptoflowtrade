@@ -154,9 +154,6 @@ const ResetPassword = () => {
                     )}
                   </Button>
                 </div>
-                {devCode && (
-                  <p className="text-xs text-muted-foreground">Dev code: <span className="font-mono tracking-widest">{devCode}</span></p>
-                )}
               </div>
 
               <div className="space-y-2">
