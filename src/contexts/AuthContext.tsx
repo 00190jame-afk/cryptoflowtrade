@@ -8,12 +8,9 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   signUp: (data: {
-    email?: string;
-    phone?: string;
+    email: string;
     password: string;
-    verificationCode: string;
     inviteCode: string;
-    authMethod: 'email' | 'phone';
   }) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
@@ -107,17 +104,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async (signUpData: {
-    email?: string;
-    phone?: string;
+    email: string;
     password: string;
-    verificationCode: string;
     inviteCode: string;
-    authMethod: 'email' | 'phone';
   }) => {
     try {
-      const { email, password, inviteCode, authMethod } = signUpData;
+      const { email, password, inviteCode } = signUpData;
 
-      if (!email || authMethod !== 'email') {
+      if (!email) {
         throw new Error('Email is required for registration');
       }
 

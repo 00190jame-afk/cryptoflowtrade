@@ -5,16 +5,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { CountrySelector } from "@/components/ui/country-selector";
 import { useAuth } from "@/contexts/AuthContext";
 import { ArrowLeft, TrendingUp } from "lucide-react";
 
 const Register = () => {
-  const [authMethod, setAuthMethod] = useState<"email" | "mobile">("email");
   const [email, setEmail] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [countryCode, setCountryCode] = useState("+1");
-  const [verificationCode, setVerificationCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [inviteCode, setInviteCode] = useState("");
@@ -60,9 +55,7 @@ const Register = () => {
     await signUp({
       email,
       password,
-      verificationCode: '', // Not needed for Supabase's built-in email verification
-      inviteCode,
-      authMethod: "email"
+      inviteCode
     });
     setLoading(false);
   };
@@ -114,7 +107,7 @@ const Register = () => {
         <Card className="glass-card shadow-elevated">
           <CardHeader className="text-center">
             <CardTitle className="text-2xl mb-2">Create CryptoFlow Account</CardTitle>
-            <p className="text-muted-foreground text-sm">Register with your email or mobile number</p>
+            <p className="text-muted-foreground text-sm">Register with your email address</p>
           </CardHeader>
           <CardContent className="space-y-6">
             <form onSubmit={handleSignUp} className="space-y-4">
