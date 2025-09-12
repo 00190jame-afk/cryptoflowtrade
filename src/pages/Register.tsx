@@ -15,10 +15,9 @@ const Register = () => {
   const [inviteCode, setInviteCode] = useState("");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [verificationSent, setVerificationSent] = useState(false);
   const [inviteCodeValid, setInviteCodeValid] = useState<boolean | null>(null);
   
-  const { signUp, user, sendVerificationCode, validateInviteCode } = useAuth();
+  const { signUp, user, validateInviteCode } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -60,17 +59,6 @@ const Register = () => {
     setLoading(false);
   };
 
-  const handleGetVerificationCode = async () => {
-    if (!email.trim()) {
-      alert("Please enter your email");
-      return;
-    }
-
-    const { error } = await sendVerificationCode(email, "email");
-    if (!error) {
-      setVerificationSent(true);
-    }
-  };
 
   const handleInviteCodeChange = async (value: string) => {
     setInviteCode(value);
@@ -123,24 +111,6 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Email verification</Label>
-                <Button
-                  type="button"
-                  onClick={handleGetVerificationCode}
-                  variant="secondary"
-                  className="w-full"
-                  disabled={verificationSent}
-                >
-                  {verificationSent ? "Verification email sent" : "Send verification email"}
-                </Button>
-                {verificationSent && (
-                  <p className="text-sm text-green-600">
-                    Check your email and click the verification link before completing registration.
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
                 <Label>Password</Label>
                 <Input
                   type="password"
@@ -149,6 +119,9 @@ const Register = () => {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+                <p className="text-xs text-muted-foreground">
+                  Password must contain uppercase, lowercase, numbers, and special characters
+                </p>
               </div>
 
               <div className="space-y-2">
