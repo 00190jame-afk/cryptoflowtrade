@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "home": "ホーム",
+    "markets": "マーケット", 
+    "news": "ニュース",
+    "assets": "資産",
+    "futures": "先物",
+    "profile": "プロフィール",
+    "login": "ログイン",
+    "register": "登録"
+  },
+  "hero": {
+    "badge": "🚀 安心して取引",
+    "title": "プロフェッショナルなデジタル資産取引プラットフォーム",
+    "subtitle": "高度なツール、リアルタイム市場データ、安全な取引でシームレスな暗号通貨取引を体験してください。世界中の何千ものトレーダーに参加しましょう。",
+    "getStarted": "今日から始める",
+    "learnMore": "詳細を見る",
+    "dailyVolume": "日次取引量",
+    "usersWorldwide": "世界中のユーザー",
+    "supportedCoins": "サポートコイン",
+    "successRate": "成功率"
+  },
+  "advantages": {
+    "title": "なぜCryptoFlowを選ぶのか？",
+    "subtitle": "暗号通貨取引において私たちが好まれる選択肢となる利点をご覧ください。",
+    "realTimeData": {
+      "title": "リアルタイムデータ",
+      "description": "当社の高度な取引エンジンでライブ市場データにアクセスし、瞬時に取引を実行します。"
+    },
+    "advancedSecurity": {
+      "title": "高度なセキュリティ",
+      "description": "お客様の資産は銀行レベルのセキュリティ対策とコールドストレージソリューションで保護されています。"
+    },
+    "lowFees": {
+      "title": "低い取引手数料", 
+      "description": "わずか0.1%から始まる競争力のある取引手数料をボリュームベースの割引とともにお楽しみください。"
+    },
+    "support": {
+      "title": "24/7サポート",
+      "description": "24時間体制のカスタマーサポートチームで、必要な時にヘルプを得られます。"
+    },
+    "advancedOrders": {
+      "title": "高度な注文",
+      "description": "ストップロス、テイクプロフィット、トレーリングストップなどの高度な注文タイプを使用します。"
+    },
+    "globalAccess": {
+      "title": "グローバルアクセス",
+      "description": "安全でコンプライアンスに準拠したプラットフォームで世界中どこからでも取引できます。"
+    },
+    "startTrading": "今日から取引開始",
+    "learnMore": "詳細を見る"
+  },
+  "about": {
+    "title": "シームレスな取引体験",
+    "subtitle": "レスポンシブなプラットフォームですべてのデバイスで暗号通貨を取引します。",
+    "features": {
+      "realTimeData": {
+        "title": "リアルタイム市場データと分析",
+        "description": "ライブ価格フィードと包括的な市場分析ツールで先手を取る。"
+      },
+      "advancedOrders": {
+        "title": "高度な注文タイプと取引ツール",
+        "description": "プロフェッショナルグレードの注文管理で複雑な取引戦略を実行。"
+      },
+      "secureTrading": {
+        "title": "安全でコンプライアンスに準拠した取引環境",
+        "description": "業界をリードするセキュリティで資金が保護されていることを知って、安心して取引。"
+      }
+    },
+    "platforms": {
+      "desktop": {
+        "name": "デスクトップ",
+        "description": "フル機能の取引プラットフォーム",
+        "available": "利用可能"
+      },
+      "mobile": {
+        "name": "モバイルアプリ",
+        "description": "外出先での取引",
+        "available": "利用可能"
+      },
+      "tablet": {
+        "name": "タブレット",
+        "description": "タブレット向けに最適化",
+        "available": "利用可能"
+      }
+    },
+    "createAccount": "今日アカウントを作成",
+    "getStarted": "始める"
+  },
+  "profile": {
+    "title": "プロフィール設定",
+    "personalInfo": "個人情報",
+    "displayName": "表示名",
+    "email": "メールアドレス",
+    "avatar": "プロフィール画像",
+    "uploadAvatar": "新しいアバターをアップロード",
+    "changePassword": "パスワード変更",
+    "currentPassword": "現在のパスワード", 
+    "newPassword": "新しいパスワード",
+    "confirmPassword": "新しいパスワードの確認",
+    "updatePassword": "パスワード更新",
+    "accountInfo": "アカウント情報",
+    "accountType": "アカウントタイプ",
+    "accountLevel": "アカウントレベル",
+    "memberSince": "登録日",
+    "totalTrades": "総取引数",
+    "successRate": "成功率",
+    "portfolioValue": "ポートフォリオ価値",
+    "preferences": "設定",
+    "language": "言語",
+    "save": "変更を保存",
+    "saving": "保存中..."
+  },
+  "common": {
+    "loading": "読み込み中...",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "edit": "編集",
+    "delete": "削除",
+    "confirm": "確認",
+    "close": "閉じる"
+  }
+}

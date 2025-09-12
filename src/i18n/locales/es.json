@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "markets": "Mercados", 
+    "news": "Noticias",
+    "assets": "Activos",
+    "futures": "Futuros",
+    "profile": "Perfil",
+    "login": "Iniciar Sesión",
+    "register": "Registrarse"
+  },
+  "hero": {
+    "badge": "🚀 Comercia con Confianza",
+    "title": "Plataforma Profesional de Comercio de Activos Digitales",
+    "subtitle": "Experimenta el comercio de criptomonedas sin problemas con herramientas avanzadas, datos de mercado en tiempo real y transacciones seguras. Únete a miles de comerciantes en todo el mundo.",
+    "getStarted": "Comenzar Hoy",
+    "learnMore": "Saber Más",
+    "dailyVolume": "Volumen Diario",
+    "usersWorldwide": "Usuarios en Todo el Mundo",
+    "supportedCoins": "Monedas Soportadas",
+    "successRate": "Tasa de Éxito"
+  },
+  "advantages": {
+    "title": "¿Por Qué Elegir CryptoFlow?",
+    "subtitle": "Descubre las ventajas que nos convierten en la opción preferida para el comercio de criptomonedas.",
+    "realTimeData": {
+      "title": "Datos en Tiempo Real",
+      "description": "Acceso a datos de mercado en vivo y ejecución instantánea de operaciones con nuestro motor de comercio avanzado."
+    },
+    "advancedSecurity": {
+      "title": "Seguridad Avanzada",
+      "description": "Tus activos están protegidos por medidas de seguridad de nivel bancario y soluciones de almacenamiento en frío."
+    },
+    "lowFees": {
+      "title": "Tarifas de Comercio Bajas", 
+      "description": "Disfruta de tarifas competitivas comenzando desde solo 0.1% con descuentos basados en volumen."
+    },
+    "support": {
+      "title": "Soporte 24/7",
+      "description": "Obtén ayuda cuando la necesites con nuestro equipo de atención al cliente disponible las 24 horas."
+    },
+    "advancedOrders": {
+      "title": "Órdenes Avanzadas",
+      "description": "Usa tipos de órdenes sofisticadas como stop-loss, take-profit y trailing stops."
+    },
+    "globalAccess": {
+      "title": "Acceso Global",
+      "description": "Comercia desde cualquier lugar del mundo con nuestra plataforma segura y conforme."
+    },
+    "startTrading": "Comenzar a Comerciar Hoy",
+    "learnMore": "Saber Más"
+  },
+  "about": {
+    "title": "Experiencia de Comercio Sin Problemas",
+    "subtitle": "Comercia criptomonedas en todos tus dispositivos con nuestra plataforma responsiva.",
+    "features": {
+      "realTimeData": {
+        "title": "Datos de mercado en tiempo real y análisis",
+        "description": "Mantente adelante con feeds de precios en vivo y herramientas completas de análisis de mercado."
+      },
+      "advancedOrders": {
+        "title": "Tipos de órdenes avanzadas y herramientas de comercio",
+        "description": "Ejecuta estrategias de comercio complejas con nuestro manejo de órdenes de nivel profesional."
+      },
+      "secureTrading": {
+        "title": "Entorno de comercio seguro y conforme",
+        "description": "Comercia con confianza sabiendo que tus fondos están protegidos por seguridad líder en la industria."
+      }
+    },
+    "platforms": {
+      "desktop": {
+        "name": "Escritorio",
+        "description": "Plataforma de comercio completamente equipada",
+        "available": "Disponible"
+      },
+      "mobile": {
+        "name": "Aplicación Móvil",
+        "description": "Comercia en movimiento",
+        "available": "Disponible"
+      },
+      "tablet": {
+        "name": "Tablet",
+        "description": "Optimizada para tablets",
+        "available": "Disponible"
+      }
+    },
+    "createAccount": "Crea Tu Cuenta Hoy",
+    "getStarted": "Comenzar"
+  },
+  "profile": {
+    "title": "Configuración del Perfil",
+    "personalInfo": "Información Personal",
+    "displayName": "Nombre a Mostrar",
+    "email": "Dirección de Email",
+    "avatar": "Imagen de Perfil",
+    "uploadAvatar": "Subir Nuevo Avatar",
+    "changePassword": "Cambiar Contraseña",
+    "currentPassword": "Contraseña Actual", 
+    "newPassword": "Nueva Contraseña",
+    "confirmPassword": "Confirmar Nueva Contraseña",
+    "updatePassword": "Actualizar Contraseña",
+    "accountInfo": "Información de la Cuenta",
+    "accountType": "Tipo de Cuenta",
+    "accountLevel": "Nivel de Cuenta",
+    "memberSince": "Miembro Desde",
+    "totalTrades": "Total de Operaciones",
+    "successRate": "Tasa de Éxito",
+    "portfolioValue": "Valor del Portafolio",
+    "preferences": "Preferencias",
+    "language": "Idioma",
+    "save": "Guardar Cambios",
+    "saving": "Guardando..."
+  },
+  "common": {
+    "loading": "Cargando...",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "confirm": "Confirmar",
+    "close": "Cerrar"
+  }
+}

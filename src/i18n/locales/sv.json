@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "home": "Hem",
+    "markets": "Marknader", 
+    "news": "Nyheter",
+    "assets": "Tillgångar",
+    "futures": "Terminer",
+    "profile": "Profil",
+    "login": "Logga in",
+    "register": "Registrera"
+  },
+  "hero": {
+    "badge": "🚀 Handla med Förtroende",
+    "title": "Professionell Digital Tillgångshandelsplattform",
+    "subtitle": "Upplev sömlös kryptovalutahandel med avancerade verktyg, realtidsmarknadsdata och säkra transaktioner. Anslut dig till tusentals handlare världen över.",
+    "getStarted": "Kom Igång Idag",
+    "learnMore": "Läs Mer",
+    "dailyVolume": "Daglig Volym",
+    "usersWorldwide": "Användare Världen Över",
+    "supportedCoins": "Stödda Mynt",
+    "successRate": "Framgångsgrad"
+  },
+  "advantages": {
+    "title": "Varför Välja CryptoFlow?",
+    "subtitle": "Upptäck fördelarna som gör oss till det föredragna valet för kryptovalutahandel.",
+    "realTimeData": {
+      "title": "Realtidsdata",
+      "description": "Få tillgång till live marknadsdata och utför affärer omedelbart med vår avancerade handelsmotor."
+    },
+    "advancedSecurity": {
+      "title": "Avancerad Säkerhet",
+      "description": "Dina tillgångar skyddas av säkerhetsåtgärder på banknivå och cold storage-lösningar."
+    },
+    "lowFees": {
+      "title": "Låga Handelsavgifter", 
+      "description": "Njut av konkurrenskraftiga handelsavgifter från bara 0,1% med volymbaserade rabatter."
+    },
+    "support": {
+      "title": "24/7 Support",
+      "description": "Få hjälp när du behöver det med vårt dygnet-runt-kundsupportteam."
+    },
+    "advancedOrders": {
+      "title": "Avancerade Order",
+      "description": "Använd sofistikerade ordertyper som stop-loss, take-profit och trailing stops."
+    },
+    "globalAccess": {
+      "title": "Global Åtkomst",
+      "description": "Handla från var som helst i världen med vår säkra och regelenliga plattform."
+    },
+    "startTrading": "Börja Handla Idag",
+    "learnMore": "Läs Mer"
+  },
+  "about": {
+    "title": "Sömlös Handelsupplevelse",
+    "subtitle": "Handla kryptovalutor på alla dina enheter med vår responsiva plattform.",
+    "features": {
+      "realTimeData": {
+        "title": "Realtidsmarknadsdata och analyser",
+        "description": "Håll dig före med live prisflöden och omfattande marknadsanalysverktyg."
+      },
+      "advancedOrders": {
+        "title": "Avancerade ordertyper och handelsverktyg",
+        "description": "Utför komplexa handelsstrategier med vår professionella orderhantering."
+      },
+      "secureTrading": {
+        "title": "Säker och regelenlig handelsmiljö",
+        "description": "Handla med förtroende i vetskap om att dina medel skyddas av branschledande säkerhet."
+      }
+    },
+    "platforms": {
+      "desktop": {
+        "name": "Desktop",
+        "description": "Fullt utrustad handelsplattform",
+        "available": "Tillgänglig"
+      },
+      "mobile": {
+        "name": "Mobilapp",
+        "description": "Handla på språng",
+        "available": "Tillgänglig"
+      },
+      "tablet": {
+        "name": "Surfplatta",
+        "description": "Optimerad för surfplattor",
+        "available": "Tillgänglig"
+      }
+    },
+    "createAccount": "Skapa Ditt Konto Idag",
+    "getStarted": "Kom Igång"
+  },
+  "profile": {
+    "title": "Profilinställningar",
+    "personalInfo": "Personlig Information",
+    "displayName": "Visningsnamn",
+    "email": "E-postadress",
+    "avatar": "Profilbild",
+    "uploadAvatar": "Ladda Upp Ny Avatar",
+    "changePassword": "Ändra Lösenord",
+    "currentPassword": "Nuvarande Lösenord", 
+    "newPassword": "Nytt Lösenord",
+    "confirmPassword": "Bekräfta Nytt Lösenord",
+    "updatePassword": "Uppdatera Lösenord",
+    "accountInfo": "Kontoinformation",
+    "accountType": "Kontotyp",
+    "accountLevel": "Kontonivå",
+    "memberSince": "Medlem Sedan",
+    "totalTrades": "Totalt Antal Affärer",
+    "successRate": "Framgångsgrad",
+    "portfolioValue": "Portföljvärde",
+    "preferences": "Inställningar",
+    "language": "Språk",
+    "save": "Spara Ändringar",
+    "saving": "Sparar..."
+  },
+  "common": {
+    "loading": "Laddar...",
+    "save": "Spara",
+    "cancel": "Avbryt",
+    "edit": "Redigera",
+    "delete": "Ta bort",
+    "confirm": "Bekräfta",
+    "close": "Stäng"
+  }
+}

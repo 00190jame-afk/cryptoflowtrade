@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "home": "홈",
+    "markets": "마켓", 
+    "news": "뉴스",
+    "assets": "자산",
+    "futures": "선물",
+    "profile": "프로필",
+    "login": "로그인",
+    "register": "회원가입"
+  },
+  "hero": {
+    "badge": "🚀 신뢰할 수 있는 거래",
+    "title": "전문 디지털 자산 거래 플랫폼",
+    "subtitle": "고급 도구, 실시간 시장 데이터, 안전한 거래로 원활한 암호화폐 거래를 경험하세요. 전 세계 수천 명의 거래자와 함께하세요.",
+    "getStarted": "오늘 시작하기",
+    "learnMore": "자세히 알아보기",
+    "dailyVolume": "일일 거래량",
+    "usersWorldwide": "전 세계 사용자",
+    "supportedCoins": "지원 코인",
+    "successRate": "성공률"
+  },
+  "advantages": {
+    "title": "왜 CryptoFlow를 선택해야 할까요?",
+    "subtitle": "암호화폐 거래에서 우리가 선호되는 선택이 되는 장점들을 발견하세요.",
+    "realTimeData": {
+      "title": "실시간 데이터",
+      "description": "고급 거래 엔진으로 라이브 시장 데이터에 접근하고 즉시 거래를 실행합니다."
+    },
+    "advancedSecurity": {
+      "title": "고급 보안",
+      "description": "귀하의 자산은 은행 수준의 보안 조치와 콜드 스토리지 솔루션으로 보호됩니다."
+    },
+    "lowFees": {
+      "title": "낮은 거래 수수료", 
+      "description": "볼륨 기반 할인과 함께 단 0.1%부터 시작하는 경쟁력 있는 거래 수수료를 즐기세요."
+    },
+    "support": {
+      "title": "24/7 지원",
+      "description": "24시간 고객 지원팀과 함께 필요할 때 도움을 받으세요."
+    },
+    "advancedOrders": {
+      "title": "고급 주문",
+      "description": "스톱로스, 테이크프로핏, 트레일링 스톱과 같은 정교한 주문 유형을 사용하세요."
+    },
+    "globalAccess": {
+      "title": "글로벌 접근",
+      "description": "안전하고 규정을 준수하는 플랫폼으로 전 세계 어디서나 거래하세요."
+    },
+    "startTrading": "오늘 거래 시작하기",
+    "learnMore": "자세히 알아보기"
+  },
+  "about": {
+    "title": "원활한 거래 경험",
+    "subtitle": "반응형 플랫폼으로 모든 기기에서 암호화폐를 거래하세요.",
+    "features": {
+      "realTimeData": {
+        "title": "실시간 시장 데이터 및 분석",
+        "description": "라이브 가격 피드와 포괄적인 시장 분석 도구로 앞서 나가세요."
+      },
+      "advancedOrders": {
+        "title": "고급 주문 유형 및 거래 도구",
+        "description": "전문가 수준의 주문 관리로 복잡한 거래 전략을 실행하세요."
+      },
+      "secureTrading": {
+        "title": "안전하고 규정을 준수하는 거래 환경",
+        "description": "업계 최고의 보안으로 자금이 보호된다는 것을 알고 안심하고 거래하세요."
+      }
+    },
+    "platforms": {
+      "desktop": {
+        "name": "데스크톱",
+        "description": "완전한 기능의 거래 플랫폼",
+        "available": "사용 가능"
+      },
+      "mobile": {
+        "name": "모바일 앱",
+        "description": "이동 중 거래",
+        "available": "사용 가능"
+      },
+      "tablet": {
+        "name": "태블릿",
+        "description": "태블릿에 최적화",
+        "available": "사용 가능"
+      }
+    },
+    "createAccount": "오늘 계정 만들기",
+    "getStarted": "시작하기"
+  },
+  "profile": {
+    "title": "프로필 설정",
+    "personalInfo": "개인 정보",
+    "displayName": "표시 이름",
+    "email": "이메일 주소",
+    "avatar": "프로필 사진",
+    "uploadAvatar": "새 아바타 업로드",
+    "changePassword": "비밀번호 변경",
+    "currentPassword": "현재 비밀번호", 
+    "newPassword": "새 비밀번호",
+    "confirmPassword": "새 비밀번호 확인",
+    "updatePassword": "비밀번호 업데이트",
+    "accountInfo": "계정 정보",
+    "accountType": "계정 유형",
+    "accountLevel": "계정 레벨",
+    "memberSince": "가입일",
+    "totalTrades": "총 거래 수",
+    "successRate": "성공률",
+    "portfolioValue": "포트폴리오 가치",
+    "preferences": "환경설정",
+    "language": "언어",
+    "save": "변경사항 저장",
+    "saving": "저장 중..."
+  },
+  "common": {
+    "loading": "로딩 중...",
+    "save": "저장",
+    "cancel": "취소",
+    "edit": "편집",
+    "delete": "삭제",
+    "confirm": "확인",
+    "close": "닫기"
+  }
+}

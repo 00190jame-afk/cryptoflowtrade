@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "home": "Home",
+    "markets": "Markten", 
+    "news": "Nieuws",
+    "assets": "Activa",
+    "futures": "Futures",
+    "profile": "Profiel",
+    "login": "Inloggen",
+    "register": "Registreren"
+  },
+  "hero": {
+    "badge": "🚀 Handel met Vertrouwen",
+    "title": "Professioneel Digitaal Asset Handelsplatform",
+    "subtitle": "Ervaar naadloze cryptocurrency handel met geavanceerde tools, real-time marktgegevens en veilige transacties. Sluit je aan bij duizenden handelaren wereldwijd.",
+    "getStarted": "Begin Vandaag",
+    "learnMore": "Meer Informatie",
+    "dailyVolume": "Dagelijks Volume",
+    "usersWorldwide": "Gebruikers Wereldwijd",
+    "supportedCoins": "Ondersteunde Munten",
+    "successRate": "Succespercentage"
+  },
+  "advantages": {
+    "title": "Waarom Kiezen voor CryptoFlow?",
+    "subtitle": "Ontdek de voordelen die ons de voorkeurspartner maken voor cryptocurrency handel.",
+    "realTimeData": {
+      "title": "Real-Time Gegevens",
+      "description": "Toegang tot live marktgegevens en direct handelen met onze geavanceerde handelsengine."
+    },
+    "advancedSecurity": {
+      "title": "Geavanceerde Beveiliging",
+      "description": "Uw activa worden beschermd door bankbeveiliging en cold storage oplossingen."
+    },
+    "lowFees": {
+      "title": "Lage Handelskosten", 
+      "description": "Geniet van concurrerende handelskosten vanaf slechts 0,1% met volumekortingen."
+    },
+    "support": {
+      "title": "24/7 Ondersteuning",
+      "description": "Krijg hulp wanneer je het nodig hebt met ons 24/7 klantenserviceteam."
+    },
+    "advancedOrders": {
+      "title": "Geavanceerde Orders",
+      "description": "Gebruik geavanceerde ordertypen zoals stop-loss, take-profit en trailing stops."
+    },
+    "globalAccess": {
+      "title": "Wereldwijde Toegang",
+      "description": "Handel overal ter wereld met ons veilige en conforme platform."
+    },
+    "startTrading": "Begin Vandaag met Handelen",
+    "learnMore": "Meer Informatie"
+  },
+  "about": {
+    "title": "Naadloze Handelservaring",
+    "subtitle": "Handel cryptocurrency op al je apparaten met ons responsieve platform.",
+    "features": {
+      "realTimeData": {
+        "title": "Real-time marktgegevens en analyses",
+        "description": "Blijf voorop met live prijsfeeds en uitgebreide marktanalyse tools."
+      },
+      "advancedOrders": {
+        "title": "Geavanceerde ordertypen en handelstools",
+        "description": "Voer complexe handelsstrategieën uit met ons professionele orderbeheer."
+      },
+      "secureTrading": {
+        "title": "Veilige en conforme handelsomgeving",
+        "description": "Handel met vertrouwen wetende dat je fondsen beschermd zijn door toonaangevende beveiliging."
+      }
+    },
+    "platforms": {
+      "desktop": {
+        "name": "Desktop",
+        "description": "Volledig uitgerust handelsplatform",
+        "available": "Beschikbaar"
+      },
+      "mobile": {
+        "name": "Mobiele App",
+        "description": "Handel onderweg",
+        "available": "Beschikbaar"
+      },
+      "tablet": {
+        "name": "Tablet",
+        "description": "Geoptimaliseerd voor tablets",
+        "available": "Beschikbaar"
+      }
+    },
+    "createAccount": "Maak Vandaag Je Account Aan",
+    "getStarted": "Begin Nu"
+  },
+  "profile": {
+    "title": "Profielinstellingen",
+    "personalInfo": "Persoonlijke Informatie",
+    "displayName": "Weergavenaam",
+    "email": "E-mailadres",
+    "avatar": "Profielfoto",
+    "uploadAvatar": "Upload Nieuwe Avatar",
+    "changePassword": "Wachtwoord Wijzigen",
+    "currentPassword": "Huidig Wachtwoord", 
+    "newPassword": "Nieuw Wachtwoord",
+    "confirmPassword": "Bevestig Nieuw Wachtwoord",
+    "updatePassword": "Wachtwoord Bijwerken",
+    "accountInfo": "Accountinformatie",
+    "accountType": "Accounttype",
+    "accountLevel": "Accountniveau",
+    "memberSince": "Lid Sinds",
+    "totalTrades": "Totaal Aantal Trades",
+    "successRate": "Succespercentage",
+    "portfolioValue": "Portefeuillewaarde",
+    "preferences": "Voorkeuren",
+    "language": "Taal",
+    "save": "Wijzigingen Opslaan",
+    "saving": "Opslaan..."
+  },
+  "common": {
+    "loading": "Laden...",
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "edit": "Bewerken",
+    "delete": "Verwijderen",
+    "confirm": "Bevestigen",
+    "close": "Sluiten"
+  }
+}

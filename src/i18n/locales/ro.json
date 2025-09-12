@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "home": "Acasă",
+    "markets": "Piețe", 
+    "news": "Știri",
+    "assets": "Active",
+    "futures": "Futures",
+    "profile": "Profil",
+    "login": "Conectare",
+    "register": "Înregistrare"
+  },
+  "hero": {
+    "badge": "🚀 Tranzacționează cu Încredere",
+    "title": "Platformă Profesională de Tranzacționare Active Digitale",
+    "subtitle": "Experimentează tranzacționarea fără probleme a criptomonedelor cu instrumente avansate, date de piață în timp real și tranzacții sigure. Alătură-te miilor de traderi din întreaga lume.",
+    "getStarted": "Începe Astăzi",
+    "learnMore": "Află Mai Multe",
+    "dailyVolume": "Volum Zilnic",
+    "usersWorldwide": "Utilizatori din Întreaga Lume",
+    "supportedCoins": "Monede Suportate",
+    "successRate": "Rata de Succes"
+  },
+  "advantages": {
+    "title": "De Ce Să Alegi CryptoFlow?",
+    "subtitle": "Descoperă avantajele care ne fac alegerea preferată pentru tranzacționarea criptomonedelor.",
+    "realTimeData": {
+      "title": "Date în Timp Real",
+      "description": "Acces la date de piață live și executarea instantanee a tranzacțiilor cu motorul nostru avansat de trading."
+    },
+    "advancedSecurity": {
+      "title": "Securitate Avansată",
+      "description": "Activele tale sunt protejate prin măsuri de securitate la nivel bancar și soluții de stocare la rece."
+    },
+    "lowFees": {
+      "title": "Comisioane de Tranzacționare Mici", 
+      "description": "Bucură-te de comisioane competitive începând de la doar 0,1% cu reduceri bazate pe volum."
+    },
+    "support": {
+      "title": "Suport 24/7",
+      "description": "Primește ajutor oricând ai nevoie cu echipa noastră de suport clienți disponibilă non-stop."
+    },
+    "advancedOrders": {
+      "title": "Ordine Avansate",
+      "description": "Folosește tipuri sofisticate de ordine precum stop-loss, take-profit și trailing stops."
+    },
+    "globalAccess": {
+      "title": "Acces Global",
+      "description": "Tranzacționează de oriunde din lume cu platforma noastră sigură și conformă."
+    },
+    "startTrading": "Începe să Tranzacționezi Astăzi",
+    "learnMore": "Află Mai Multe"
+  },
+  "about": {
+    "title": "Experiență de Tranzacționare Fără Probleme",
+    "subtitle": "Tranzacționează criptomonede pe toate dispozitivele tale cu platforma noastră responsivă.",
+    "features": {
+      "realTimeData": {
+        "title": "Date de piață în timp real și analize",
+        "description": "Rămâi în frunte cu fluxuri de prețuri live și instrumente complete de analiză a pieței."
+      },
+      "advancedOrders": {
+        "title": "Tipuri avansate de ordine și instrumente de trading",
+        "description": "Execută strategii complexe de trading cu managementul nostru profesional de ordine."
+      },
+      "secureTrading": {
+        "title": "Mediu de tranzacționare sigur și conform",
+        "description": "Tranzacționează cu încredere știind că fondurile tale sunt protejate prin securitate lider în industrie."
+      }
+    },
+    "platforms": {
+      "desktop": {
+        "name": "Desktop",
+        "description": "Platformă de trading complet echipată",
+        "available": "Disponibil"
+      },
+      "mobile": {
+        "name": "Aplicație Mobilă",
+        "description": "Tranzacționează în mișcare",
+        "available": "Disponibil"
+      },
+      "tablet": {
+        "name": "Tabletă",
+        "description": "Optimizat pentru tablete",
+        "available": "Disponibil"
+      }
+    },
+    "createAccount": "Creează-ți Contul Astăzi",
+    "getStarted": "Începe"
+  },
+  "profile": {
+    "title": "Setări Profil",
+    "personalInfo": "Informații Personale",
+    "displayName": "Nume Afișat",
+    "email": "Adresă Email",
+    "avatar": "Imagine Profil",
+    "uploadAvatar": "Încarcă Avatar Nou",
+    "changePassword": "Schimbă Parola",
+    "currentPassword": "Parola Curentă", 
+    "newPassword": "Parola Nouă",
+    "confirmPassword": "Confirmă Parola Nouă",
+    "updatePassword": "Actualizează Parola",
+    "accountInfo": "Informații Cont",
+    "accountType": "Tip Cont",
+    "accountLevel": "Nivel Cont",
+    "memberSince": "Membru Din",
+    "totalTrades": "Total Tranzacții",
+    "successRate": "Rata de Succes",
+    "portfolioValue": "Valoarea Portofoliului",
+    "preferences": "Preferințe",
+    "language": "Limbă",
+    "save": "Salvează Modificările",
+    "saving": "Se salvează..."
+  },
+  "common": {
+    "loading": "Se încarcă...",
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "edit": "Editează",
+    "delete": "Șterge",
+    "confirm": "Confirmă",
+    "close": "Închide"
+  }
+}

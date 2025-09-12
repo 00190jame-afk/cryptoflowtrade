@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "home": "Início",
+    "markets": "Mercados", 
+    "news": "Notícias",
+    "assets": "Ativos",
+    "futures": "Futuros",
+    "profile": "Perfil",
+    "login": "Entrar",
+    "register": "Registrar"
+  },
+  "hero": {
+    "badge": "🚀 Negocie com Confiança",
+    "title": "Plataforma Profissional de Negociação de Ativos Digitais",
+    "subtitle": "Experimente a negociação perfeita de criptomoedas com ferramentas avançadas, dados de mercado em tempo real e transações seguras. Junte-se a milhares de traders ao redor do mundo.",
+    "getStarted": "Começar Hoje",
+    "learnMore": "Saiba Mais",
+    "dailyVolume": "Volume Diário",
+    "usersWorldwide": "Usuários no Mundo Todo",
+    "supportedCoins": "Moedas Suportadas",
+    "successRate": "Taxa de Sucesso"
+  },
+  "advantages": {
+    "title": "Por Que Escolher CryptoFlow?",
+    "subtitle": "Descubra as vantagens que nos tornam a escolha preferida para negociação de criptomoedas.",
+    "realTimeData": {
+      "title": "Dados em Tempo Real",
+      "description": "Acesso a dados de mercado ao vivo e execução instantânea de negociações com nosso motor de negociação avançado."
+    },
+    "advancedSecurity": {
+      "title": "Segurança Avançada",
+      "description": "Seus ativos são protegidos por medidas de segurança de nível bancário e soluções de armazenamento a frio."
+    },
+    "lowFees": {
+      "title": "Taxas de Negociação Baixas", 
+      "description": "Desfrute de taxas competitivas começando em apenas 0,1% com descontos baseados em volume."
+    },
+    "support": {
+      "title": "Suporte 24/7",
+      "description": "Obtenha ajuda sempre que precisar com nossa equipe de suporte ao cliente disponível 24 horas por dia."
+    },
+    "advancedOrders": {
+      "title": "Ordens Avançadas",
+      "description": "Use tipos de ordens sofisticadas como stop-loss, take-profit e trailing stops."
+    },
+    "globalAccess": {
+      "title": "Acesso Global",
+      "description": "Negocie de qualquer lugar do mundo com nossa plataforma segura e em conformidade."
+    },
+    "startTrading": "Começar a Negociar Hoje",
+    "learnMore": "Saiba Mais"
+  },
+  "about": {
+    "title": "Experiência de Negociação Perfeita",
+    "subtitle": "Negocie criptomoedas em todos os seus dispositivos com nossa plataforma responsiva.",
+    "features": {
+      "realTimeData": {
+        "title": "Dados de mercado em tempo real e análises",
+        "description": "Fique à frente com feeds de preços ao vivo e ferramentas abrangentes de análise de mercado."
+      },
+      "advancedOrders": {
+        "title": "Tipos de ordens avançadas e ferramentas de negociação",
+        "description": "Execute estratégias de negociação complexas com nosso gerenciamento de ordens de nível profissional."
+      },
+      "secureTrading": {
+        "title": "Ambiente de negociação seguro e em conformidade",
+        "description": "Negocie com confiança sabendo que seus fundos estão protegidos por segurança líder da indústria."
+      }
+    },
+    "platforms": {
+      "desktop": {
+        "name": "Desktop",
+        "description": "Plataforma de negociação totalmente equipada",
+        "available": "Disponível"
+      },
+      "mobile": {
+        "name": "App Móvel",
+        "description": "Negocie em movimento",
+        "available": "Disponível"
+      },
+      "tablet": {
+        "name": "Tablet",
+        "description": "Otimizada para tablets",
+        "available": "Disponível"
+      }
+    },
+    "createAccount": "Crie Sua Conta Hoje",
+    "getStarted": "Começar"
+  },
+  "profile": {
+    "title": "Configurações do Perfil",
+    "personalInfo": "Informações Pessoais",
+    "displayName": "Nome de Exibição",
+    "email": "Endereço de Email",
+    "avatar": "Foto do Perfil",
+    "uploadAvatar": "Carregar Novo Avatar",
+    "changePassword": "Alterar Senha",
+    "currentPassword": "Senha Atual", 
+    "newPassword": "Nova Senha",
+    "confirmPassword": "Confirmar Nova Senha",
+    "updatePassword": "Atualizar Senha",
+    "accountInfo": "Informações da Conta",
+    "accountType": "Tipo de Conta",
+    "accountLevel": "Nível da Conta",
+    "memberSince": "Membro Desde",
+    "totalTrades": "Total de Negociações",
+    "successRate": "Taxa de Sucesso",
+    "portfolioValue": "Valor do Portfólio",
+    "preferences": "Preferências",
+    "language": "Idioma",
+    "save": "Salvar Alterações",
+    "saving": "Salvando..."
+  },
+  "common": {
+    "loading": "Carregando...",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Excluir",
+    "confirm": "Confirmar",
+    "close": "Fechar"
+  }
+}

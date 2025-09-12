@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "markets": "Marchés", 
+    "news": "Actualités",
+    "assets": "Actifs",
+    "futures": "Contrats à Terme",
+    "profile": "Profil",
+    "login": "Se Connecter",
+    "register": "S'inscrire"
+  },
+  "hero": {
+    "badge": "🚀 Tradez en Toute Confiance",
+    "title": "Plateforme Professionnelle de Trading d'Actifs Numériques",
+    "subtitle": "Découvrez le trading de cryptomonnaies sans effort avec des outils avancés, des données de marché en temps réel et des transactions sécurisées. Rejoignez des milliers de traders dans le monde entier.",
+    "getStarted": "Commencer Aujourd'hui",
+    "learnMore": "En Savoir Plus",
+    "dailyVolume": "Volume Quotidien",
+    "usersWorldwide": "Utilisateurs dans le Monde",
+    "supportedCoins": "Pièces Supportées",
+    "successRate": "Taux de Réussite"
+  },
+  "advantages": {
+    "title": "Pourquoi Choisir CryptoFlow ?",
+    "subtitle": "Découvrez les avantages qui font de nous le choix préféré pour le trading de cryptomonnaies.",
+    "realTimeData": {
+      "title": "Données en Temps Réel",
+      "description": "Accès aux données de marché en direct et exécution instantanée des trades avec notre moteur de trading avancé."
+    },
+    "advancedSecurity": {
+      "title": "Sécurité Avancée",
+      "description": "Vos actifs sont protégés par des mesures de sécurité de niveau bancaire et des solutions de stockage à froid."
+    },
+    "lowFees": {
+      "title": "Frais de Trading Bas", 
+      "description": "Profitez de frais compétitifs à partir de seulement 0,1% avec des remises basées sur le volume."
+    },
+    "support": {
+      "title": "Support 24/7",
+      "description": "Obtenez de l'aide quand vous en avez besoin avec notre équipe de support client disponible 24h/24."
+    },
+    "advancedOrders": {
+      "title": "Ordres Avancés",
+      "description": "Utilisez des types d'ordres sophistiqués comme stop-loss, take-profit et trailing stops."
+    },
+    "globalAccess": {
+      "title": "Accès Global",
+      "description": "Tradez de n'importe où dans le monde avec notre plateforme sécurisée et conforme."
+    },
+    "startTrading": "Commencer à Trader Aujourd'hui",
+    "learnMore": "En Savoir Plus"
+  },
+  "about": {
+    "title": "Expérience de Trading Sans Couture",
+    "subtitle": "Tradez des cryptomonnaies sur tous vos appareils avec notre plateforme responsive.",
+    "features": {
+      "realTimeData": {
+        "title": "Données de marché en temps réel et analyses",
+        "description": "Restez en avance avec des flux de prix en direct et des outils d'analyse de marché complets."
+      },
+      "advancedOrders": {
+        "title": "Types d'ordres avancés et outils de trading",
+        "description": "Exécutez des stratégies de trading complexes avec notre gestion d'ordres de niveau professionnel."
+      },
+      "secureTrading": {
+        "title": "Environnement de trading sécurisé et conforme",
+        "description": "Tradez en toute confiance en sachant que vos fonds sont protégés par une sécurité leader de l'industrie."
+      }
+    },
+    "platforms": {
+      "desktop": {
+        "name": "Bureau",
+        "description": "Plateforme de trading entièrement équipée",
+        "available": "Disponible"
+      },
+      "mobile": {
+        "name": "App Mobile",
+        "description": "Tradez en déplacement",
+        "available": "Disponible"
+      },
+      "tablet": {
+        "name": "Tablette",
+        "description": "Optimisée pour tablettes",
+        "available": "Disponible"
+      }
+    },
+    "createAccount": "Créez Votre Compte Aujourd'hui",
+    "getStarted": "Commencer"
+  },
+  "profile": {
+    "title": "Paramètres du Profil",
+    "personalInfo": "Informations Personnelles",
+    "displayName": "Nom d'Affichage",
+    "email": "Adresse Email",
+    "avatar": "Photo de Profil",
+    "uploadAvatar": "Télécharger Nouvel Avatar",
+    "changePassword": "Changer le Mot de Passe",
+    "currentPassword": "Mot de Passe Actuel", 
+    "newPassword": "Nouveau Mot de Passe",
+    "confirmPassword": "Confirmer le Nouveau Mot de Passe",
+    "updatePassword": "Mettre à Jour le Mot de Passe",
+    "accountInfo": "Informations du Compte",
+    "accountType": "Type de Compte",
+    "accountLevel": "Niveau de Compte",
+    "memberSince": "Membre Depuis",
+    "totalTrades": "Total des Trades",
+    "successRate": "Taux de Réussite",
+    "portfolioValue": "Valeur du Portefeuille",
+    "preferences": "Préférences",
+    "language": "Langue",
+    "save": "Sauvegarder les Modifications",
+    "saving": "Sauvegarde..."
+  },
+  "common": {
+    "loading": "Chargement...",
+    "save": "Sauvegarder",
+    "cancel": "Annuler",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "confirm": "Confirmer",
+    "close": "Fermer"
+  }
+}

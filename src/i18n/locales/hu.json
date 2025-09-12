@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "home": "Főoldal",
+    "markets": "Piacok", 
+    "news": "Hírek",
+    "assets": "Eszközök",
+    "futures": "Határidős Ügyletek",
+    "profile": "Profil",
+    "login": "Bejelentkezés",
+    "register": "Regisztráció"
+  },
+  "hero": {
+    "badge": "🚀 Kereskedj Bizalommal",
+    "title": "Professzionális Digitális Eszköz Kereskedési Platform",
+    "subtitle": "Tapasztald meg a zökkenőmentes kriptovaluta kereskedést fejlett eszközökkel, valós idejű piaci adatokkal és biztonságos tranzakciókkal. Csatlakozz a világszerte több ezer kereskedőhöz.",
+    "getStarted": "Kezdd El Ma",
+    "learnMore": "Tudj Meg Többet",
+    "dailyVolume": "Napi Forgalom",
+    "usersWorldwide": "Felhasználók Világszerte",
+    "supportedCoins": "Támogatott Érmék",
+    "successRate": "Sikerességi Arány"
+  },
+  "advantages": {
+    "title": "Miért Válaszd a CryptoFlow-t?",
+    "subtitle": "Fedezd fel azokat az előnyöket, amelyek a kriptovaluta kereskedés preferált választásává tesznek minket.",
+    "realTimeData": {
+      "title": "Valós Idejű Adatok",
+      "description": "Hozzáférés élő piaci adatokhoz és azonnali kereskedés végrehajtás fejlett kereskedési motorunkkal."
+    },
+    "advancedSecurity": {
+      "title": "Fejlett Biztonság",
+      "description": "Az eszközeid banki szintű biztonsági intézkedésekkel és hideg tárolási megoldásokkal védettek."
+    },
+    "lowFees": {
+      "title": "Alacsony Kereskedési Díjak", 
+      "description": "Élvezd a versenyképes kereskedési díjakat, amelyek mindössze 0,1%-tól kezdődnek, forgalom alapú kedvezményekkel."
+    },
+    "support": {
+      "title": "24/7 Támogatás",
+      "description": "Kérj segítséget amikor szükséged van rá, a nonstop ügyfélszolgálati csapatunktól."
+    },
+    "advancedOrders": {
+      "title": "Fejlett Megbízások",
+      "description": "Használj kifinomult megbízástípusokat, mint a stop-loss, take-profit és trailing stop."
+    },
+    "globalAccess": {
+      "title": "Globális Hozzáférés",
+      "description": "Kereskedj bárhonnan a világon biztonságos és megfelelő platformunkkal."
+    },
+    "startTrading": "Kezdj El Kereskedni Ma",
+    "learnMore": "Tudj Meg Többet"
+  },
+  "about": {
+    "title": "Zökkenőmentes Kereskedési Élmény",
+    "subtitle": "Kereskedj kriptovalutákkal minden eszközödön reszponzív platformunkkal.",
+    "features": {
+      "realTimeData": {
+        "title": "Valós idejű piaci adatok és elemzések",
+        "description": "Maradj előrébb élő árfolyam-feedekkel és átfogó piacelemzési eszközökkel."
+      },
+      "advancedOrders": {
+        "title": "Fejlett megbízástípusok és kereskedési eszközök",
+        "description": "Hajtsd végre összetett kereskedési stratégiákat professzionális szintű megbízáskezelésünkkel."
+      },
+      "secureTrading": {
+        "title": "Biztonságos és megfelelő kereskedési környezet",
+        "description": "Kereskedj bizalommal, tudva, hogy alapjaid az iparágvezető biztonsággal védettek."
+      }
+    },
+    "platforms": {
+      "desktop": {
+        "name": "Asztali",
+        "description": "Teljesen felszerelt kereskedési platform",
+        "available": "Elérhető"
+      },
+      "mobile": {
+        "name": "Mobil Alkalmazás",
+        "description": "Kereskedés útközben",
+        "available": "Elérhető"
+      },
+      "tablet": {
+        "name": "Tablet",
+        "description": "Tabletekre optimalizálva",
+        "available": "Elérhető"
+      }
+    },
+    "createAccount": "Hozd Létre Fiókodat Ma",
+    "getStarted": "Kezdés"
+  },
+  "profile": {
+    "title": "Profil Beállítások",
+    "personalInfo": "Személyes Információk",
+    "displayName": "Megjelenítendő Név",
+    "email": "Email Cím",
+    "avatar": "Profilkép",
+    "uploadAvatar": "Új Avatar Feltöltése",
+    "changePassword": "Jelszó Megváltoztatása",
+    "currentPassword": "Jelenlegi Jelszó", 
+    "newPassword": "Új Jelszó",
+    "confirmPassword": "Új Jelszó Megerősítése",
+    "updatePassword": "Jelszó Frissítése",
+    "accountInfo": "Fiók Információk",
+    "accountType": "Fiók Típusa",
+    "accountLevel": "Fiók Szintje",
+    "memberSince": "Tag Ettől",
+    "totalTrades": "Összes Kereskedés",
+    "successRate": "Sikerességi Arány",
+    "portfolioValue": "Portfólió Értéke",
+    "preferences": "Beállítások",
+    "language": "Nyelv",
+    "save": "Változtatások Mentése",
+    "saving": "Mentés..."
+  },
+  "common": {
+    "loading": "Betöltés...",
+    "save": "Mentés",
+    "cancel": "Mégse",
+    "edit": "Szerkesztés",
+    "delete": "Törlés",
+    "confirm": "Megerősítés",
+    "close": "Bezárás"
+  }
+}

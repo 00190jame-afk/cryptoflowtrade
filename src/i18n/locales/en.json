@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "home": "Home",
+    "markets": "Markets", 
+    "news": "News",
+    "assets": "Assets",
+    "futures": "Futures",
+    "profile": "Profile",
+    "login": "Login",
+    "register": "Register"
+  },
+  "hero": {
+    "badge": "🚀 Trade with Confidence",
+    "title": "Professional Digital Asset Trading Platform",
+    "subtitle": "Experience seamless cryptocurrency trading with advanced tools, real-time market data, and secure transactions. Join thousands of traders worldwide.",
+    "getStarted": "Get Started Today",
+    "learnMore": "Learn More",
+    "dailyVolume": "Daily Volume",
+    "usersWorldwide": "Users Worldwide",
+    "supportedCoins": "Supported Coins",
+    "successRate": "Success Rate"
+  },
+  "advantages": {
+    "title": "Why Choose CryptoFlow?",
+    "subtitle": "Discover the advantages that make us the preferred choice for cryptocurrency trading.",
+    "realTimeData": {
+      "title": "Real-Time Data",
+      "description": "Access live market data and execute trades instantly with our advanced trading engine."
+    },
+    "advancedSecurity": {
+      "title": "Advanced Security",
+      "description": "Your assets are protected by bank-level security measures and cold storage solutions."
+    },
+    "lowFees": {
+      "title": "Low Trading Fees", 
+      "description": "Enjoy competitive trading fees starting from just 0.1% with volume-based discounts."
+    },
+    "support": {
+      "title": "24/7 Support",
+      "description": "Get help whenever you need it with our round-the-clock customer support team."
+    },
+    "advancedOrders": {
+      "title": "Advanced Orders",
+      "description": "Use sophisticated order types like stop-loss, take-profit, and trailing stops."
+    },
+    "globalAccess": {
+      "title": "Global Access",
+      "description": "Trade from anywhere in the world with our secure and compliant platform."
+    },
+    "startTrading": "Start Trading Today",
+    "learnMore": "Learn More"
+  },
+  "about": {
+    "title": "Seamless Trading Experience",
+    "subtitle": "Trade cryptocurrencies across all your devices with our responsive platform.",
+    "features": {
+      "realTimeData": {
+        "title": "Real-time market data and analytics",
+        "description": "Stay ahead with live price feeds and comprehensive market analysis tools."
+      },
+      "advancedOrders": {
+        "title": "Advanced order types and trading tools",
+        "description": "Execute complex trading strategies with our professional-grade order management."
+      },
+      "secureTrading": {
+        "title": "Secure and compliant trading environment",
+        "description": "Trade with confidence knowing your funds are protected by industry-leading security."
+      }
+    },
+    "platforms": {
+      "desktop": {
+        "name": "Desktop",
+        "description": "Full-featured trading platform",
+        "available": "Available"
+      },
+      "mobile": {
+        "name": "Mobile App",
+        "description": "Trade on the go",
+        "available": "Available"
+      },
+      "tablet": {
+        "name": "Tablet",
+        "description": "Optimized for tablets",
+        "available": "Available"
+      }
+    },
+    "createAccount": "Create Your Account Today",
+    "getStarted": "Get Started"
+  },
+  "profile": {
+    "title": "Profile Settings",
+    "personalInfo": "Personal Information",
+    "displayName": "Display Name",
+    "email": "Email Address",
+    "avatar": "Profile Picture",
+    "uploadAvatar": "Upload New Avatar",
+    "changePassword": "Change Password",
+    "currentPassword": "Current Password", 
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm New Password",
+    "updatePassword": "Update Password",
+    "accountInfo": "Account Information",
+    "accountType": "Account Type",
+    "accountLevel": "Account Level",
+    "memberSince": "Member Since",
+    "totalTrades": "Total Trades",
+    "successRate": "Success Rate",
+    "portfolioValue": "Portfolio Value",
+    "preferences": "Preferences",
+    "language": "Language",
+    "save": "Save Changes",
+    "saving": "Saving..."
+  },
+  "common": {
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "delete": "Delete",
+    "confirm": "Confirm",
+    "close": "Close"
+  }
+}

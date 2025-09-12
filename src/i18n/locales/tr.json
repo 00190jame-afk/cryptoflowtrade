@@ -1,0 +1,123 @@
+{
+  "nav": {
+    "home": "Ana Sayfa",
+    "markets": "Piyasalar", 
+    "news": "Haberler",
+    "assets": "Varlıklar",
+    "futures": "Vadeli İşlemler",
+    "profile": "Profil",
+    "login": "Giriş Yap",
+    "register": "Kayıt Ol"
+  },
+  "hero": {
+    "badge": "🚀 Güvenle Ticaret Yapın",
+    "title": "Profesyonel Dijital Varlık Ticaret Platformu",
+    "subtitle": "Gelişmiş araçlar, gerçek zamanlı piyasa verileri ve güvenli işlemlerle sorunsuz kripto para ticareti deneyimi yaşayın. Dünya çapında binlerce tüccarla katılın.",
+    "getStarted": "Bugün Başlayın",
+    "learnMore": "Daha Fazla Bilgi",
+    "dailyVolume": "Günlük Hacim",
+    "usersWorldwide": "Dünya Çapında Kullanıcı",
+    "supportedCoins": "Desteklenen Coin",
+    "successRate": "Başarı Oranı"
+  },
+  "advantages": {
+    "title": "Neden CryptoFlow'u Seçmelisiniz?",
+    "subtitle": "Bizi kripto para ticareti için tercih edilen seçenek yapan avantajları keşfedin.",
+    "realTimeData": {
+      "title": "Gerçek Zamanlı Veri",
+      "description": "Gelişmiş ticaret motorumuzla canlı piyasa verilerine erişin ve anında işlem yapın."
+    },
+    "advancedSecurity": {
+      "title": "Gelişmiş Güvenlik",
+      "description": "Varlıklarınız banka seviyesi güvenlik önlemleri ve soğuk depolama çözümleriyle korunur."
+    },
+    "lowFees": {
+      "title": "Düşük İşlem Ücretleri", 
+      "description": "Hacim bazlı indirimlerle sadece %0,1'den başlayan rekabetçi işlem ücretlerinin keyfini çıkarın."
+    },
+    "support": {
+      "title": "7/24 Destek",
+      "description": "7/24 müşteri destek ekibimizle ihtiyacınız olduğunda yardım alın."
+    },
+    "advancedOrders": {
+      "title": "Gelişmiş Emirler",
+      "description": "Stop-loss, take-profit ve trailing stop gibi gelişmiş emir türlerini kullanın."
+    },
+    "globalAccess": {
+      "title": "Küresel Erişim",
+      "description": "Güvenli ve uyumlu platformumuzla dünyanın her yerinden ticaret yapın."
+    },
+    "startTrading": "Bugün Ticarete Başlayın",
+    "learnMore": "Daha Fazla Bilgi"
+  },
+  "about": {
+    "title": "Sorunsuz Ticaret Deneyimi",
+    "subtitle": "Duyarlı platformumuzla tüm cihazlarınızda kripto para ticareti yapın.",
+    "features": {
+      "realTimeData": {
+        "title": "Gerçek zamanlı piyasa verileri ve analitik",
+        "description": "Canlı fiyat akışları ve kapsamlı piyasa analizi araçlarıyla önde kalın."
+      },
+      "advancedOrders": {
+        "title": "Gelişmiş emir türleri ve ticaret araçları",
+        "description": "Profesyonel sınıf emir yönetimimizle karmaşık ticaret stratejilerini uygulayın."
+      },
+      "secureTrading": {
+        "title": "Güvenli ve uyumlu ticaret ortamı",
+        "description": "Fonlarınızın endüstri lideri güvenlikle korunduğunu bilerek güvenle ticaret yapın."
+      }
+    },
+    "platforms": {
+      "desktop": {
+        "name": "Masaüstü",
+        "description": "Tam özellikli ticaret platformu",
+        "available": "Mevcut"
+      },
+      "mobile": {
+        "name": "Mobil Uygulama",
+        "description": "Hareket halindeyken ticaret",
+        "available": "Mevcut"
+      },
+      "tablet": {
+        "name": "Tablet",
+        "description": "Tabletler için optimize edilmiş",
+        "available": "Mevcut"
+      }
+    },
+    "createAccount": "Bugün Hesabınızı Oluşturun",
+    "getStarted": "Başlayın"
+  },
+  "profile": {
+    "title": "Profil Ayarları",
+    "personalInfo": "Kişisel Bilgiler",
+    "displayName": "Görüntülenen Ad",
+    "email": "E-posta Adresi",
+    "avatar": "Profil Resmi",
+    "uploadAvatar": "Yeni Avatar Yükle",
+    "changePassword": "Şifre Değiştir",
+    "currentPassword": "Mevcut Şifre", 
+    "newPassword": "Yeni Şifre",
+    "confirmPassword": "Yeni Şifreyi Onayla",
+    "updatePassword": "Şifreyi Güncelle",
+    "accountInfo": "Hesap Bilgileri",
+    "accountType": "Hesap Türü",
+    "accountLevel": "Hesap Seviyesi",
+    "memberSince": "Üyelik Tarihi",
+    "totalTrades": "Toplam İşlem",
+    "successRate": "Başarı Oranı",
+    "portfolioValue": "Portföy Değeri",
+    "preferences": "Tercihler",
+    "language": "Dil",
+    "save": "Değişiklikleri Kaydet",
+    "saving": "Kaydediliyor..."
+  },
+  "common": {
+    "loading": "Yükleniyor...",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "edit": "Düzenle",
+    "delete": "Sil",
+    "confirm": "Onayla",
+    "close": "Kapat"
+  }
+}
