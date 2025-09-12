@@ -319,9 +319,9 @@ export default function Profile() {
               <div className="flex-1 text-center md:text-left">
                 <h1 className="text-3xl font-bold mb-2">{getDisplayName()}</h1>
                 <p className="text-muted-foreground mb-2">{user.email}</p>
-                <Badge variant="secondary" className="mb-2">
+                <p className="text-sm text-muted-foreground mb-2">
                   UID: {user.id}
-                </Badge>
+                </p>
                 <p className="text-sm text-muted-foreground">
                   Credit Score: {profile.credit_score}
                 </p>
