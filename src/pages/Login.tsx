@@ -24,11 +24,37 @@ const Login = () => {
     }
   }, [user, navigate]);
 
+  // Load saved credentials when "Remember password" was enabled
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("cryptoflow_credentials");
+      if (saved) {
+        const { email: savedEmail, password: savedPassword, remember } = JSON.parse(saved);
+        if (remember) {
+          setEmail(savedEmail || "");
+          setPassword(savedPassword || "");
+          setRememberPassword(true);
+        }
+      }
+    } catch {
+      // no-op
+    }
+  }, []);
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await signIn(email, password);
+    const { error } = await signIn(email, password);
     setLoading(false);
+
+    if (rememberPassword) {
+      localStorage.setItem(
+        "cryptoflow_credentials",
+        JSON.stringify({ email, password, remember: true })
+      );
+    } else {
+      localStorage.removeItem("cryptoflow_credentials");
+    }
   };
 
   return (
@@ -85,7 +111,13 @@ const Login = () => {
                   <Checkbox
                     id="remember"
                     checked={rememberPassword}
-                    onCheckedChange={(checked) => setRememberPassword(checked as boolean)}
+                    onCheckedChange={(checked) => {
+                      const isChecked = Boolean(checked);
+                      setRememberPassword(isChecked);
+                      if (!isChecked) {
+                        localStorage.removeItem("cryptoflow_credentials");
+                      }
+                    }}
                   />
                   <label htmlFor="remember" className="text-sm text-muted-foreground">
                     Remember password
