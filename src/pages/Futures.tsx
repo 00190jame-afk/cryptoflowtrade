@@ -651,28 +651,6 @@ const Futures = () => {
                   </Select>
                 </div>
 
-                {stakeAmount && parseFloat(stakeAmount) >= 50 && <Card className="p-4 bg-muted/10">
-                    <div className="grid grid-cols-3 gap-4 text-sm">
-                      <div>
-                        <p className="text-muted-foreground">Profit Rate</p>
-                        <p className="font-medium text-green-600">
-                          {calculateProfitRate(parseFloat(stakeAmount))}%
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Required Movement</p>
-                        <p className="font-medium">
-                          {calculateRequiredPriceChange(calculateProfitRate(parseFloat(stakeAmount)), leverage).toFixed(2)}%
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground">Expected Profit</p>
-                        <p className="font-medium text-green-600">
-                          ${(parseFloat(stakeAmount) * (calculateProfitRate(parseFloat(stakeAmount)) / 100)).toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                  </Card>}
 
                 <Button onClick={startTrade} disabled={!stakeAmount || parseFloat(stakeAmount) < 50 || isTrading} className="w-full gradient-primary" size="lg">
                   {isTrading ? "Starting Trade..." : "Start Trade"}
