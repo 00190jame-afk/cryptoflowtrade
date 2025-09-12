@@ -1,0 +1,233 @@
+import { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useAuth } from "@/contexts/AuthContext";
+import { ArrowLeft, TrendingUp } from "lucide-react";
+
+const Register = () => {
+  const [authMethod, setAuthMethod] = useState<"email" | "mobile">("mobile");
+  const [email, setEmail] = useState("");
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [countryCode, setCountryCode] = useState("+1");
+  const [verificationCode, setVerificationCode] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
+  const [agreeToTerms, setAgreeToTerms] = useState(false);
+  const [loading, setLoading] = useState(false);
+  
+  const { signUp, user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!agreeToTerms) {
+      alert("Please agree to the Terms of Service");
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      alert("Passwords don't match");
+      return;
+    }
+
+    setLoading(true);
+    const emailToUse = authMethod === "email" ? email : `${mobileNumber}@temp.com`;
+    await signUp(emailToUse, password);
+    setLoading(false);
+  };
+
+  const handleGetVerificationCode = () => {
+    alert("Verification code would be sent here");
+  };
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-6">
+        <div className="text-center space-y-2">
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <div className="h-8 w-8 rounded-lg gradient-primary">
+              <TrendingUp className="h-5 w-5 text-white m-1.5" />
+            </div>
+            <span className="text-xl font-bold text-gradient">CryptoFlow</span>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate("/")}
+            className="mb-4"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back to Home
+          </Button>
+        </div>
+
+        <Card className="glass-card shadow-elevated">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl mb-2">Create CryptoFlow Account</CardTitle>
+            <p className="text-muted-foreground text-sm">Register with your email or mobile number</p>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {/* Auth Method Toggle */}
+            <div className="flex rounded-lg bg-muted p-1">
+              <button
+                type="button"
+                onClick={() => setAuthMethod("mobile")}
+                className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
+                  authMethod === "mobile"
+                    ? "gradient-primary text-white shadow-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Mobile number
+              </button>
+              <button
+                type="button"
+                onClick={() => setAuthMethod("email")}
+                className={`flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors ${
+                  authMethod === "email"
+                    ? "gradient-primary text-white shadow-primary"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Email
+              </button>
+            </div>
+
+            <form onSubmit={handleSignUp} className="space-y-4">
+              {authMethod === "mobile" ? (
+                <div className="space-y-4">
+                  <Label>Mobile phone number</Label>
+                  <div className="flex gap-2">
+                    <Select value={countryCode} onValueChange={setCountryCode}>
+                      <SelectTrigger className="w-24">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="+1">+1</SelectItem>
+                        <SelectItem value="+44">+44</SelectItem>
+                        <SelectItem value="+86">+86</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Input
+                      placeholder="Mobile phone number"
+                      value={mobileNumber}
+                      onChange={(e) => setMobileNumber(e.target.value)}
+                      required
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Label>Email</Label>
+                  <Input
+                    type="email"
+                    placeholder="Please enter your email address"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label>Verification code</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter verification code"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    required
+                  />
+                  <Button
+                    type="button"
+                    onClick={handleGetVerificationCode}
+                    variant="secondary"
+                    className="px-6"
+                  >
+                    Obtain
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Password</Label>
+                <Input
+                  type="password"
+                  placeholder="Please enter your password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Confirm Password</Label>
+                <Input
+                  type="password"
+                  placeholder="Please enter your password again"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Input
+                  placeholder="Invite code (optional)"
+                  value={inviteCode}
+                  onChange={(e) => setInviteCode(e.target.value)}
+                />
+              </div>
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="terms"
+                  checked={agreeToTerms}
+                  onCheckedChange={(checked) => setAgreeToTerms(checked as boolean)}
+                />
+                <label htmlFor="terms" className="text-sm text-muted-foreground">
+                  I have read and agree to{" "}
+                  <span className="text-primary cursor-pointer hover:underline">
+                    CryptoFlow Terms of Service
+                  </span>
+                </label>
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300"
+                disabled={loading || !agreeToTerms}
+              >
+                {loading ? "Creating account..." : "Register"}
+              </Button>
+            </form>
+
+            <div className="text-center pt-4 border-t">
+              <p className="text-sm text-muted-foreground">
+                Already have an account?{" "}
+                <Link to="/login" className="text-primary hover:underline font-medium">
+                  Login here
+                </Link>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Register;
