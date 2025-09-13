@@ -355,23 +355,26 @@ const Futures = () => {
 
 
   
-  // Check for expired trades every 30 seconds
+  // Check for expired trades every 30 seconds and invoke server auto-lose
   useEffect(() => {
-    const checkExpiredTrades = () => {
-      const activeTrades = trades.filter(t => t.status === "active");
-      activeTrades.forEach(trade => {
-        if (trade.ends_at && new Date(trade.ends_at) <= new Date() && !completingTradeRef.current) {
-          console.log('Found expired trade, completing:', trade.id);
-          completeExpiredTrade(trade);
+    const tick = async () => {
+      const expired = trades.filter(t => (t.status === 'pending' || t.status === 'active') && t.ends_at && new Date(t.ends_at) <= new Date());
+      if (user && expired.length > 0) {
+        console.log(`Found ${expired.length} expired trades. Invoking auto-lose...`);
+        try {
+          await supabase.functions.invoke('auto-lose-trades');
+        } catch (e) {
+          console.error('auto-lose invoke error', e);
         }
-      });
+        // Refresh UI lists
+        fetchTrades();
+        fetchPositionOrders();
+        fetchClosingOrders();
+        fetchBalance();
+      }
     };
-
-    // Only check if we have trades and user is logged in
-    if (trades.length > 0 && user) {
-      const interval = setInterval(checkExpiredTrades, 30000); // Check every 30 seconds
-      return () => clearInterval(interval);
-    }
+    const interval = setInterval(tick, 30000); // every 30s
+    return () => clearInterval(interval);
   }, [trades, user]);
 
   // Start new trade

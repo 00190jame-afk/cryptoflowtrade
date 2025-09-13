@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     // Find all pending trades that have passed their end time
     const { data: expiredTrades, error: fetchError } = await supabaseClient
       .from('trades')
-      .select('id, user_id, trading_pair, stake_amount')
+      .select('id, user_id, trading_pair, stake_amount, entry_price, leverage, direction')
       .eq('status', 'pending')
       .not('ends_at', 'is', null)
       .lt('ends_at', new Date().toISOString())
@@ -68,39 +68,76 @@ Deno.serve(async (req) => {
 
     console.log(`📊 Found ${expiredTrades.length} expired trades to auto-lose`)
 
-    // Update all expired trades to 'lose' status
-    const tradeIds = expiredTrades.map(trade => trade.id)
-    
-    const { data: updatedTrades, error: updateError } = await supabaseClient
-      .from('trades')
-      .update({
-        status: 'lose',
-        completed_at: new Date().toISOString(),
-        result: 'loss',
-        profit_loss_amount: expiredTrades.reduce((acc, trade) => {
-          const tradeUpdate = expiredTrades.find(t => t.id === trade.id)
-          return acc + (tradeUpdate ? -tradeUpdate.stake_amount : 0)
-        }, 0)
-      })
-      .in('id', tradeIds)
-      .select()
+    let processed = 0
+    for (const trade of expiredTrades) {
+      try {
+        // Fetch related positions (if any)
+        const { data: positions } = await supabaseClient
+          .from('positions_orders')
+          .select('*')
+          .eq('trade_id', trade.id)
 
-    if (updateError) {
-      console.error('❌ Error updating expired trades:', updateError)
-      throw updateError
+        const realizedLoss = -Math.abs(trade.stake_amount)
+
+        // 1) Update trade to lose with per-row loss
+        const { error: updErr } = await supabaseClient
+          .from('trades')
+          .update({
+            status: 'lose',
+            completed_at: new Date().toISOString(),
+            result: 'loss',
+            profit_loss_amount: realizedLoss
+          })
+          .eq('id', trade.id)
+        if (updErr) throw updErr
+
+        // 2) Create closing orders and remove positions
+        if (positions && positions.length > 0) {
+          for (const p of positions) {
+            const exit = p.mark_price ?? p.entry_price
+            const closing = {
+              user_id: p.user_id,
+              symbol: p.symbol,
+              side: p.side,
+              entry_price: p.entry_price,
+              exit_price: exit,
+              quantity: p.quantity,
+              leverage: p.leverage,
+              realized_pnl: -Math.abs(p.stake ?? trade.stake_amount),
+              original_trade_id: trade.id,
+              scale: p.scale ?? null,
+              stake: p.stake ?? trade.stake_amount,
+            }
+            await supabaseClient.from('closing_orders').insert(closing)
+          }
+          await supabaseClient.from('positions_orders').delete().in('id', positions.map(p => p.id))
+        } else {
+          // Fallback closing order if no position rows exist
+          await supabaseClient.from('closing_orders').insert({
+            user_id: trade.user_id,
+            symbol: trade.trading_pair,
+            side: trade.direction || 'LONG',
+            entry_price: trade.entry_price || 0,
+            exit_price: trade.entry_price || 0,
+            quantity: (trade.stake_amount && trade.entry_price) ? (trade.stake_amount / trade.entry_price) : 0,
+            leverage: trade.leverage || 1,
+            realized_pnl: realizedLoss,
+            original_trade_id: trade.id,
+            stake: trade.stake_amount,
+          })
+        }
+
+        console.log(`💸 Auto-lost trade ${trade.id} for user ${trade.user_id} (${trade.trading_pair}) - Stake: $${trade.stake_amount}`)
+        processed++
+      } catch (e) {
+        console.error(`Error processing trade ${trade.id}:`, e)
+      }
     }
-
-    console.log(`✅ Successfully auto-lost ${updatedTrades?.length || 0} trades`)
-    
-    // Log each trade that was auto-lost
-    expiredTrades.forEach(trade => {
-      console.log(`💸 Auto-lost trade ${trade.id} for user ${trade.user_id} (${trade.trading_pair}) - Stake: $${trade.stake_amount}`)
-    })
 
     return new Response(
       JSON.stringify({ 
         message: 'Expired trades processed successfully',
-        count: updatedTrades?.length || 0,
+        count: processed,
         trades: expiredTrades.map(t => ({
           id: t.id,
           trading_pair: t.trading_pair,
