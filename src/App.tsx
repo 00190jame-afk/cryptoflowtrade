@@ -16,6 +16,8 @@ import Assets from "./pages/Assets";
 import Recharge from "./pages/Recharge";
 import Futures from "./pages/Futures";
 import Profile from "./pages/Profile";
+import Help from "./pages/Help";
+import Contact from "./pages/Contact";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +40,8 @@ const App = () => (
             <Route path="/recharge" element={<Recharge />} />
             <Route path="/futures" element={<Futures />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/contact" element={<Contact />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

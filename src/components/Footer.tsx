@@ -1,5 +1,6 @@
 import { TrendingUp, Twitter, Github, Linkedin, Mail, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 const Footer = () => {
   const footerSections = [{
     title: "Products",
@@ -175,9 +176,15 @@ const Footer = () => {
                 <h3 className="font-semibold mb-4 text-foreground">{section.title}</h3>
                 <ul className="space-y-3">
                   {section.links.map(link => <li key={link.name}>
-                      <a href={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
-                        {link.name}
-                      </a>
+                      {link.href.startsWith('/') ? (
+                        <Link to={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
+                          {link.name}
+                        </Link>
+                      ) : (
+                        <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
+                          {link.name}
+                        </a>
+                      )}
                     </li>)}
                 </ul>
               </div>)}
