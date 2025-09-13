@@ -199,111 +199,34 @@ const Futures = () => {
   };
 
   
-  // Complete expired trade function
+  // Complete expired trade function (server-driven)
   const completeExpiredTrade = async (trade: Trade) => {
     if (completingTradeRef.current === trade.id) {
       return; // Already completing this trade
     }
-    
+
     console.log('Completing expired trade:', trade.id);
     completingTradeRef.current = trade.id;
 
     try {
-      // Check if trade was already completed
-      const { data: latest } = await supabase
-        .from('trades')
-        .select('status')
-        .eq('id', trade.id)
-        .single();
-
-      // If already completed or already has a closing order, stop here
-      const { data: alreadyClosed } = await supabase
-        .from('closing_orders')
-        .select('id')
-        .eq('original_trade_id', trade.id)
-        .maybeSingle();
-
-      if (latest?.status === 'completed' || alreadyClosed) {
-        console.log('Trade already finalized, skipping:', trade.id);
-        completingTradeRef.current = null;
-        return;
-      }
-
-      // Mark trade as completed
-      const { error: updateError } = await supabase.from('trades').update({
-        status: 'completed',
-        completed_at: new Date().toISOString()
-      }).eq('id', trade.id).eq('status', 'active');
-      
-      if (updateError) {
-        console.error('Error updating trade status:', updateError);
-        completingTradeRef.current = null;
-        return;
-      }
-
-      // Calculate profit using trade rules only: stake * (profit_rate / 100)
-      const profitAmount = trade.stake_amount * (trade.profit_rate / 100);
-      console.log(`Trade completed: Stake=${trade.stake_amount}, ProfitRate=${trade.profit_rate}%, Profit=${profitAmount}`);
-
-      // Create closing order record before removing position
-      const { data: position } = await supabase
-        .from('positions_orders')
-        .select('*')
-        .eq('trade_id', trade.id)
-        .maybeSingle();
-
-      const exitPrice = position?.mark_price ?? trade.entry_price;
-      const closingData = {
-        user_id: user!.id,
-        symbol: trade.trading_pair,
-        side: trade.direction,
-        entry_price: trade.entry_price,
-        exit_price: exitPrice,
-        quantity: position?.quantity ?? (trade.stake_amount / trade.entry_price),
-        leverage: trade.leverage,
-        realized_pnl: profitAmount,
-        original_trade_id: trade.id,
-        scale: position?.scale ?? null,
-        stake: position?.stake ?? trade.stake_amount,
-      };
-
-      // Idempotency: only insert a closing order once per trade
-      const { data: existingClose } = await supabase
-        .from('closing_orders')
-        .select('id')
-        .eq('original_trade_id', trade.id)
-        .maybeSingle();
-
-      if (!existingClose) {
-        await supabase.from('closing_orders').insert(closingData);
-      }
-      
-      // Remove position after recording closing order
-      await supabase.from('positions_orders').delete().eq('trade_id', trade.id);
-
-      // Update trade with profit details
-      await supabase.from('trades').update({
-        profit_loss_amount: profitAmount,
-        result: 'win'
-      }).eq('id', trade.id);
-      
-      // Return stake + profit to balance
-      const totalReturn = trade.stake_amount + profitAmount;
-      console.log(`Returning to balance: ${totalReturn} USDT (${trade.stake_amount} stake + ${profitAmount} profit)`);
-      
-      await (supabase as any).rpc('update_user_balance', {
-        p_user_id: user!.id,
-        p_amount: totalReturn,
-        p_transaction_type: 'trade_win',
-        p_description: `Trade completed: ${totalReturn} USDT returned`,
-        p_trade_id: trade.id
+      // Trigger Edge Function to auto-LOSE expired active trades
+      const { data, error } = await supabase.functions.invoke('auto-lose-trades', {
+        body: { trigger: 'client-expiry', tradeId: trade.id }
       });
-      
-      fetchBalance();
-      fetchTrades();
-      fetchPositionOrders();
-      fetchClosingOrders();
-      
+
+      if (error) {
+        console.error('Error invoking auto-lose function:', error);
+      } else {
+        console.log('Auto-lose function invoked result:', data);
+      }
+
+      // Refresh client state
+      await Promise.all([
+        fetchTrades(),
+        fetchPositionOrders(),
+        fetchClosingOrders(),
+        fetchBalance(),
+      ]);
     } catch (error) {
       console.error('Exception in completeExpiredTrade:', error);
     } finally {
