@@ -568,15 +568,6 @@ export type Database = {
             }
         Returns: undefined
       }
-      update_user_balance_trade: {
-        Args: {
-          p_amount: number
-          p_description?: string
-          p_trade_id?: string
-          p_user_id: string
-        }
-        Returns: undefined
-      }
       use_invite_code: {
         Args: { p_code: string; p_user_id: string }
         Returns: boolean
