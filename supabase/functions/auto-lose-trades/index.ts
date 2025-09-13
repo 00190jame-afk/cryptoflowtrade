@@ -119,15 +119,16 @@ Deno.serve(async (req) => {
       try {
         console.log(`Processing expired trade: ${trade.id}`)
 
-        // Update trade to lose status
+        // Update trade to completed with lose result
         const { error: updateError } = await supabase
           .from('trades')
           .update({
-            status: 'lose',
+            status: 'completed',
             result: 'lose',
             completed_at: new Date().toISOString()
           })
           .eq('id', trade.id)
+          .eq('status', 'active')
 
         if (updateError) {
           console.error(`Error updating trade ${trade.id}:`, updateError)
