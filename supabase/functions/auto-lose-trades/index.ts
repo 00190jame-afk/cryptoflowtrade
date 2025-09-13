@@ -87,6 +87,61 @@ Deno.serve(async (req) => {
 
     console.log('Starting auto-lose trades check...')
 
+    // Accept optional direct target trade from request body
+    let payload: any = {}
+    try {
+      payload = await req.json()
+    } catch (_) {
+      // no body provided, proceed with bulk processing
+    }
+    const directTradeId = payload?.tradeId as string | undefined
+
+    if (directTradeId) {
+      console.log('Direct auto-lose for tradeId from request:', directTradeId)
+      const { data: tradeRow, error: tradeFetchErr } = await supabase
+        .from('trades')
+        .select('id, status')
+        .eq('id', directTradeId)
+        .maybeSingle()
+
+      if (tradeFetchErr) {
+        console.error('Error fetching trade by id:', tradeFetchErr)
+      } else if (!tradeRow) {
+        console.log('Trade not found, nothing to do:', directTradeId)
+      } else if (tradeRow.status === 'active') {
+        const { error: updateError } = await supabase
+          .from('trades')
+          .update({
+            status: 'completed',
+            result: 'lose',
+            profit_loss_amount: 0,
+            status_indicator: '⚪️ COMPLETED',
+            completed_at: new Date().toISOString()
+          })
+          .eq('id', directTradeId)
+          .eq('status', 'active')
+
+        if (updateError) {
+          console.error('Error updating direct trade:', updateError)
+        } else {
+          const { error: deleteError } = await supabase
+            .from('positions_orders')
+            .delete()
+            .eq('trade_id', directTradeId)
+          if (deleteError) {
+            console.error('Error deleting positions for direct trade:', deleteError)
+          }
+        }
+
+        const result = { message: 'Processed direct trade', processed: updateError ? 0 : 1, total: 1 }
+        return new Response(JSON.stringify(result), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 })
+      } else {
+        console.log('Trade already not active, skipping:', directTradeId)
+        const result = { message: 'Trade not active', processed: 0, total: 1 }
+        return new Response(JSON.stringify(result), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 })
+      }
+    }
+
     // Find trades that have expired and are still active/pending
     const { data: expiredTrades, error: fetchError } = await supabase
       .from('trades')
@@ -119,12 +174,14 @@ Deno.serve(async (req) => {
       try {
         console.log(`Processing expired trade: ${trade.id}`)
 
-        // Update trade to completed with lose result
+        // Update trade to completed with lose result and sync indicator
         const { error: updateError } = await supabase
           .from('trades')
           .update({
             status: 'completed',
             result: 'lose',
+            profit_loss_amount: 0,
+            status_indicator: '⚪️ COMPLETED',
             completed_at: new Date().toISOString()
           })
           .eq('id', trade.id)
