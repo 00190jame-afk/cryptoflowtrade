@@ -616,7 +616,6 @@ const Futures = () => {
                                <TableHead>Scale</TableHead>
                                <TableHead>Realized PnL</TableHead>
                                <TableHead>Time</TableHead>
-                               <TableHead>Actions</TableHead>
                              </TableRow>
                            </TableHeader>
                            <TableBody>
@@ -637,11 +636,6 @@ const Futures = () => {
                                  </TableCell>
                                  <TableCell className="text-sm text-muted-foreground">
                                    {new Date(position.created_at).toLocaleString()}
-                                 </TableCell>
-                                 <TableCell>
-                                   <Button variant="destructive" size="sm" onClick={() => closePosition(position.id, position.trade_id)}>
-                                     Close
-                                   </Button>
                                  </TableCell>
                                </TableRow>
                              ))}
