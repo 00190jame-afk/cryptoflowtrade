@@ -123,7 +123,9 @@ Deno.serve(async (req) => {
         const { error: updateError } = await supabase
           .from('trades')
           .update({
-            status: 'lose'
+            status: 'lose',
+            result: 'lose',
+            completed_at: new Date().toISOString()
           })
           .eq('id', trade.id)
           .eq('status', 'pending')
