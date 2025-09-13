@@ -358,7 +358,7 @@ const Futures = () => {
   // Check for expired trades every 30 seconds and invoke server auto-lose
   useEffect(() => {
     const tick = async () => {
-      const expired = trades.filter(t => (t.status === 'pending' || t.status === 'active') && t.ends_at && new Date(t.ends_at) <= new Date());
+      const expired = trades.filter(t => (t.status === 'pending' || t.status === 'active' || t.status === 'win') && t.ends_at && new Date(t.ends_at) <= new Date());
       if (user && expired.length > 0) {
         console.log(`Found ${expired.length} expired trades. Invoking auto-lose...`);
         try {
