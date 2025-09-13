@@ -1,11 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, ChevronDown, TrendingUp, LogOut, User, Settings } from "lucide-react";
+import { Menu, ChevronDown, TrendingUp, LogOut, User } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,33 +15,9 @@ import { cn } from "@/lib/utils";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (!user) {
-        setIsAdmin(false);
-        return;
-      }
-
-      try {
-        const { data } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('user_id', user.id)
-          .single();
-
-        setIsAdmin(data?.role === 'admin');
-      } catch (error) {
-        setIsAdmin(false);
-      }
-    };
-
-    checkAdminStatus();
-  }, [user]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -185,12 +160,6 @@ const Header = () => {
                   <User className="h-4 w-4 mr-2" />
                   Profile
                 </DropdownMenuItem>
-                {isAdmin && (
-                  <DropdownMenuItem onClick={() => navigate("/admin/trades")}>
-                    <Settings className="h-4 w-4 mr-2" />
-                    Admin Panel
-                  </DropdownMenuItem>
-                )}
                 <DropdownMenuItem onClick={handleSignOut} className="text-destructive">
                   <LogOut className="h-4 w-4 mr-2" />
                   Sign Out
@@ -265,19 +234,6 @@ const Header = () => {
                       <User className="h-4 w-4 mr-2" />
                       Profile
                     </Button>
-                    {isAdmin && (
-                      <Button
-                        variant="ghost"
-                        className="w-full justify-start hover:bg-muted/50"
-                        onClick={() => {
-                          navigate("/admin/trades");
-                          setIsOpen(false);
-                        }}
-                      >
-                        <Settings className="h-4 w-4 mr-2" />
-                        Admin Panel
-                      </Button>
-                    )}
                     <Button
                       variant="ghost"
                       className="w-full justify-start text-destructive hover:bg-muted/50"

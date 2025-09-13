@@ -16,8 +16,6 @@ import Assets from "./pages/Assets";
 import Recharge from "./pages/Recharge";
 import Futures from "./pages/Futures";
 import Profile from "./pages/Profile";
-import AdminTrades from "./pages/AdminTrades";
-import AdminRoute from "./components/AdminRoute";
 
 const queryClient = new QueryClient();
 
@@ -40,7 +38,6 @@ const App = () => (
             <Route path="/recharge" element={<Recharge />} />
             <Route path="/futures" element={<Futures />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/admin/trades" element={<AdminRoute><AdminTrades /></AdminRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
