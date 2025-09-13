@@ -303,7 +303,7 @@ export type Database = {
           profit_loss_amount: number | null
           profit_rate: number
           required_price_change: number
-          result: string
+          result: string | null
           stake_amount: number
           status: string
           status_indicator: string | null
@@ -325,7 +325,7 @@ export type Database = {
           profit_loss_amount?: number | null
           profit_rate: number
           required_price_change: number
-          result?: string
+          result?: string | null
           stake_amount: number
           status?: string
           status_indicator?: string | null
@@ -347,7 +347,7 @@ export type Database = {
           profit_loss_amount?: number | null
           profit_rate?: number
           required_price_change?: number
-          result?: string
+          result?: string | null
           stake_amount?: number
           status?: string
           status_indicator?: string | null

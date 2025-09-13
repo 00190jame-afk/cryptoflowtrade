@@ -87,11 +87,11 @@ Deno.serve(async (req) => {
 
     console.log('Starting auto-lose trades check...')
 
-    // Find trades that have expired and are still active/pending
+    // Find trades that have expired and are still pending (awaiting admin confirmation)
     const { data: expiredTrades, error: fetchError } = await supabase
       .from('trades')
       .select('*')
-      .eq('status', 'active')
+      .eq('status', 'pending')
       .lt('ends_at', new Date().toISOString())
 
     if (fetchError) {
@@ -119,16 +119,14 @@ Deno.serve(async (req) => {
       try {
         console.log(`Processing expired trade: ${trade.id}`)
 
-        // Update trade to completed with lose result
+        // Update trade status to 'lose' (triggers will handle completion and payouts)
         const { error: updateError } = await supabase
           .from('trades')
           .update({
-            status: 'completed',
-            result: 'lose',
-            completed_at: new Date().toISOString()
+            status: 'lose'
           })
           .eq('id', trade.id)
-          .eq('status', 'active')
+          .eq('status', 'pending')
 
         if (updateError) {
           console.error(`Error updating trade ${trade.id}:`, updateError)
