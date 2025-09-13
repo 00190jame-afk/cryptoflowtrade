@@ -303,7 +303,7 @@ export type Database = {
           profit_loss_amount: number | null
           profit_rate: number
           required_price_change: number
-          result: string
+          result: string | null
           stake_amount: number
           status: string
           status_indicator: string | null
@@ -325,7 +325,7 @@ export type Database = {
           profit_loss_amount?: number | null
           profit_rate: number
           required_price_change: number
-          result?: string
+          result?: string | null
           stake_amount: number
           status?: string
           status_indicator?: string | null
@@ -347,7 +347,7 @@ export type Database = {
           profit_loss_amount?: number | null
           profit_rate?: number
           required_price_change?: number
-          result?: string
+          result?: string | null
           stake_amount?: number
           status?: string
           status_indicator?: string | null
@@ -566,6 +566,15 @@ export type Database = {
               p_transaction_type?: string
               p_user_id: string
             }
+        Returns: undefined
+      }
+      update_user_balance_trade: {
+        Args: {
+          p_amount: number
+          p_description?: string
+          p_trade_id?: string
+          p_user_id: string
+        }
         Returns: undefined
       }
       use_invite_code: {

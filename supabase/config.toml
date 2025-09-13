@@ -55,3 +55,6 @@ verify_jwt = false
 
 [functions.send-verification]
 verify_jwt = false
+
+[functions.auto-lose-trades]
+verify_jwt = false
