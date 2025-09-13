@@ -56,20 +56,14 @@ Deno.serve(async (req) => {
     }
 
     if (!expiredTrades || expiredTrades.length === 0) {
-      console.log('✅ No expired trades found')
-      return new Response(
-        JSON.stringify({ message: 'No expired trades found', count: 0 }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200 
-        }
-      )
+      console.log('✅ No expired pending trades found');
+      // Do not return early — we still need to process scheduled wins
     }
 
-    console.log(`📊 Found ${expiredTrades.length} expired trades to auto-lose`)
+    console.log(`📊 Found ${expiredTrades ? expiredTrades.length : 0} expired pending trades to auto-lose`)
 
-    let processed = 0
-    for (const trade of expiredTrades) {
+    let processedLoses = 0
+    for (const trade of expiredTrades ?? []) {
       try {
         // Fetch related positions (if any)
         const { data: positions } = await supabaseClient
@@ -128,21 +122,155 @@ Deno.serve(async (req) => {
         }
 
         console.log(`💸 Auto-lost trade ${trade.id} for user ${trade.user_id} (${trade.trading_pair}) - Stake: $${trade.stake_amount}`)
-        processed++
+        processedLoses++
       } catch (e) {
         console.error(`Error processing trade ${trade.id}:`, e)
+      }
+    }
+
+    // Now process COMPLETED WINS (scheduled)
+    console.log('🔍 Checking for scheduled wins to finalize...')
+    const { data: winsToComplete, error: winsErr } = await supabaseClient
+      .from('trades')
+      .select('id, user_id, trading_pair, stake_amount, profit_rate, entry_price, leverage, direction, current_price')
+      .eq('status', 'win')
+      .is('completed_at', null)
+      .not('ends_at', 'is', null)
+      .lt('ends_at', new Date().toISOString())
+
+    if (winsErr) {
+      console.error('❌ Error fetching wins to finalize:', winsErr)
+      throw winsErr
+    }
+
+    let processedWins = 0
+    for (const trade of winsToComplete ?? []) {
+      try {
+        // Fetch related positions (if any)
+        const { data: positions } = await supabaseClient
+          .from('positions_orders')
+          .select('*')
+          .eq('trade_id', trade.id)
+
+        // 1) Create closing orders and remove positions
+        if (positions && positions.length > 0) {
+          for (const p of positions) {
+            const exit = trade.current_price ?? p.mark_price ?? p.entry_price
+            const stakeForPos = p.stake ?? trade.stake_amount
+            const profitForPos = Math.round((Number(stakeForPos) * Number(trade.profit_rate)) ) / 100
+            const closing = {
+              user_id: p.user_id,
+              symbol: p.symbol,
+              side: p.side,
+              entry_price: p.entry_price,
+              exit_price: exit,
+              quantity: p.quantity,
+              leverage: p.leverage,
+              realized_pnl: Math.round((Number(stakeForPos) * Number(trade.profit_rate) / 100) * 100) / 100,
+              original_trade_id: trade.id,
+              scale: p.scale ?? null,
+              stake: stakeForPos,
+            }
+            await supabaseClient.from('closing_orders').insert(closing)
+          }
+          await supabaseClient.from('positions_orders').delete().in('id', positions.map(p => p.id))
+        } else {
+          // Fallback closing order if no position rows exist
+          const profit = Math.round((Number(trade.stake_amount) * Number(trade.profit_rate) / 100) * 100) / 100
+          await supabaseClient.from('closing_orders').insert({
+            user_id: trade.user_id,
+            symbol: trade.trading_pair,
+            side: trade.direction || 'LONG',
+            entry_price: trade.entry_price || 0,
+            exit_price: trade.entry_price || 0,
+            quantity: (trade.stake_amount && trade.entry_price) ? (trade.stake_amount / trade.entry_price) : 0,
+            leverage: trade.leverage || 1,
+            realized_pnl: profit,
+            original_trade_id: trade.id,
+            stake: trade.stake_amount,
+          })
+        }
+
+        const profitAmount = Math.round((Number(trade.stake_amount) * Number(trade.profit_rate) / 100) * 100) / 100
+        const totalCredit = Number(trade.stake_amount) + profitAmount
+
+        // 2) Update trade to mark completion and profit
+        const { error: updWinErr } = await supabaseClient
+          .from('trades')
+          .update({
+            completed_at: new Date().toISOString(),
+            result: 'win',
+            profit_loss_amount: profitAmount
+          })
+          .eq('id', trade.id)
+        if (updWinErr) throw updWinErr
+
+        // 3) Credit stake + profit exactly once
+        const { data: existingTx } = await supabaseClient
+          .from('transactions')
+          .select('id')
+          .eq('user_id', trade.user_id)
+          .eq('trade_id', trade.id)
+          .eq('type', 'deposit')
+          .eq('payment_method', 'system_trade')
+          .maybeSingle()
+
+        if (!existingTx) {
+          // Try RPC first for consistency
+          const { error: rpcErr } = await (supabaseClient as any).rpc('update_user_balance', {
+            p_user_id: trade.user_id,
+            p_amount: totalCredit,
+            p_transaction_type: 'system_trade',
+            p_description: 'Trade win payout + stake return',
+            p_trade_id: trade.id
+          })
+
+          if (rpcErr) {
+            console.warn('⚠️ RPC update_user_balance failed, falling back to manual credit:', rpcErr?.message)
+            // Manual credit fallback
+            // Ensure balance row exists
+            const { data: balanceRow } = await supabaseClient
+              .from('user_balances')
+              .select('id, balance')
+              .eq('user_id', trade.user_id)
+              .maybeSingle()
+
+            if (balanceRow) {
+              await supabaseClient
+                .from('user_balances')
+                .update({ balance: Number(balanceRow.balance ?? 0) + totalCredit, updated_at: new Date().toISOString() })
+                .eq('user_id', trade.user_id)
+            } else {
+              await supabaseClient
+                .from('user_balances')
+                .insert({ user_id: trade.user_id, balance: totalCredit, currency: 'USDT' })
+            }
+
+            await supabaseClient.from('transactions').insert({
+              user_id: trade.user_id,
+              type: 'deposit',
+              amount: totalCredit,
+              status: 'completed',
+              currency: 'USDT',
+              payment_method: 'system_trade',
+              description: 'Trade win payout + stake return',
+              trade_id: trade.id,
+            })
+          }
+        }
+
+        console.log(`🏆 Finalized WIN trade ${trade.id} for user ${trade.user_id} (${trade.trading_pair}) - Credited $${totalCredit} (stake + profit)`)        
+        processedWins++
+      } catch (e) {
+        console.error(`Error finalizing win trade ${trade.id}:`, e)
       }
     }
 
     return new Response(
       JSON.stringify({ 
         message: 'Expired trades processed successfully',
-        count: processed,
-        trades: expiredTrades.map(t => ({
-          id: t.id,
-          trading_pair: t.trading_pair,
-          stake_amount: t.stake_amount
-        }))
+        losesProcessed: processedLoses,
+        winsProcessed: processedWins,
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
