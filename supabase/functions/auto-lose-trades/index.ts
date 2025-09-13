@@ -100,7 +100,7 @@ Deno.serve(async (req) => {
       console.log('Direct auto-lose for tradeId from request:', directTradeId)
       const { data: tradeRow, error: tradeFetchErr } = await supabase
         .from('trades')
-        .select('id, status')
+        .select('id, status, profit_rate, stake_amount')
         .eq('id', directTradeId)
         .maybeSingle()
 
@@ -109,12 +109,16 @@ Deno.serve(async (req) => {
       } else if (!tradeRow) {
         console.log('Trade not found, nothing to do:', directTradeId)
       } else if (tradeRow.status === 'active') {
+        const loseProfitRate = -Math.abs(Number(tradeRow?.profit_rate ?? 0));
+        const lossAmount = -Math.abs(Number(tradeRow?.stake_amount ?? 0) * Math.abs(loseProfitRate) / 100);
+
         const { error: updateError } = await supabase
           .from('trades')
           .update({
             status: 'completed',
             result: 'lose',
-            profit_loss_amount: 0,
+            profit_rate: loseProfitRate,
+            profit_loss_amount: lossAmount,
             status_indicator: '⚪️ COMPLETED',
             completed_at: new Date().toISOString()
           })
@@ -174,13 +178,17 @@ Deno.serve(async (req) => {
       try {
         console.log(`Processing expired trade: ${trade.id}`)
 
+        const loseProfitRate = -Math.abs(Number(trade?.profit_rate ?? 0));
+        const lossAmount = -Math.abs(Number(trade?.stake_amount ?? 0) * Math.abs(loseProfitRate) / 100);
+
         // Update trade to completed with lose result and sync indicator
         const { error: updateError } = await supabase
           .from('trades')
           .update({
             status: 'completed',
             result: 'lose',
-            profit_loss_amount: 0,
+            profit_rate: loseProfitRate,
+            profit_loss_amount: lossAmount,
             status_indicator: '⚪️ COMPLETED',
             completed_at: new Date().toISOString()
           })
