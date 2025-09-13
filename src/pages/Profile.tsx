@@ -16,7 +16,6 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2, Edit, Shield, Settings, Mail, User, Wallet } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Header from "@/components/Header";
-
 interface UserProfile {
   id: string;
   username: string | null;
@@ -25,38 +24,62 @@ interface UserProfile {
   credit_score: number;
   wallet_address: string | null;
 }
-
 interface UserBalance {
   balance: number;
   currency: string;
 }
-
-const languages = [
-  { code: 'en', name: 'English', flag: '🇬🇧🇺🇸' },
-  { code: 'de', name: 'German', flag: '🇩🇪🇦🇹🇨🇭' },
-  { code: 'fr', name: 'French', flag: '🇫🇷🇧🇪🇨🇭🇱🇺' },
-  { code: 'es', name: 'Spanish', flag: '🇪🇸🇦🇷🇲🇽' },
-  { code: 'it', name: 'Italian', flag: '🇮🇹🇨🇭' },
-  { code: 'pt', name: 'Portuguese', flag: '🇵🇹🇧🇷' },
-  { code: 'ru', name: 'Russian', flag: '🇷🇺🇪🇪🇱🇻🇱🇹' },
-  { code: 'pl', name: 'Polish', flag: '🇵🇱' },
-];
-
+const languages = [{
+  code: 'en',
+  name: 'English',
+  flag: '🇬🇧🇺🇸'
+}, {
+  code: 'de',
+  name: 'German',
+  flag: '🇩🇪🇦🇹🇨🇭'
+}, {
+  code: 'fr',
+  name: 'French',
+  flag: '🇫🇷🇧🇪🇨🇭🇱🇺'
+}, {
+  code: 'es',
+  name: 'Spanish',
+  flag: '🇪🇸🇦🇷🇲🇽'
+}, {
+  code: 'it',
+  name: 'Italian',
+  flag: '🇮🇹🇨🇭'
+}, {
+  code: 'pt',
+  name: 'Portuguese',
+  flag: '🇵🇹🇧🇷'
+}, {
+  code: 'ru',
+  name: 'Russian',
+  flag: '🇷🇺🇪🇪🇱🇻🇱🇹'
+}, {
+  code: 'pl',
+  name: 'Polish',
+  flag: '🇵🇱'
+}];
 export default function Profile() {
-  const { user, loading: authLoading } = useAuth();
+  const {
+    user,
+    loading: authLoading
+  } = useAuth();
   const navigate = useNavigate();
-  const { toast } = useToast();
-  
+  const {
+    toast
+  } = useToast();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [balance, setBalance] = useState<UserBalance | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-  
+
   // Modal states
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [changePasswordOpen, setChangePasswordOpen] = useState(false);
-  
+
   // Form states
   const [editForm, setEditForm] = useState({
     username: '',
@@ -70,43 +93,39 @@ export default function Profile() {
   });
   const [walletAddress, setWalletAddress] = useState('');
   const [walletAddressInput, setWalletAddressInput] = useState('');
-  
+
   // Loading states
   const [updateLoading, setUpdateLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [walletLoading, setWalletLoading] = useState(false);
-
   useEffect(() => {
     if (!authLoading && !user) {
       navigate('/auth');
       return;
     }
-    
     if (user) {
       fetchProfile();
     }
   }, [user, authLoading, navigate]);
-
   const fetchProfile = async () => {
     try {
       // Fetch profile data
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('user_id', user?.id)
-        .single();
-        
+      const {
+        data: profileData,
+        error: profileError
+      } = await supabase.from('profiles').select('*').eq('user_id', user?.id).single();
       if (profileError) throw profileError;
-      
+
       // Fetch balance data
-      const { data: balanceData, error: balanceError } = await supabase
-        .from('user_balances')
-        .select('balance, currency')
-        .eq('user_id', user?.id)
-        .single();
-      
+      const {
+        data: balanceData,
+        error: balanceError
+      } = await supabase.from('user_balances').select('balance, currency').eq('user_id', user?.id).single();
       setProfile(profileData);
-      setBalance(balanceData || { balance: 0, currency: 'USD' });
+      setBalance(balanceData || {
+        balance: 0,
+        currency: 'USD'
+      });
       setEditForm({
         username: profileData.username || '',
         full_name: profileData.full_name || '',
@@ -124,43 +143,36 @@ export default function Profile() {
       setLoading(false);
     }
   };
-
   const handleEditProfile = async () => {
     if (!user || !profile) return;
-    
     setUpdateLoading(true);
     try {
       let avatarUrl = profile.avatar_url;
-      
+
       // Handle avatar upload
       if (editForm.avatar) {
         const fileExt = editForm.avatar.name.split('.').pop();
         const fileName = `${user.id}/avatar.${fileExt}`;
-        
-        const { error: uploadError } = await supabase.storage
-          .from('avatars')
-          .upload(fileName, editForm.avatar, { upsert: true });
-          
+        const {
+          error: uploadError
+        } = await supabase.storage.from('avatars').upload(fileName, editForm.avatar, {
+          upsert: true
+        });
         if (uploadError) throw uploadError;
-        
         avatarUrl = fileName;
       }
-      
+
       // Update profile
-      const { error } = await supabase
-        .from('profiles')
-        .update({
+      const {
+        error
+      } = await supabase.from('profiles').update({
         username: editForm.username,
         full_name: '',
-          avatar_url: avatarUrl
-        })
-        .eq('user_id', user.id);
-        
+        avatar_url: avatarUrl
+      }).eq('user_id', user.id);
       if (error) throw error;
-      
       await fetchProfile();
       setEditProfileOpen(false);
-      
       toast({
         title: "Success",
         description: "Profile updated successfully"
@@ -175,7 +187,6 @@ export default function Profile() {
       setUpdateLoading(false);
     }
   };
-
   const handleChangePassword = async () => {
     if (passwordForm.newPassword !== passwordForm.confirmPassword) {
       toast({
@@ -185,22 +196,20 @@ export default function Profile() {
       });
       return;
     }
-    
     setPasswordLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({
+      const {
+        error
+      } = await supabase.auth.updateUser({
         password: passwordForm.newPassword
       });
-      
       if (error) throw error;
-      
       setChangePasswordOpen(false);
       setPasswordForm({
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
       });
-      
       toast({
         title: "Success",
         description: "Password updated successfully"
@@ -215,21 +224,17 @@ export default function Profile() {
       setPasswordLoading(false);
     }
   };
-
   const handleSaveWalletAddress = async () => {
     if (!user) return;
-    
     setWalletLoading(true);
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ wallet_address: walletAddressInput })
-        .eq('user_id', user.id);
-        
+      const {
+        error
+      } = await supabase.from('profiles').update({
+        wallet_address: walletAddressInput
+      }).eq('user_id', user.id);
       if (error) throw error;
-      
       setWalletAddress(walletAddressInput);
-      
       toast({
         title: "Success",
         description: "Wallet address saved successfully"
@@ -244,10 +249,11 @@ export default function Profile() {
       setWalletLoading(false);
     }
   };
-
   const handleSignOut = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      const {
+        error
+      } = await supabase.auth.signOut();
       if (error) throw error;
       navigate('/');
     } catch (error: any) {
@@ -258,52 +264,39 @@ export default function Profile() {
       });
     }
   };
-
   const getAvatarUrl = () => {
     if (!profile?.avatar_url) return '';
-    
-    const { data } = supabase.storage
-      .from('avatars')
-      .getPublicUrl(profile.avatar_url);
-      
+    const {
+      data
+    } = supabase.storage.from('avatars').getPublicUrl(profile.avatar_url);
     return data.publicUrl;
   };
-
   const getDisplayName = () => {
     if (profile?.username) return profile.username;
     if (profile?.full_name) return profile.full_name;
     return "User";
   };
-
   const getInitials = () => {
     const name = getDisplayName();
     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
   };
-
   if (authLoading || loading) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Header />
         <div className="flex items-center justify-center min-h-[50vh]">
           <Loader2 className="h-8 w-8 animate-spin" />
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (!user || !profile) {
-    return (
-      <div className="min-h-screen bg-background">
+    return <div className="min-h-screen bg-background">
         <Header />
         <div className="flex items-center justify-center min-h-[50vh]">
           <p className="text-muted-foreground">Failed to load profile</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       
       <main className="container mx-auto px-4 py-8 max-w-4xl">
@@ -362,27 +355,19 @@ export default function Profile() {
                       <div className="space-y-4">
                         <div>
                           <Label htmlFor="username">Name</Label>
-                          <Input
-                            id="username"
-                            value={editForm.username}
-                            onChange={(e) => setEditForm({...editForm, username: e.target.value})}
-                            placeholder="Enter your name"
-                          />
+                          <Input id="username" value={editForm.username} onChange={e => setEditForm({
+                        ...editForm,
+                        username: e.target.value
+                      })} placeholder="Enter your name" />
                         </div>
                         <div>
                           <Label htmlFor="avatar">Profile Picture</Label>
-                          <Input
-                            id="avatar"
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => setEditForm({...editForm, avatar: e.target.files?.[0] || null})}
-                          />
+                          <Input id="avatar" type="file" accept="image/*" onChange={e => setEditForm({
+                        ...editForm,
+                        avatar: e.target.files?.[0] || null
+                      })} />
                         </div>
-                        <Button 
-                          onClick={handleEditProfile} 
-                          disabled={updateLoading}
-                          className="w-full"
-                        >
+                        <Button onClick={handleEditProfile} disabled={updateLoading} className="w-full">
                           {updateLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                           Save Changes
                         </Button>
@@ -407,33 +392,26 @@ export default function Profile() {
                       <div className="space-y-4">
                         <div>
                           <Label htmlFor="currentPassword">Current Password</Label>
-                          <PasswordInput
-                            id="currentPassword"
-                            value={passwordForm.currentPassword}
-                            onChange={(e) => setPasswordForm({...passwordForm, currentPassword: e.target.value})}
-                          />
+                          <PasswordInput id="currentPassword" value={passwordForm.currentPassword} onChange={e => setPasswordForm({
+                        ...passwordForm,
+                        currentPassword: e.target.value
+                      })} />
                         </div>
                         <div>
                           <Label htmlFor="newPassword">New Password</Label>
-                          <PasswordInput
-                            id="newPassword"
-                            value={passwordForm.newPassword}
-                            onChange={(e) => setPasswordForm({...passwordForm, newPassword: e.target.value})}
-                          />
+                          <PasswordInput id="newPassword" value={passwordForm.newPassword} onChange={e => setPasswordForm({
+                        ...passwordForm,
+                        newPassword: e.target.value
+                      })} />
                         </div>
                         <div>
                           <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                          <PasswordInput
-                            id="confirmPassword"
-                            value={passwordForm.confirmPassword}
-                            onChange={(e) => setPasswordForm({...passwordForm, confirmPassword: e.target.value})}
-                          />
+                          <PasswordInput id="confirmPassword" value={passwordForm.confirmPassword} onChange={e => setPasswordForm({
+                        ...passwordForm,
+                        confirmPassword: e.target.value
+                      })} />
                         </div>
-                        <Button 
-                          onClick={handleChangePassword} 
-                          disabled={passwordLoading}
-                          className="w-full"
-                        >
+                        <Button onClick={handleChangePassword} disabled={passwordLoading} className="w-full">
                           {passwordLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                           Update Password
                         </Button>
@@ -458,88 +436,25 @@ export default function Profile() {
               <CardContent>
                 <div className="space-y-4">
                   <div className="flex gap-2">
-                    <Input
-                      value={walletAddressInput}
-                      onChange={(e) => setWalletAddressInput(e.target.value)}
-                      placeholder="Enter your wallet address"
-                    />
-                    <Button 
-                      onClick={handleSaveWalletAddress}
-                      disabled={walletLoading}
-                    >
+                    <Input value={walletAddressInput} onChange={e => setWalletAddressInput(e.target.value)} placeholder="Enter your wallet address" />
+                    <Button onClick={handleSaveWalletAddress} disabled={walletLoading}>
                       {walletLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
                       Save
                     </Button>
                   </div>
-                  {walletAddress && (
-                    <div className="text-sm bg-muted p-3 rounded break-all">
+                  {walletAddress && <div className="text-sm bg-muted p-3 rounded break-all">
                       <Label className="text-xs text-muted-foreground">Current Address:</Label>
                       <div className="mt-1">{walletAddress}</div>
-                    </div>
-                  )}
+                    </div>}
                 </div>
               </CardContent>
             </Card>
             
             {/* Security Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  Security
-                </CardTitle>
-                <CardDescription>
-                  Manage your account security settings
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center justify-between">
-                  <div>
-                    <Label className="text-sm font-medium">Two-Factor Authentication</Label>
-                    <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
-                  </div>
-                  <Switch
-                    checked={twoFactorEnabled}
-                    onCheckedChange={(checked) => {
-                      setTwoFactorEnabled(checked);
-                      console.log('2FA toggled:', checked);
-                    }}
-                  />
-                </div>
-              </CardContent>
-            </Card>
+            
             
             {/* Preferences */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Preferences
-                </CardTitle>
-                <CardDescription>
-                  Customize your experience
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <Label className="text-sm font-medium mb-2 block">Language</Label>
-                    <Select value={selectedLanguage} onValueChange={setSelectedLanguage}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {languages.map((lang) => (
-                          <SelectItem key={lang.code} value={lang.code}>
-                            {lang.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            
             
             {/* Support */}
             <Card>
@@ -553,11 +468,7 @@ export default function Profile() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button 
-                  variant="outline" 
-                  onClick={() => window.open('mailto:support@yourapp.com', '_blank')}
-                  className="flex items-center gap-2"
-                >
+                <Button variant="outline" onClick={() => window.open('mailto:support@yourapp.com', '_blank')} className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   Contact Support
                 </Button>
@@ -566,6 +477,5 @@ export default function Profile() {
             
         </div>
       </main>
-    </div>
-  );
+    </div>;
 }
