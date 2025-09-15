@@ -29,7 +29,6 @@ const TradingChart = ({
   // Map trading pairs to TradingView symbols - some need special handling
   const getTradingViewSymbol = (pair: string): string => {
     const pairMap: Record<string, string> = {
-      'MATIC/USDT': 'MATICUSDT', // Keep original MATIC symbol
       'BTC/USDT': 'BTCUSDT',
       'ETH/USDT': 'ETHUSDT',
       'SOL/USDT': 'SOLUSDT',
