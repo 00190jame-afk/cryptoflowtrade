@@ -104,8 +104,24 @@ const Assets = () => {
         fetchUserBalance();
         fetchWithdrawalRequests();
       }).subscribe();
+
+      // Real-time subscription for user_balances to auto-update available balance
+      const balanceChannel = supabase
+        .channel('user_balances_changes')
+        .on('postgres_changes', {
+          event: '*',
+          schema: 'public',
+          table: 'user_balances',
+          filter: `user_id=eq.${user.id}`
+        }, () => {
+          console.log('user_balances changed, refreshing balance...');
+          fetchUserBalance();
+        })
+        .subscribe();
+
       return () => {
         supabase.removeChannel(channel);
+        supabase.removeChannel(balanceChannel);
       };
     }
   }, [user]);

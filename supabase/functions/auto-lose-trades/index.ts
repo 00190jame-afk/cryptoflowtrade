@@ -16,12 +16,21 @@ interface Database {
           status: string
           ends_at: string | null
           stake_amount: number
+          profit_rate: number
         }
         Update: {
           status?: string
           completed_at?: string
           result?: string
           profit_loss_amount?: number
+        }
+      }
+      trade_rules: {
+        Row: {
+          id: string
+          min_stake: number
+          max_stake: number
+          profit_rate: number
         }
       }
     }
@@ -45,7 +54,7 @@ Deno.serve(async (req) => {
     // Find all pending trades that have passed their end time (AUTO-LOSE)
     const { data: expiredTrades, error: fetchError } = await supabaseClient
       .from('trades')
-      .select('id, user_id, trading_pair, stake_amount, entry_price, leverage, direction')
+      .select('id, user_id, trading_pair, stake_amount, entry_price, leverage, direction, profit_rate')
       .eq('status', 'pending')
       .not('ends_at', 'is', null)
       .lt('ends_at', new Date().toISOString())
