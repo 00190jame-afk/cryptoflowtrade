@@ -25,7 +25,6 @@ interface Transaction {
   currency: string;
   payment_method: string;
   description: string;
-  admin_notes?: string;
   created_at: string;
 }
 const Assets = () => {
@@ -168,7 +167,7 @@ const Assets = () => {
       const {
         data,
         error
-      } = await supabase.from('transactions').select('*, admin_notes').eq('user_id', user?.id).not('payment_method', 'eq', 'system_trade').order('created_at', {
+      } = await supabase.from('transactions').select('*').eq('user_id', user?.id).not('payment_method', 'eq', 'system_trade').order('created_at', {
         ascending: false
       }).limit(10);
       if (error) throw error;
@@ -589,7 +588,6 @@ const Assets = () => {
                     <TableHead>Amount</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Description</TableHead>
-                    <TableHead>Details</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -612,9 +610,6 @@ const Assets = () => {
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
                         {transaction.description || 'No description'}
-                      </TableCell>
-                      <TableCell className="text-sm text-muted-foreground max-w-xs truncate">
-                        {transaction.admin_notes || '-'}
                       </TableCell>
                     </TableRow>)}
                 </TableBody>
