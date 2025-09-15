@@ -302,12 +302,10 @@ export type Database = {
           modified_by_admin: boolean
           profit_loss_amount: number | null
           profit_rate: number
-          required_price_change: number
           result: string | null
           stake_amount: number
           status: string
           status_indicator: string | null
-          target_price: number | null
           trade_duration: number | null
           trading_pair: string
           user_id: string
@@ -324,12 +322,10 @@ export type Database = {
           modified_by_admin?: boolean
           profit_loss_amount?: number | null
           profit_rate: number
-          required_price_change: number
           result?: string | null
           stake_amount: number
           status?: string
           status_indicator?: string | null
-          target_price?: number | null
           trade_duration?: number | null
           trading_pair: string
           user_id: string
@@ -346,12 +342,10 @@ export type Database = {
           modified_by_admin?: boolean
           profit_loss_amount?: number | null
           profit_rate?: number
-          required_price_change?: number
           result?: string | null
           stake_amount?: number
           status?: string
           status_indicator?: string | null
-          target_price?: number | null
           trade_duration?: number | null
           trading_pair?: string
           user_id?: string

@@ -27,13 +27,11 @@ interface Trade {
   status: string;
   result: string;
   profit_rate: number;
-  required_price_change: number;
   profit_loss_amount: number;
   created_at: string;
   completed_at?: string;
   trade_duration?: number;
   current_price?: number;
-  target_price?: number;
   ends_at?: string;
 }
 interface UserBalance {
@@ -420,11 +418,9 @@ const Futures = () => {
         leverage,
         entry_price: realTimePrice,
         profit_rate: profitRate,
-        required_price_change: 0,
         trade_duration: tradeDuration,
         ends_at: new Date(Date.now() + tradeDuration * 1000).toISOString(),
-        current_price: realTimePrice,
-        target_price: realTimePrice
+        current_price: realTimePrice
       };
       
       const { data: newTrade, error } = await supabase.from('trades').insert(tradeData).select().single();
