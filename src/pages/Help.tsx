@@ -67,7 +67,21 @@ const Help = () => {
 
           {/* Support Options */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 animate-slide-up">
-            {supportOptions.map((option, index) => {})}
+            {supportOptions.map((option, index) => (
+              <Card key={index} className="glass-card hover:border-primary/50 transition-all duration-300">
+                <CardHeader className="text-center">
+                  <option.icon className="w-8 h-8 mx-auto mb-2 text-primary" />
+                  <CardTitle className="text-lg">{option.title}</CardTitle>
+                  <p className="text-sm text-muted-foreground">{option.description}</p>
+                </CardHeader>
+                <CardContent className="text-center">
+                  <Button variant="outline" className="w-full mb-2">
+                    {option.action}
+                  </Button>
+                  <p className="text-xs text-muted-foreground">{option.available}</p>
+                </CardContent>
+              </Card>
+            ))}
           </div>
 
           {/* FAQ Section */}
