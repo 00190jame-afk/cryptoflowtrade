@@ -67,14 +67,67 @@ Deno.serve(async (req) => {
       try {
         const realizedLoss = -Math.abs(trade.stake_amount)
 
-        // Mark trade as lose; DB trigger will create closing_orders and remove positions
+        // Idempotency: if we already created a closing order for this trade, skip inserts
+        const { data: existingClose } = await supabaseClient
+          .from('closing_orders')
+          .select('id')
+          .eq('original_trade_id', trade.id)
+          .maybeSingle()
+
+        if (!existingClose) {
+          // Fetch related positions for this trade
+          const { data: positions } = await supabaseClient
+            .from('positions_orders')
+            .select('*')
+            .eq('trade_id', trade.id)
+
+          if (positions && positions.length > 0) {
+            for (const p of positions) {
+              await supabaseClient.from('closing_orders').insert({
+                user_id: p.user_id,
+                symbol: p.symbol,
+                side: p.side,
+                entry_price: p.entry_price,
+                exit_price: p.entry_price, // exit at entry for full stake loss
+                quantity: p.quantity,
+                leverage: p.leverage,
+                realized_pnl: -(Number(p.stake ?? trade.stake_amount) || 0),
+                original_trade_id: trade.id,
+                scale: p.scale ?? null,
+                stake: p.stake ?? trade.stake_amount,
+              })
+            }
+          } else {
+            // Fallback closing order if no position rows exist
+            await supabaseClient.from('closing_orders').insert({
+              user_id: trade.user_id,
+              symbol: trade.trading_pair,
+              side: trade.direction || 'LONG',
+              entry_price: trade.entry_price || 0,
+              exit_price: trade.entry_price || 0,
+              quantity: (trade.stake_amount && trade.entry_price) ? (trade.stake_amount / trade.entry_price) : 0,
+              leverage: trade.leverage || 1,
+              realized_pnl: realizedLoss,
+              original_trade_id: trade.id,
+              stake: trade.stake_amount,
+            })
+          }
+
+          // Remove any open positions tied to this trade
+          await supabaseClient
+            .from('positions_orders')
+            .delete()
+            .eq('trade_id', trade.id)
+        }
+
+        // Finally, mark the trade as lose (after positions are removed to avoid trigger conflicts)
         const { error: updErr } = await supabaseClient
           .from('trades')
           .update({
             status: 'lose',
             completed_at: new Date().toISOString(),
             result: 'loss',
-            profit_loss_amount: realizedLoss
+            profit_loss_amount: realizedLoss,
           })
           .eq('id', trade.id)
         if (updErr) throw updErr
