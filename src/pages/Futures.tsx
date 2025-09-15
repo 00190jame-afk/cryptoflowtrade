@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { TrendingUp, TrendingDown, DollarSign, Clock, BarChart3, X } from "lucide-react";
 import Header from "@/components/Header";
 import TradingChart from "@/components/TradingChart";
-const TRADING_PAIRS = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "ADA/USDT", "XRP/USDT", "DOT/USDT", "LTC/USDT", "DOGE/USDT", "MATIC/USDT", "AVAX/USDT", "ENR/USDT"];
+const TRADING_PAIRS = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "ADA/USDT", "XRP/USDT", "DOT/USDT", "LTC/USDT", "DOGE/USDT", "MATIC/USDT", "AVAX/USDT"];
 const LEVERAGES = [5, 10, 20, 50];
 const SCALE_OPTIONS = [10, 20, 30, 40, 50];
 const STOP_PROFIT_OPTIONS = [5, 10, 15, 20, 25, 30, 35, 40, 45, 50];
@@ -118,7 +118,7 @@ const Futures = () => {
     'DOGE': 'dogecoin',
     'MATIC': 'polygon-ecosystem-token',
     'AVAX': 'avalanche-2'
-    // ENR not mapped – will stay simulated
+    // Removed ENR as it's not available
   };
   const getBaseFromPair = (pair: string) => pair.split('/')[0];
 

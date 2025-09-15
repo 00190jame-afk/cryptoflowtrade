@@ -29,8 +29,7 @@ const TradingChart = ({
   // Map trading pairs to TradingView symbols - some need special handling
   const getTradingViewSymbol = (pair: string): string => {
     const pairMap: Record<string, string> = {
-      'MATIC/USDT': 'MATICUSDT',
-      'ENR/USDT': 'BTCUSDT', // ENR is not available on TradingView, fallback to BTC
+      'MATIC/USDT': 'MATICUSDT', // Keep original MATIC symbol
       'BTC/USDT': 'BTCUSDT',
       'ETH/USDT': 'ETHUSDT',
       'SOL/USDT': 'SOLUSDT',
