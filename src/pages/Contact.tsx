@@ -59,17 +59,17 @@ const Contact = () => {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" placeholder="John" />
+                      <Input id="firstName" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" placeholder="Doe" />
+                      <Input id="lastName" />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" placeholder="john@example.com" />
+                    <Input id="email" type="email" />
                   </div>
                   
                   <div className="space-y-2">
