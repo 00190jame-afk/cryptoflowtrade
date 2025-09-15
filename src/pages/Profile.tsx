@@ -143,6 +143,35 @@ export default function Profile() {
       setLoading(false);
     }
   };
+  
+  const handleDeleteAvatar = async () => {
+    if (!user || !profile) return;
+    setUpdateLoading(true);
+    try {
+      // Update profile to remove avatar_url
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      await fetchProfile();
+      toast({
+        title: "Success",
+        description: "Profile picture deleted successfully"
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete profile picture",
+        variant: "destructive"
+      });
+    } finally {
+      setUpdateLoading(false);
+    }
+  };
+
   const handleEditProfile = async () => {
     if (!user || !profile) return;
     setUpdateLoading(true);
@@ -304,9 +333,9 @@ export default function Profile() {
         <Card className="mb-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
           <CardContent className="p-8">
             <div className="flex flex-col md:flex-row items-center gap-6">
-              <Avatar className="h-24 w-24 ring-4 ring-primary/20">
+              <Avatar className="h-32 w-32 ring-4 ring-primary/20">
                 <AvatarImage src={getAvatarUrl()} alt="Profile picture" />
-                <AvatarFallback className="text-lg">{getInitials()}</AvatarFallback>
+                <AvatarFallback className="text-xl">{getInitials()}</AvatarFallback>
               </Avatar>
               
               <div className="flex-1 text-center md:text-left">
@@ -366,6 +395,18 @@ export default function Profile() {
                         ...editForm,
                         avatar: e.target.files?.[0] || null
                       })} />
+                          {profile?.avatar_url && (
+                            <Button 
+                              type="button" 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={handleDeleteAvatar} 
+                              disabled={updateLoading}
+                              className="mt-2 text-destructive hover:text-destructive"
+                            >
+                              Delete Current Picture
+                            </Button>
+                          )}
                         </div>
                         <Button onClick={handleEditProfile} disabled={updateLoading} className="w-full">
                           {updateLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
