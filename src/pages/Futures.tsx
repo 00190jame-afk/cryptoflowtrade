@@ -404,10 +404,10 @@ const Futures = () => {
       }
       
       const profitRate = calculateProfitRate(stake);
-      const tradeDuration = Math.floor(Math.random() * 241) + 60; // Random 60-300 seconds
-        
-      console.log(`Trade started: Stake=${stake}, ProfitRate=${profitRate}%, Duration=${tradeDuration}s`);
       
+      console.log(`Trade started: Stake=${stake}, ProfitRate=${profitRate}%`);
+      
+      // Let database set duration and ends_at automatically via triggers
       const tradeData = {
         user_id: user.id,
         trading_pair: selectedPair,
@@ -416,8 +416,6 @@ const Futures = () => {
         leverage,
         entry_price: realTimePrice,
         profit_rate: profitRate,
-        trade_duration: tradeDuration,
-        ends_at: new Date(Date.now() + tradeDuration * 1000).toISOString(),
         current_price: realTimePrice
       };
       
@@ -444,22 +442,7 @@ const Futures = () => {
       };
       await supabase.from('positions_orders').insert(positionData);
 
-      // Deduct stake from balance
-      const { error: balanceError } = await (supabase as any).rpc('update_user_balance', {
-        p_user_id: user.id,
-        p_amount: -stake,
-        p_transaction_type: 'trade_stake',
-        p_description: `Trade stake deducted: ${stake} USDT`,
-        p_trade_id: newTrade.id
-      });
-
-      if (balanceError) {
-        toast.error(balanceError.message || "Failed to deduct balance");
-        await supabase.from('trades').delete().eq('id', newTrade.id);
-        await supabase.from('positions_orders').delete().eq('trade_id', newTrade.id);
-        setIsTrading(false);
-        return;
-      }
+      // Note: Stake deduction handled automatically by database trigger
 
       toast.success("Trade started successfully!");
       setStakeAmount("");

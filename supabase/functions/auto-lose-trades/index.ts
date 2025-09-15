@@ -45,7 +45,7 @@ Deno.serve(async (req) => {
     // Find all pending trades that have passed their end time
     const { data: expiredTrades, error: fetchError } = await supabaseClient
       .from('trades')
-      .select('id, user_id, trading_pair, stake_amount, entry_price, leverage, direction')
+      .select('id, user_id, trading_pair, stake_amount')
       .eq('status', 'pending')
       .not('ends_at', 'is', null)
       .lt('ends_at', new Date().toISOString())
@@ -55,82 +55,26 @@ Deno.serve(async (req) => {
       throw fetchError
     }
 
-    if (!expiredTrades || expiredTrades.length === 0) {
-      console.log('✅ No expired pending trades found');
-      // Do not return early — we still need to process scheduled wins
-    }
-
     console.log(`📊 Found ${expiredTrades ? expiredTrades.length : 0} expired pending trades to auto-lose`)
 
     let processedLoses = 0
     for (const trade of expiredTrades ?? []) {
       try {
-        const realizedLoss = -Math.abs(trade.stake_amount)
-
-        // Idempotency: if we already created a closing order for this trade, skip inserts
-        const { data: existingClose } = await supabaseClient
-          .from('closing_orders')
-          .select('id')
-          .eq('original_trade_id', trade.id)
-          .maybeSingle()
-
-        if (!existingClose) {
-          // Fetch related positions for this trade
-          const { data: positions } = await supabaseClient
-            .from('positions_orders')
-            .select('*')
-            .eq('trade_id', trade.id)
-
-          if (positions && positions.length > 0) {
-            for (const p of positions) {
-              await supabaseClient.from('closing_orders').insert({
-                user_id: p.user_id,
-                symbol: p.symbol,
-                side: p.side,
-                entry_price: p.entry_price,
-                exit_price: p.entry_price, // exit at entry for full stake loss
-                quantity: p.quantity,
-                leverage: p.leverage,
-                realized_pnl: -(Number(p.stake ?? trade.stake_amount) || 0),
-                original_trade_id: trade.id,
-                scale: p.scale ?? null,
-                stake: p.stake ?? trade.stake_amount,
-              })
-            }
-          } else {
-            // Fallback closing order if no position rows exist
-            await supabaseClient.from('closing_orders').insert({
-              user_id: trade.user_id,
-              symbol: trade.trading_pair,
-              side: trade.direction || 'LONG',
-              entry_price: trade.entry_price || 0,
-              exit_price: trade.entry_price || 0,
-              quantity: (trade.stake_amount && trade.entry_price) ? (trade.stake_amount / trade.entry_price) : 0,
-              leverage: trade.leverage || 1,
-              realized_pnl: realizedLoss,
-              original_trade_id: trade.id,
-              stake: trade.stake_amount,
-            })
-          }
-
-          // Remove any open positions tied to this trade
-          await supabaseClient
-            .from('positions_orders')
-            .delete()
-            .eq('trade_id', trade.id)
-        }
-
-        // Finally, mark the trade as lose (after positions are removed to avoid trigger conflicts)
+        // Simply mark the trade as lose - triggers will handle closing orders
         const { error: updErr } = await supabaseClient
           .from('trades')
           .update({
             status: 'lose',
             completed_at: new Date().toISOString(),
             result: 'loss',
-            profit_loss_amount: realizedLoss,
+            profit_loss_amount: -Math.abs(trade.stake_amount),
           })
           .eq('id', trade.id)
-        if (updErr) throw updErr
+        
+        if (updErr) {
+          console.error(`Failed to update trade ${trade.id}:`, updErr)
+          continue
+        }
 
         console.log(`💸 Auto-lost trade ${trade.id} for user ${trade.user_id} (${trade.trading_pair}) - Stake: $${trade.stake_amount}`)
         processedLoses++
@@ -139,7 +83,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Now process COMPLETED WINS (scheduled)
+    // Now process COMPLETED WINS (scheduled) - using trade_rules for profit rates
     console.log('🔍 Checking for scheduled wins to finalize...')
     const { data: winsToComplete, error: winsErr } = await supabaseClient
       .from('trades')
@@ -157,19 +101,40 @@ Deno.serve(async (req) => {
     let processedWins = 0
     for (const trade of winsToComplete ?? []) {
       try {
-        // Fetch related positions (if any)
+        // Idempotency check - don't process if already has closing orders
+        const { data: existingClose } = await supabaseClient
+          .from('closing_orders')
+          .select('id')
+          .eq('original_trade_id', trade.id)
+          .maybeSingle()
+
+        if (existingClose) {
+          console.log(`⏭️ Skipping trade ${trade.id} - already has closing orders`)
+          continue
+        }
+
+        // Get profit rate from trade_rules based on stake amount
+        const { data: tradeRules } = await supabaseClient
+          .from('trade_rules')
+          .select('profit_rate')
+          .lte('min_stake', trade.stake_amount)
+          .gte('max_stake', trade.stake_amount)
+          .maybeSingle()
+
+        const profitRate = tradeRules?.profit_rate || trade.profit_rate || 20
+        const profitAmount = Math.round((Number(trade.stake_amount) * Number(profitRate) / 100) * 100) / 100
+        const totalCredit = Number(trade.stake_amount) + profitAmount
+
+        // Fetch and remove positions, create closing orders
         const { data: positions } = await supabaseClient
           .from('positions_orders')
           .select('*')
           .eq('trade_id', trade.id)
 
-        // 1) Create closing orders and remove positions
         if (positions && positions.length > 0) {
           for (const p of positions) {
             const exit = trade.current_price ?? p.mark_price ?? p.entry_price
-            const stakeForPos = p.stake ?? trade.stake_amount
-            const profitForPos = Math.round((Number(stakeForPos) * Number(trade.profit_rate)) ) / 100
-            const closing = {
+            await supabaseClient.from('closing_orders').insert({
               user_id: p.user_id,
               symbol: p.symbol,
               side: p.side,
@@ -177,35 +142,30 @@ Deno.serve(async (req) => {
               exit_price: exit,
               quantity: p.quantity,
               leverage: p.leverage,
-              realized_pnl: Math.round((Number(stakeForPos) * Number(trade.profit_rate) / 100) * 100) / 100,
+              realized_pnl: profitAmount,
               original_trade_id: trade.id,
               scale: p.scale ?? null,
-              stake: stakeForPos,
-            }
-            await supabaseClient.from('closing_orders').insert(closing)
+              stake: p.stake ?? trade.stake_amount,
+            })
           }
           await supabaseClient.from('positions_orders').delete().in('id', positions.map(p => p.id))
         } else {
-          // Fallback closing order if no position rows exist
-          const profit = Math.round((Number(trade.stake_amount) * Number(trade.profit_rate) / 100) * 100) / 100
+          // Fallback closing order
           await supabaseClient.from('closing_orders').insert({
             user_id: trade.user_id,
             symbol: trade.trading_pair,
             side: trade.direction || 'LONG',
             entry_price: trade.entry_price || 0,
-            exit_price: trade.entry_price || 0,
+            exit_price: trade.current_price || trade.entry_price || 0,
             quantity: (trade.stake_amount && trade.entry_price) ? (trade.stake_amount / trade.entry_price) : 0,
             leverage: trade.leverage || 1,
-            realized_pnl: profit,
+            realized_pnl: profitAmount,
             original_trade_id: trade.id,
             stake: trade.stake_amount,
           })
         }
 
-        const profitAmount = Math.round((Number(trade.stake_amount) * Number(trade.profit_rate) / 100) * 100) / 100
-        const totalCredit = Number(trade.stake_amount) + profitAmount
-
-        // 2) Update trade to mark completion and profit
+        // Update trade completion
         const { error: updWinErr } = await supabaseClient
           .from('trades')
           .update({
@@ -216,7 +176,7 @@ Deno.serve(async (req) => {
           .eq('id', trade.id)
         if (updWinErr) throw updWinErr
 
-        // 3) Credit stake + profit exactly once
+        // Credit stake + profit (idempotency check)
         const { data: existingTx } = await supabaseClient
           .from('transactions')
           .select('id')
@@ -227,35 +187,31 @@ Deno.serve(async (req) => {
           .maybeSingle()
 
         if (!existingTx) {
-          // Try RPC first for consistency
           const { error: rpcErr } = await (supabaseClient as any).rpc('update_user_balance', {
             p_user_id: trade.user_id,
             p_amount: totalCredit,
             p_transaction_type: 'system_trade',
-            p_description: 'Trade win payout + stake return',
+            p_description: `Trade win: ${trade.stake_amount} stake + ${profitAmount} profit (${profitRate}%)`,
             p_trade_id: trade.id
           })
 
           if (rpcErr) {
-            console.warn('⚠️ RPC update_user_balance failed, falling back to manual credit:', rpcErr?.message)
-            // Manual credit fallback
-            // Ensure balance row exists
+            console.warn('⚠️ RPC failed, manual credit:', rpcErr?.message)
+            // Manual fallback
             const { data: balanceRow } = await supabaseClient
               .from('user_balances')
-              .select('id, balance')
+              .select('balance')
               .eq('user_id', trade.user_id)
               .maybeSingle()
 
-            if (balanceRow) {
-              await supabaseClient
-                .from('user_balances')
-                .update({ balance: Number(balanceRow.balance ?? 0) + totalCredit, updated_at: new Date().toISOString() })
-                .eq('user_id', trade.user_id)
-            } else {
-              await supabaseClient
-                .from('user_balances')
-                .insert({ user_id: trade.user_id, balance: totalCredit, currency: 'USDT' })
-            }
+            const newBalance = Number(balanceRow?.balance ?? 0) + totalCredit
+            await supabaseClient
+              .from('user_balances')
+              .upsert({ 
+                user_id: trade.user_id, 
+                balance: newBalance, 
+                currency: 'USDT' 
+              })
 
             await supabaseClient.from('transactions').insert({
               user_id: trade.user_id,
@@ -264,13 +220,13 @@ Deno.serve(async (req) => {
               status: 'completed',
               currency: 'USDT',
               payment_method: 'system_trade',
-              description: 'Trade win payout + stake return',
+              description: `Trade win: ${trade.stake_amount} stake + ${profitAmount} profit (${profitRate}%)`,
               trade_id: trade.id,
             })
           }
         }
 
-        console.log(`🏆 Finalized WIN trade ${trade.id} for user ${trade.user_id} (${trade.trading_pair}) - Credited $${totalCredit} (stake + profit)`)        
+        console.log(`🏆 Finalized WIN trade ${trade.id} - Credited $${totalCredit} (${profitRate}% profit rate)`)
         processedWins++
       } catch (e) {
         console.error(`Error finalizing win trade ${trade.id}:`, e)
