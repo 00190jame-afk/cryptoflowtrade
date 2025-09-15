@@ -130,6 +130,31 @@ const About = () => {
             </div>
           ))}
         </div>
+
+        {/* Partners Section */}
+        <div className="text-center mb-20 animate-fade-in">
+          <h2 className="text-3xl md:text-4xl font-bold mb-16">Partners</h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-12 items-center opacity-60">
+            {[
+              "BlockTech", "CryptoMedia", "WXY Group", "CoinGecko", "Cobak", "KORating",
+              "CoinReaders", "Aliansi Koin", "BlockNews", "AiCoin", "Xangle", "Coin360",
+              "CoinGhost", "Coinhills", "CryptoWisser", "Banxa", "Hachen", "IntoTheBlock",
+              "TokenPost", "Advcash", "Simplex", "Bitpush", "BitTab", "BitcoinTrading",
+              "Chiliz", "Koinly", "TraderX", "WalletInvestor", "OSLPay", "InvestorBites",
+              "TechFlow", "ODaily", "Huostarter", "CoreSky"
+            ].map((partner, index) => (
+              <div 
+                key={partner} 
+                className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors duration-300 animate-fade-in"
+                style={{
+                  animationDelay: `${index * 0.05}s`
+                }}
+              >
+                {partner}
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );
