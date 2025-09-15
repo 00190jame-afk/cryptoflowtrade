@@ -380,7 +380,7 @@ const Futures = () => {
     if (!user || !stakeAmount || isTrading) return;
     const stake = parseFloat(stakeAmount);
     if (stake < 50) {
-      toast.error("Minimum stake is $50");
+      toast.error("Minimum stake is 50 USDT");
       return;
     }
     if (stake > balance.balance) {
@@ -619,7 +619,7 @@ const Futures = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Stake Amount (USDT)</label>
-                    <Input type="number" placeholder="Minimum $50" value={stakeAmount} onChange={e => setStakeAmount(e.target.value)} min="50" />
+                    <Input type="number" placeholder="Minimum 50 USDT" value={stakeAmount} onChange={e => setStakeAmount(e.target.value)} min="50" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Leverage</label>
@@ -703,12 +703,12 @@ const Futures = () => {
                                      {position.side}
                                    </Badge>
                                  </TableCell>
-                                 <TableCell>${position.stake?.toFixed(2) || 'N/A'}</TableCell>
-                                 <TableCell>${position.entry_price.toFixed(2)}</TableCell>
+                                  <TableCell>{position.stake?.toFixed(2) || 'N/A'} USDT</TableCell>
+                                  <TableCell>${position.entry_price.toFixed(2)}</TableCell>
                                  <TableCell>{position.leverage}x</TableCell>
                                  <TableCell>{position.scale || 'None'}</TableCell>
                                  <TableCell className="text-muted-foreground">
-                                   {position.realized_pnl ? `$${position.realized_pnl.toFixed(2)}` : '-'}
+                                   {position.realized_pnl ? `${position.realized_pnl.toFixed(2)} USDT` : '-'}
                                  </TableCell>
                                  <TableCell className="text-sm text-muted-foreground">
                                    {new Date(position.created_at).toLocaleString()}
@@ -750,12 +750,12 @@ const Futures = () => {
                                      {order.side}
                                    </Badge>
                                  </TableCell>
-                                 <TableCell>${order.stake?.toFixed(2) || order.quantity.toFixed(2)}</TableCell>
-                                 <TableCell>${order.entry_price.toFixed(2)}</TableCell>
+                                  <TableCell>{order.stake?.toFixed(2) || order.quantity.toFixed(2)} USDT</TableCell>
+                                  <TableCell>${order.entry_price.toFixed(2)}</TableCell>
                                  <TableCell>{order.leverage}x</TableCell>
                                   <TableCell>{order.scale || 'None'}</TableCell>
                                  <TableCell className={order.realized_pnl >= 0 ? 'text-green-600' : 'text-red-600'}>
-                                   ${order.realized_pnl.toFixed(2)}
+                                   {order.realized_pnl.toFixed(2)} USDT
                                  </TableCell>
                                  <TableCell className="text-sm text-muted-foreground">
                                    {new Date(order.closed_at).toLocaleString()}
