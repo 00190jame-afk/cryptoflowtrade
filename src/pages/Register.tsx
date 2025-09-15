@@ -231,9 +231,9 @@ const Register = () => {
                 />
                 <label htmlFor="terms" className="text-sm text-muted-foreground">
                   I have read and agree to{" "}
-                  <span className="text-primary cursor-pointer hover:underline">
+                  <Link to="/terms" className="text-primary cursor-pointer hover:underline">
                     CryptoFlow Terms of Service
-                  </span>
+                  </Link>
                 </label>
               </div>
 

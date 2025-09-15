@@ -18,6 +18,7 @@ import Futures from "./pages/Futures";
 import Profile from "./pages/Profile";
 import Help from "./pages/Help";
 import Contact from "./pages/Contact";
+import Terms from "./pages/Terms";
 
 const queryClient = new QueryClient();
 
@@ -42,6 +43,7 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/help" element={<Help />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/terms" element={<Terms />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
