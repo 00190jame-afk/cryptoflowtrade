@@ -351,25 +351,33 @@ const Futures = () => {
 
 
   
-  // Check for expired trades every 30 seconds and invoke server auto-lose
+  // Check for expired trades every 60 seconds as fallback (cron handles main processing)
   useEffect(() => {
     const tick = async () => {
-      const expired = trades.filter(t => (t.status === 'pending' || t.status === 'active' || t.status === 'win') && t.ends_at && new Date(t.ends_at) <= new Date());
-      if (user && expired.length > 0) {
-        console.log(`Found ${expired.length} expired trades. Invoking auto-lose...`);
-        try {
-          await supabase.functions.invoke('auto-lose-trades');
-        } catch (e) {
-          console.error('auto-lose invoke error', e);
+      if (user && trades.length > 0) {
+        const expired = trades.filter(t => 
+          (t.status === 'pending' || t.status === 'win') && 
+          t.ends_at && 
+          new Date(t.ends_at) <= new Date()
+        );
+        if (expired.length > 0) {
+          console.log(`Found ${expired.length} expired trades. Invoking fallback auto-lose...`);
+          try {
+            await supabase.functions.invoke('auto-lose-trades');
+            // Refresh UI lists after processing
+            setTimeout(() => {
+              fetchTrades();
+              fetchPositionOrders();
+              fetchClosingOrders();
+              fetchBalance();
+            }, 2000);
+          } catch (e) {
+            console.error('auto-lose invoke error', e);
+          }
         }
-        // Refresh UI lists
-        fetchTrades();
-        fetchPositionOrders();
-        fetchClosingOrders();
-        fetchBalance();
       }
     };
-    const interval = setInterval(tick, 30000); // every 30s
+    const interval = setInterval(tick, 60000); // every 60s as fallback
     return () => clearInterval(interval);
   }, [trades, user]);
 
