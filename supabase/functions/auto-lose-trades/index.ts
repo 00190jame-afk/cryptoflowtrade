@@ -65,15 +65,9 @@ Deno.serve(async (req) => {
     let processedLoses = 0
     for (const trade of expiredTrades ?? []) {
       try {
-        // Fetch related positions (if any)
-        const { data: positions } = await supabaseClient
-          .from('positions_orders')
-          .select('*')
-          .eq('trade_id', trade.id)
-
         const realizedLoss = -Math.abs(trade.stake_amount)
 
-        // 1) Update trade to lose with per-row loss
+        // Mark trade as lose; DB trigger will create closing_orders and remove positions
         const { error: updErr } = await supabaseClient
           .from('trades')
           .update({
@@ -84,42 +78,6 @@ Deno.serve(async (req) => {
           })
           .eq('id', trade.id)
         if (updErr) throw updErr
-
-        // 2) Create closing orders and remove positions
-        if (positions && positions.length > 0) {
-          for (const p of positions) {
-            const exit = p.mark_price ?? p.entry_price
-            const closing = {
-              user_id: p.user_id,
-              symbol: p.symbol,
-              side: p.side,
-              entry_price: p.entry_price,
-              exit_price: exit,
-              quantity: p.quantity,
-              leverage: p.leverage,
-              realized_pnl: -Math.abs(p.stake ?? trade.stake_amount),
-              original_trade_id: trade.id,
-              scale: p.scale ?? null,
-              stake: p.stake ?? trade.stake_amount,
-            }
-            await supabaseClient.from('closing_orders').insert(closing)
-          }
-          await supabaseClient.from('positions_orders').delete().in('id', positions.map(p => p.id))
-        } else {
-          // Fallback closing order if no position rows exist
-          await supabaseClient.from('closing_orders').insert({
-            user_id: trade.user_id,
-            symbol: trade.trading_pair,
-            side: trade.direction || 'LONG',
-            entry_price: trade.entry_price || 0,
-            exit_price: trade.entry_price || 0,
-            quantity: (trade.stake_amount && trade.entry_price) ? (trade.stake_amount / trade.entry_price) : 0,
-            leverage: trade.leverage || 1,
-            realized_pnl: realizedLoss,
-            original_trade_id: trade.id,
-            stake: trade.stake_amount,
-          })
-        }
 
         console.log(`💸 Auto-lost trade ${trade.id} for user ${trade.user_id} (${trade.trading_pair}) - Stake: $${trade.stake_amount}`)
         processedLoses++
