@@ -14,16 +14,6 @@ const Contact = () => {
     details: "support@cryptoflow.com",
     description: "Send us an email anytime"
   }, {
-    icon: Phone,
-    title: "Phone",
-    details: "+1 (555) 123-4567",
-    description: "Mon-Fri from 9am to 6pm EST"
-  }, {
-    icon: MapPin,
-    title: "Office",
-    details: "123 Financial District, San Francisco, CA 94105",
-    description: "Visit our headquarters"
-  }, {
     icon: Clock,
     title: "Business Hours",
     details: "Monday - Friday: 9:00 AM - 6:00 PM EST",
