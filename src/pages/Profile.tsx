@@ -468,7 +468,7 @@ export default function Profile() {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <Button variant="outline" onClick={() => window.open('mailto:support@yourapp.com', '_blank')} className="flex items-center gap-2">
+                <Button variant="outline" onClick={() => navigate('/contact')} className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   Contact Support
                 </Button>
