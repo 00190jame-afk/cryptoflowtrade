@@ -52,59 +52,7 @@ const Help = () => {
   return <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1 pt-24 pb-16">
-        <div className="container mx-auto px-4">
-          {/* Page Header */}
-          <div className="text-center mb-12 animate-fade-in">
-            <h1 className="text-3xl md:text-5xl font-bold mb-4">
-              Help &amp;
-              <span className="text-gradient"> Support</span>
-            </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Find answers to common questions or get in touch with our expert support team.
-            </p>
-          </div>
-
-          {/* Support Options */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 animate-slide-up">
-            {supportOptions.map((option, index) => (
-              <Card key={index} className="glass-card hover:border-primary/50 transition-all duration-300">
-                <CardHeader className="text-center">
-                  <option.icon className="w-8 h-8 mx-auto mb-2 text-primary" />
-                  <CardTitle className="text-lg">{option.title}</CardTitle>
-                  <p className="text-sm text-muted-foreground">{option.description}</p>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <Button variant="outline" className="w-full mb-2">
-                    {option.action}
-                  </Button>
-                  <p className="text-xs text-muted-foreground">{option.available}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* FAQ Section */}
-          <div className="max-w-4xl mx-auto animate-slide-up" style={{
-          animationDelay: '0.4s'
-        }}>
-            <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
-              Frequently Asked Questions
-            </h2>
-            
-            <Accordion type="single" collapsible className="space-y-4">
-              {faqs.map((faq, index) => <AccordionItem key={index} value={`item-${index}`} className="glass-card rounded-lg px-6">
-                  <AccordionTrigger className="text-left hover:no-underline">
-                    {faq.question}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    {faq.answer}
-                  </AccordionContent>
-                </AccordionItem>)}
-            </Accordion>
-          </div>
-        </div>
-      </main>
+      
 
       <Footer />
     </div>;
