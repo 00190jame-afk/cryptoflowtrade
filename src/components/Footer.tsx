@@ -26,9 +26,6 @@ const Footer = () => {
       name: "Help Center",
       href: "/help"
     }, {
-      name: "API Documentation",
-      href: "/api"
-    }, {
       name: "Trading Guides",
       href: "/guides"
     }, {

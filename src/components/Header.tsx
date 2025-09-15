@@ -78,8 +78,7 @@ const Header = () => {
       title: "Support",
       items: [
         { title: "Help Center", href: "/help", description: "Find answers to common questions" },
-        { title: "Contact Us", href: "/contact", description: "Get in touch with our team" },
-        { title: "API Docs", href: "/api", description: "Developer documentation" }
+        { title: "Contact Us", href: "/contact", description: "Get in touch with our team" }
       ]
     },
     {
