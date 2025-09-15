@@ -173,15 +173,11 @@ const Footer = () => {
                 <h3 className="font-semibold mb-4 text-foreground">{section.title}</h3>
                 <ul className="space-y-3">
                   {section.links.map(link => <li key={link.name}>
-                      {link.href.startsWith('/') ? (
-                        <Link to={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
+                      {link.href.startsWith('/') ? <Link to={link.href} className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
                           {link.name}
-                        </Link>
-                      ) : (
-                        <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
+                        </Link> : <a href={link.href} target="_blank" rel="noopener noreferrer" className="text-sm text-muted-foreground hover:text-primary transition-colors duration-200">
                           {link.name}
-                        </a>
-                      )}
+                        </a>}
                     </li>)}
                 </ul>
               </div>)}
@@ -195,9 +191,7 @@ const Footer = () => {
         <div className="border-t border-border/50 py-8">
           <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
             {/* Copyright */}
-            <div className="text-sm text-muted-foreground">
-              © 2024 CryptoFlow. All rights reserved. | Risk Warning: Trading cryptocurrencies involves substantial risk of loss.
-            </div>
+            <div className="text-sm text-muted-foreground">© 2018-2025 CryptoFlow. All rights reserved. | Risk Warning: Trading cryptocurrencies involves substantial risk of loss.</div>
 
             {/* Social Links */}
             <div className="flex items-center gap-4">
