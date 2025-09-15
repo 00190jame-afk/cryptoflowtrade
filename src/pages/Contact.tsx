@@ -7,37 +7,29 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
-
 const Contact = () => {
-  const contactInfo = [
-    {
-      icon: Mail,
-      title: "Email",
-      details: "support@cryptoflow.com",
-      description: "Send us an email anytime"
-    },
-    {
-      icon: Phone,
-      title: "Phone",
-      details: "+1 (555) 123-4567",
-      description: "Mon-Fri from 9am to 6pm EST"
-    },
-    {
-      icon: MapPin,
-      title: "Office",
-      details: "123 Financial District, San Francisco, CA 94105",
-      description: "Visit our headquarters"
-    },
-    {
-      icon: Clock,
-      title: "Business Hours",
-      details: "Monday - Friday: 9:00 AM - 6:00 PM EST",
-      description: "We're here to help during business hours"
-    }
-  ];
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  const contactInfo = [{
+    icon: Mail,
+    title: "Email",
+    details: "support@cryptoflow.com",
+    description: "Send us an email anytime"
+  }, {
+    icon: Phone,
+    title: "Phone",
+    details: "+1 (555) 123-4567",
+    description: "Mon-Fri from 9am to 6pm EST"
+  }, {
+    icon: MapPin,
+    title: "Office",
+    details: "123 Financial District, San Francisco, CA 94105",
+    description: "Visit our headquarters"
+  }, {
+    icon: Clock,
+    title: "Business Hours",
+    details: "Monday - Friday: 9:00 AM - 6:00 PM EST",
+    description: "We're here to help during business hours"
+  }];
+  return <div className="min-h-screen flex flex-col">
       <Header />
       
       <main className="flex-1 pt-24 pb-16">
@@ -99,11 +91,7 @@ const Contact = () => {
                   
                   <div className="space-y-2">
                     <Label htmlFor="message">Message</Label>
-                    <Textarea 
-                      id="message" 
-                      placeholder="Tell us how we can help you..."
-                      className="min-h-[120px]"
-                    />
+                    <Textarea id="message" placeholder="Tell us how we can help you..." className="min-h-[120px]" />
                   </div>
                   
                   <Button className="w-full gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300">
@@ -114,7 +102,9 @@ const Contact = () => {
             </div>
 
             {/* Contact Information */}
-            <div className="space-y-6 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+            <div className="space-y-6 animate-slide-up" style={{
+            animationDelay: '0.2s'
+          }}>
               <div>
                 <h2 className="text-2xl font-bold mb-4">Get in touch</h2>
                 <p className="text-muted-foreground mb-8">
@@ -124,8 +114,7 @@ const Contact = () => {
               </div>
 
               <div className="grid gap-6">
-                {contactInfo.map((info, index) => (
-                  <Card key={info.title} className="glass-card">
+                {contactInfo.map((info, index) => <Card key={info.title} className="glass-card">
                     <CardContent className="flex items-start gap-4 p-6">
                       <div className="p-3 rounded-lg bg-primary/10">
                         <info.icon className="h-6 w-6 text-primary" />
@@ -136,30 +125,17 @@ const Contact = () => {
                         <p className="text-xs text-muted-foreground">{info.description}</p>
                       </div>
                     </CardContent>
-                  </Card>
-                ))}
+                  </Card>)}
               </div>
 
               {/* Emergency Contact */}
-              <Card className="glass-card border-destructive/20">
-                <CardContent className="p-6">
-                  <h3 className="font-semibold text-destructive mb-2">Emergency Support</h3>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    For urgent security issues or account compromises
-                  </p>
-                  <Button variant="destructive" size="sm">
-                    Emergency Contact
-                  </Button>
-                </CardContent>
-              </Card>
+              
             </div>
           </div>
         </div>
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Contact;
