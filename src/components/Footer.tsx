@@ -41,9 +41,6 @@ const Footer = () => {
       name: "Cookie Policy",
       href: "/cookies"
     }, {
-      name: "Compliance",
-      href: "/compliance"
-    }, {
       name: "Risk Disclosure",
       href: "/risk"
     }]
