@@ -1,14 +1,11 @@
 import { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-
 const Risk = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <Header />
       
       <main className="flex-1 pt-24 pb-16">
@@ -25,7 +22,9 @@ const Risk = () => {
           </div>
 
           {/* Risk Disclosure Content */}
-          <div className="space-y-8 animate-slide-up" style={{ animationDelay: '0.2s' }}>
+          <div className="space-y-8 animate-slide-up" style={{
+          animationDelay: '0.2s'
+        }}>
             <section className="prose prose-lg max-w-none dark:prose-invert">
               <h2 className="text-2xl font-bold mb-6">General Risk Warning</h2>
               <p className="text-sm text-muted-foreground mb-6">Last Update: 28 July 2025</p>
@@ -187,12 +186,7 @@ const Risk = () => {
                   <p>The placing of certain "stop-loss" orders, or "stop-limit" orders which are intended to limit losses to certain amounts may not always be effective because rapidly changing market conditions may make it impossible to execute such orders. Strategies using combinations of positions such as "spread" and "straddle" positions may be as risky as taking simply "long" or "short" positions.</p>
                 </div>
 
-                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-6 mt-8">
-                  <h3 className="text-xl font-semibold mb-3 text-destructive">Important Notice</h3>
-                  <p className="text-sm">
-                    <strong>You should not invest more than you can afford to lose and you should ensure that you fully understand the risks involved. Trading and investment in digital assets may not be suitable for all users and may result in significant losses. You are strongly advised to seek independent advice before engaging in any trading or investment activity.</strong>
-                  </p>
-                </div>
+                
               </div>
             </section>
           </div>
@@ -200,8 +194,6 @@ const Risk = () => {
       </main>
 
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Risk;
