@@ -411,7 +411,8 @@ const Futures = () => {
         console.log("Using existing current price for trade:", realTimePrice);
       }
       
-      const profitRate = calculateProfitRate(stake);
+      const dbRate = await getProfitRateFromDB(stake);
+      const profitRate = dbRate ?? calculateProfitRate(stake);
       
       console.log(`Trade started: Stake=${stake}, ProfitRate=${profitRate}%`);
       
