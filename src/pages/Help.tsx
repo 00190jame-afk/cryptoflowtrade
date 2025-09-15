@@ -1,9 +1,6 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
-import { Mail, Phone, MessageCircle, BookOpen } from "lucide-react";
 
 const Help = () => {
   const faqs = [
@@ -33,37 +30,6 @@ const Help = () => {
     }
   ];
 
-  const supportOptions = [
-    {
-      icon: MessageCircle,
-      title: "Live Chat",
-      description: "Get instant help from our support team",
-      action: "Start Chat",
-      available: "24/7"
-    },
-    {
-      icon: Mail,
-      title: "Email Support",
-      description: "Send us a detailed message about your issue",
-      action: "Send Email",
-      available: "Response within 24h"
-    },
-    {
-      icon: Phone,
-      title: "Phone Support",
-      description: "Speak directly with our experts",
-      action: "Call Now",
-      available: "Mon-Fri 9AM-6PM EST"
-    },
-    {
-      icon: BookOpen,
-      title: "Knowledge Base",
-      description: "Browse our comprehensive guides",
-      action: "Browse Articles",
-      available: "Self-service"
-    }
-  ];
-
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
@@ -81,29 +47,8 @@ const Help = () => {
             </p>
           </div>
 
-          {/* Support Options */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16 animate-slide-up">
-            {supportOptions.map((option, index) => (
-              <Card key={option.title} className="glass-card hover:shadow-card transition-all duration-300" style={{ animationDelay: `${index * 0.1}s` }}>
-                <CardHeader className="text-center">
-                  <div className="mx-auto mb-4 p-3 rounded-lg bg-primary/10 w-fit">
-                    <option.icon className="h-6 w-6 text-primary" />
-                  </div>
-                  <CardTitle className="text-lg">{option.title}</CardTitle>
-                  <p className="text-sm text-muted-foreground">{option.description}</p>
-                </CardHeader>
-                <CardContent className="text-center">
-                  <Button variant="outline" className="w-full mb-3">
-                    {option.action}
-                  </Button>
-                  <p className="text-xs text-muted-foreground">{option.available}</p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
           {/* FAQ Section */}
-          <div className="max-w-4xl mx-auto animate-slide-up" style={{ animationDelay: '0.4s' }}>
+          <div className="max-w-4xl mx-auto animate-slide-up">
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-8">
               Frequently Asked Questions
             </h2>
