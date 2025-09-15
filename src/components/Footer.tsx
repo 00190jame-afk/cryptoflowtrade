@@ -188,14 +188,7 @@ const Footer = () => {
             <div className="text-sm text-muted-foreground">© 2018-2025 CryptoFlow. All rights reserved. | Risk Warning: Trading cryptocurrencies involves substantial risk of loss.</div>
 
             {/* Social Links */}
-            <div className="flex items-center gap-4">
-              
-              {socialLinks.map(social => <Button key={social.label} variant="ghost" size="icon" asChild className="hover:bg-primary/10 hover:text-primary transition-colors">
-                  <a href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
-                    <social.icon className="h-5 w-5" />
-                  </a>
-                </Button>)}
-            </div>
+            
           </div>
         </div>
       </div>
