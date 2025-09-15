@@ -157,14 +157,8 @@ const Footer = () => {
                   <Mail className="h-4 w-4" />
                   support@cryptoflow.com
                 </div>
-                <div className="flex items-center gap-3 text-muted-foreground">
-                  <Phone className="h-4 w-4" />
-                  +1 (555) 123-4567
-                </div>
-                <div className="flex items-center gap-3 text-muted-foreground">
-                  <MapPin className="h-4 w-4" />
-                  San Francisco, CA
-                </div>
+                
+                
               </div>
             </div>
 
@@ -196,24 +190,11 @@ const Footer = () => {
             {/* Social Links */}
             <div className="flex items-center gap-4">
               
-              {socialLinks.map(social => (
-                <Button
-                  key={social.label}
-                  variant="ghost"
-                  size="icon"
-                  asChild
-                  className="hover:bg-primary/10 hover:text-primary transition-colors"
-                >
-                  <a
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    aria-label={social.label}
-                  >
+              {socialLinks.map(social => <Button key={social.label} variant="ghost" size="icon" asChild className="hover:bg-primary/10 hover:text-primary transition-colors">
+                  <a href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label}>
                     <social.icon className="h-5 w-5" />
                   </a>
-                </Button>
-              ))}
+                </Button>)}
             </div>
           </div>
         </div>
