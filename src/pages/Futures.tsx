@@ -87,7 +87,6 @@ const Futures = () => {
   const [currentPrice, setCurrentPrice] = useState<number>(45000);
   const [positionOrders, setPositionOrders] = useState<PositionOrder[]>([]);
   const [closingOrders, setClosingOrders] = useState<ClosingOrder[]>([]);
-  const completingTradeRef = useRef<string | null>(null);
 
   // Calculate profit based on stake amount
   const calculateProfitRate = (stake: number): number => {
@@ -195,117 +194,8 @@ const Futures = () => {
   };
 
   
-  // Complete expired trade function
-  const completeExpiredTrade = async (trade: Trade) => {
-    if (completingTradeRef.current === trade.id) {
-      return; // Already completing this trade
-    }
-    
-    console.log('Completing expired trade:', trade.id);
-    completingTradeRef.current = trade.id;
-
-    try {
-      // Check if trade was already completed
-      const { data: latest } = await supabase
-        .from('trades')
-        .select('status')
-        .eq('id', trade.id)
-        .single();
-
-      // If already completed or already has a closing order, stop here
-      const { data: alreadyClosed } = await supabase
-        .from('closing_orders')
-        .select('id')
-        .eq('original_trade_id', trade.id)
-        .maybeSingle();
-
-      if (latest?.status === 'completed' || alreadyClosed) {
-        console.log('Trade already finalized, skipping:', trade.id);
-        completingTradeRef.current = null;
-        return;
-      }
-
-      // Mark trade as completed
-      const { error: updateError } = await supabase.from('trades').update({
-        status: 'completed',
-        completed_at: new Date().toISOString()
-      }).eq('id', trade.id).eq('status', 'active');
-      
-      if (updateError) {
-        console.error('Error updating trade status:', updateError);
-        completingTradeRef.current = null;
-        return;
-      }
-
-      // Calculate profit using trade rules only: stake * (profit_rate / 100)
-      const profitAmount = trade.stake_amount * (trade.profit_rate / 100);
-      console.log(`Trade completed: Stake=${trade.stake_amount}, ProfitRate=${trade.profit_rate}%, Profit=${profitAmount}`);
-
-      // Create closing order record before removing position
-      const { data: position } = await supabase
-        .from('positions_orders')
-        .select('*')
-        .eq('trade_id', trade.id)
-        .maybeSingle();
-
-      const exitPrice = position?.mark_price ?? trade.entry_price;
-      const closingData = {
-        user_id: user!.id,
-        symbol: trade.trading_pair,
-        side: trade.direction,
-        entry_price: trade.entry_price,
-        exit_price: exitPrice,
-        quantity: position?.quantity ?? (trade.stake_amount / trade.entry_price),
-        leverage: trade.leverage,
-        realized_pnl: profitAmount,
-        original_trade_id: trade.id,
-        scale: position?.scale ?? null,
-        stake: position?.stake ?? trade.stake_amount,
-      };
-
-      // Idempotency: only insert a closing order once per trade
-      const { data: existingClose } = await supabase
-        .from('closing_orders')
-        .select('id')
-        .eq('original_trade_id', trade.id)
-        .maybeSingle();
-
-      if (!existingClose) {
-        await supabase.from('closing_orders').insert(closingData);
-      }
-      
-      // Remove position after recording closing order
-      await supabase.from('positions_orders').delete().eq('trade_id', trade.id);
-
-      // Update trade with profit details
-      await supabase.from('trades').update({
-        profit_loss_amount: profitAmount,
-        result: 'win'
-      }).eq('id', trade.id);
-      
-      // Return stake + profit to balance
-      const totalReturn = trade.stake_amount + profitAmount;
-      console.log(`Returning to balance: ${totalReturn} USDT (${trade.stake_amount} stake + ${profitAmount} profit)`);
-      
-      await (supabase as any).rpc('update_user_balance', {
-        p_user_id: user!.id,
-        p_amount: totalReturn,
-        p_transaction_type: 'trade_win',
-        p_description: `Trade completed: ${totalReturn} USDT returned`,
-        p_trade_id: trade.id
-      });
-      
-      fetchBalance();
-      fetchTrades();
-      fetchPositionOrders();
-      fetchClosingOrders();
-      
-    } catch (error) {
-      console.error('Exception in completeExpiredTrade:', error);
-    } finally {
-      completingTradeRef.current = null;
-    }
-  };
+  // REMOVED: Client-side trade completion bypassed intended server flow
+  // The database triggers and edge function now handle all trade completion logic
 
   // Live price updates from Binance with CoinGecko fallback
   useEffect(() => {
@@ -351,35 +241,19 @@ const Futures = () => {
 
 
   
-  // Check for expired trades every 60 seconds as fallback (cron handles main processing)
+  // Periodic refresh to sync with database changes (trades processed by edge function)
   useEffect(() => {
-    const tick = async () => {
-      if (user && trades.length > 0) {
-        const expired = trades.filter(t => 
-          (t.status === 'pending' || t.status === 'win') && 
-          t.ends_at && 
-          new Date(t.ends_at) <= new Date()
-        );
-        if (expired.length > 0) {
-          console.log(`Found ${expired.length} expired trades. Invoking fallback auto-lose...`);
-          try {
-            await supabase.functions.invoke('auto-lose-trades');
-            // Refresh UI lists after processing
-            setTimeout(() => {
-              fetchTrades();
-              fetchPositionOrders();
-              fetchClosingOrders();
-              fetchBalance();
-            }, 2000);
-          } catch (e) {
-            console.error('auto-lose invoke error', e);
-          }
-        }
-      }
-    };
-    const interval = setInterval(tick, 60000); // every 60s as fallback
-    return () => clearInterval(interval);
-  }, [trades, user]);
+    if (!user) return;
+    
+    const refreshInterval = setInterval(() => {
+      fetchTrades();
+      fetchPositionOrders();
+      fetchClosingOrders();
+      fetchBalance();
+    }, 15000); // Refresh every 15 seconds to show latest trade status
+    
+    return () => clearInterval(refreshInterval);
+  }, [user]);
 
   // Start new trade
   const startTrade = async () => {
@@ -465,67 +339,8 @@ const Futures = () => {
       setIsTrading(false);
     }
   };
-  // Close position function
-  const closePosition = async (positionId: string, tradeId: string) => {
-    try {
-      // Get position details
-      const { data: position } = await supabase
-        .from('positions_orders')
-        .select('*')
-        .eq('id', positionId)
-        .single();
-
-      if (!position) return;
-
-      // Create closing order
-      const exitPrice = currentPrice;
-      const realizedPnl = (exitPrice - position.entry_price) * position.quantity * 
-                         (position.side === 'LONG' ? 1 : -1);
-
-      const closingData = {
-        user_id: user!.id,
-        symbol: position.symbol,
-        side: position.side,
-        entry_price: position.entry_price,
-        exit_price: exitPrice,
-        quantity: position.quantity,
-        leverage: position.leverage,
-        realized_pnl: realizedPnl,
-        original_trade_id: tradeId,
-        scale: position.scale ?? null,
-        stake: position.stake ?? null,
-      };
-
-      // Idempotency: avoid duplicate closing orders for the same trade
-      const { data: existingClose } = await supabase
-        .from('closing_orders')
-        .select('id')
-        .eq('original_trade_id', tradeId)
-        .maybeSingle();
-
-      if (!existingClose) {
-        await supabase.from('closing_orders').insert(closingData);
-      }
-      
-      // Remove from positions orders
-      await supabase.from('positions_orders').delete().eq('id', positionId);
-      
-      // Update trade status if exists
-      await supabase.from('trades').update({
-        status: 'completed',
-        completed_at: new Date().toISOString(),
-        profit_loss_amount: realizedPnl,
-        result: realizedPnl < 0 ? 'loss' : 'win'
-      }).eq('id', tradeId);
-
-      toast.success('Position closed successfully');
-      fetchPositionOrders();
-      fetchClosingOrders();
-      fetchTrades();
-    } catch (error) {
-      toast.error('Failed to close position');
-    }
-  };
+  // REMOVED: Manual position closing bypassed intended server flow  
+  // Positions are automatically closed when trades expire via edge function
 
   useEffect(() => {
     if (user) {
