@@ -7,9 +7,6 @@ const Footer = () => {
     links: [{
       name: "Futures",
       href: "/futures"
-    }, {
-      name: "Staking",
-      href: "/staking"
     }]
   }, {
     title: "Resources",
@@ -18,7 +15,7 @@ const Footer = () => {
       href: "/help"
     }, {
       name: "Market Analysis",
-      href: "/analysis"
+      href: "/markets"
     }]
   }, {
     title: "Company",
