@@ -41,6 +41,7 @@ const Assets = () => {
   const [rechargeCode, setRechargeCode] = useState("");
   const [withdrawalCode, setWithdrawalCode] = useState("");
   const [withdrawalAmount, setWithdrawalAmount] = useState("");
+  const [freezeAmount, setFreezeAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [notification, setNotification] = useState<{
     type: 'success' | 'error' | 'info';
@@ -343,6 +344,75 @@ const Assets = () => {
       setIsProcessing(false);
     }
   };
+
+  const handleFreezeBalance = async (action: 'freeze' | 'unfreeze') => {
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "Please log in to manage balance",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    const amount = parseFloat(freezeAmount);
+    if (!amount || amount <= 0) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid amount",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (action === 'freeze' && amount > (userBalance?.balance || 0)) {
+      toast({
+        title: "Error",
+        description: "Insufficient available balance",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (action === 'unfreeze' && amount > (userBalance?.frozen || 0)) {
+      toast({
+        title: "Error",
+        description: "Insufficient frozen balance",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const { error } = await supabase.rpc('update_frozen_balance', {
+        p_user_id: user.id,
+        p_amount: amount,
+        p_action: action
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      await fetchUserBalance();
+      await fetchTransactions();
+      setFreezeAmount("");
+      
+      toast({
+        title: "Success",
+        description: `Successfully ${action === 'freeze' ? 'frozen' : 'unfrozen'} ${amount.toFixed(2)} USDT`
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || `Failed to ${action} balance`,
+        variant: "destructive"
+      });
+    } finally {
+      setIsProcessing(false);
+    }
+  };
   if (loading) {
     return <div className="min-h-screen bg-background">
         <div className="container mx-auto px-4 py-8">
@@ -443,7 +513,54 @@ const Assets = () => {
             </CardContent>
           </Card>
         </div>
-
+        
+        {/* Balance Management Section */}
+        <Card className="glass-card border-orange-500/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-orange-600">
+              <Lock className="h-5 w-5" />
+              Balance Management
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Freeze or unfreeze your USDT balance for security purposes
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="freeze-amount">Amount (USDT)</Label>
+              <Input
+                id="freeze-amount"
+                type="number"
+                placeholder="Enter amount"
+                value={freezeAmount}
+                onChange={(e) => setFreezeAmount(e.target.value)}
+                min="0"
+                step="0.01"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                onClick={() => handleFreezeBalance('freeze')}
+                disabled={isProcessing || !freezeAmount.trim()}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                {isProcessing ? "Processing..." : "Freeze Balance"}
+              </Button>
+              <Button
+                onClick={() => handleFreezeBalance('unfreeze')}
+                disabled={isProcessing || !freezeAmount.trim()}
+                variant="outline"
+                className="border-orange-600 text-orange-600 hover:bg-orange-50"
+              >
+                {isProcessing ? "Processing..." : "Unfreeze Balance"}
+              </Button>
+            </div>
+            <div className="text-xs text-muted-foreground space-y-1">
+              <p>• Available: {userBalance?.balance.toFixed(2) || '0.00'} USDT</p>
+              <p>• Frozen: {userBalance?.frozen.toFixed(2) || '0.00'} USDT</p>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Code Redemption Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

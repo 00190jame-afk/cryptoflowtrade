@@ -545,6 +545,10 @@ export type Database = {
           currency: string
         }[]
       }
+      update_frozen_balance: {
+        Args: { p_action: string; p_amount: number; p_user_id: string }
+        Returns: undefined
+      }
       update_user_balance: {
         Args:
           | {
