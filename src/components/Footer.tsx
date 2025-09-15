@@ -5,20 +5,11 @@ const Footer = () => {
   const footerSections = [{
     title: "Products",
     links: [{
-      name: "Spot Trading",
-      href: "/spot"
-    }, {
       name: "Futures",
       href: "/futures"
     }, {
-      name: "Options",
-      href: "/options"
-    }, {
       name: "Staking",
       href: "/staking"
-    }, {
-      name: "NFT Marketplace",
-      href: "/nft"
     }]
   }, {
     title: "Resources",
@@ -26,14 +17,8 @@ const Footer = () => {
       name: "Help Center",
       href: "/help"
     }, {
-      name: "Trading Guides",
-      href: "/guides"
-    }, {
       name: "Market Analysis",
       href: "/analysis"
-    }, {
-      name: "Educational Content",
-      href: "/learn"
     }]
   }, {
     title: "Company",
@@ -41,14 +26,8 @@ const Footer = () => {
       name: "About Us",
       href: "/about"
     }, {
-      name: "Careers",
-      href: "/careers"
-    }, {
       name: "Press Kit",
       href: "/press"
-    }, {
-      name: "Blog",
-      href: "/blog"
     }, {
       name: "Contact",
       href: "/contact"
