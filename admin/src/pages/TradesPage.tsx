@@ -35,6 +35,7 @@ export const TradesPage: React.FC = () => {
 
   const fetchTrades = async () => {
     try {
+      console.log('Fetching trades...');
       let query = supabase
         .from('trades')
         .select('*')
@@ -49,6 +50,7 @@ export const TradesPage: React.FC = () => {
       }
 
       const { data, error } = await query;
+      console.log('Trades response:', { data, error });
 
       if (error) throw error;
       setTrades(data || []);

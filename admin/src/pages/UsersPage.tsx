@@ -29,9 +29,12 @@ export const UsersPage: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
+      console.log('Fetching users...');
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('*');
+
+      console.log('Profiles response:', { profiles, profilesError });
 
       if (profilesError) throw profilesError;
 
@@ -43,6 +46,8 @@ export const UsersPage: React.FC = () => {
           .from('user_balances')
           .select('user_id, balance')
           .in('user_id', ids);
+
+        console.log('Balances response:', { balances, balancesError });
 
         if (!balancesError && balances) {
           balances.forEach((b: any) => {
@@ -56,6 +61,7 @@ export const UsersPage: React.FC = () => {
         balance: balancesMap.get(user.user_id) ?? 0,
       }));
 
+      console.log('Final users with balance:', usersWithBalance);
       setUsers(usersWithBalance);
     } catch (error) {
       console.error('Error fetching users:', error);
