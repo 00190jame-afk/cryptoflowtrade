@@ -58,7 +58,7 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <ScrollToTop />
-            <Suspense fallback={<RouteLoader />}>
+            <Suspense fallback={null}>
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
