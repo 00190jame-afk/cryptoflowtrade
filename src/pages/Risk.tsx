@@ -11,18 +11,18 @@ const Risk = () => {
   return <div className="min-h-screen flex flex-col">
       <Header />
       
-      <main className="flex-1 pt-24 pb-16">
-        <div className="container mx-auto px-4 max-w-4xl">
-          {/* Back to Home Button */}
-          <div className="mb-6">
-            <Button variant="ghost" asChild className="mb-4">
-              <Link to="/" className="flex items-center gap-2">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Home
-              </Link>
-            </Button>
-          </div>
-          
+      {/* Back to Home Button - positioned at top like other pages */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="mb-6">
+          <Button variant="ghost" asChild className="mb-4">
+            <Link to="/" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
+        </div>
+        
+        <div className="max-w-4xl mx-auto">
           {/* Page Header */}
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-3xl md:text-5xl font-bold mb-4">
@@ -36,8 +36,8 @@ const Risk = () => {
 
           {/* Risk Disclosure Content */}
           <div className="space-y-8 animate-slide-up" style={{
-          animationDelay: '0.2s'
-        }}>
+            animationDelay: '0.2s'
+          }}>
             <section className="prose prose-lg max-w-none dark:prose-invert">
               <h2 className="text-2xl font-bold mb-6">General Risk Warning</h2>
               <p className="text-sm text-muted-foreground mb-6">Last Update: 28 July 2025</p>
@@ -204,7 +204,7 @@ const Risk = () => {
             </section>
           </div>
         </div>
-      </main>
+      </div>
 
       <Footer />
     </div>;
