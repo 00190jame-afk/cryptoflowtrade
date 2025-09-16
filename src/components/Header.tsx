@@ -64,6 +64,11 @@ const Header = () => {
       description: "Explore all available trading pairs"
     },
     {
+      title: "News",
+      href: "/news",
+      description: "Latest cryptocurrency news"
+    },
+    {
       title: "Trading",
       items: [
         { title: "Futures", href: "/futures", description: "Advanced trading with leverage" }
@@ -80,11 +85,6 @@ const Header = () => {
         { title: "Help Center", href: "/help", description: "Find answers to common questions" },
         { title: "Contact Us", href: "/contact", description: "Get in touch with our team" }
       ]
-    },
-    {
-      title: "News",
-      href: "/news",
-      description: "Latest cryptocurrency news"
     }
   ];
 
