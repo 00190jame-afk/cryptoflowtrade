@@ -7,6 +7,7 @@ import { ArrowLeft, MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import Header from "@/components/Header";
 
 interface Message {
   id: string;
@@ -145,6 +146,7 @@ const UserMessages = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <Header />
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="flex items-center gap-4 mb-6">
           <Button
