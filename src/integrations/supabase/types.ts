@@ -229,6 +229,7 @@ export type Database = {
           created_at: string
           credit_score: number | null
           date_of_birth: string | null
+          email: string | null
           first_name: string | null
           full_name: string | null
           id: string
@@ -250,6 +251,7 @@ export type Database = {
           created_at?: string
           credit_score?: number | null
           date_of_birth?: string | null
+          email?: string | null
           first_name?: string | null
           full_name?: string | null
           id?: string
@@ -271,6 +273,7 @@ export type Database = {
           created_at?: string
           credit_score?: number | null
           date_of_birth?: string | null
+          email?: string | null
           first_name?: string | null
           full_name?: string | null
           id?: string
@@ -349,6 +352,7 @@ export type Database = {
           created_at: string
           current_price: number | null
           direction: string
+          email: string | null
           ends_at: string | null
           entry_price: number
           id: string
@@ -369,6 +373,7 @@ export type Database = {
           created_at?: string
           current_price?: number | null
           direction: string
+          email?: string | null
           ends_at?: string | null
           entry_price: number
           id?: string
@@ -389,6 +394,7 @@ export type Database = {
           created_at?: string
           current_price?: number | null
           direction?: string
+          email?: string | null
           ends_at?: string | null
           entry_price?: number
           id?: string
@@ -413,6 +419,7 @@ export type Database = {
           created_at: string
           currency: string | null
           description: string | null
+          email: string | null
           external_transaction_id: string | null
           id: string
           payment_method: string | null
@@ -429,6 +436,7 @@ export type Database = {
           created_at?: string
           currency?: string | null
           description?: string | null
+          email?: string | null
           external_transaction_id?: string | null
           id?: string
           payment_method?: string | null
@@ -445,6 +453,7 @@ export type Database = {
           created_at?: string
           currency?: string | null
           description?: string | null
+          email?: string | null
           external_transaction_id?: string | null
           id?: string
           payment_method?: string | null
@@ -470,6 +479,7 @@ export type Database = {
           balance: number | null
           created_at: string
           currency: string | null
+          email: string | null
           frozen: number | null
           id: string
           on_hold: number | null
@@ -480,6 +490,7 @@ export type Database = {
           balance?: number | null
           created_at?: string
           currency?: string | null
+          email?: string | null
           frozen?: number | null
           id?: string
           on_hold?: number | null
@@ -490,6 +501,7 @@ export type Database = {
           balance?: number | null
           created_at?: string
           currency?: string | null
+          email?: string | null
           frozen?: number | null
           id?: string
           on_hold?: number | null
@@ -539,6 +551,7 @@ export type Database = {
           admin_notes: string | null
           amount: number
           created_at: string
+          email: string | null
           id: string
           processed_at: string | null
           status: string
@@ -549,6 +562,7 @@ export type Database = {
           admin_notes?: string | null
           amount: number
           created_at?: string
+          email?: string | null
           id?: string
           processed_at?: string | null
           status?: string
@@ -559,6 +573,7 @@ export type Database = {
           admin_notes?: string | null
           amount?: number
           created_at?: string
+          email?: string | null
           id?: string
           processed_at?: string | null
           status?: string
