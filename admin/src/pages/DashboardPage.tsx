@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAdminAuth } from '@/contexts/AdminAuthContext';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/lib/supabase';
 import { Users, TrendingUp, DollarSign, Activity } from 'lucide-react';
 

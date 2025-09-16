@@ -49,6 +49,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        void event;
         setSession(session);
         setUser(session?.user ?? null);
         
