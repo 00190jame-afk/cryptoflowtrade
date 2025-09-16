@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, ChevronDown, TrendingUp, LogOut, User } from "lucide-react";
+import { Menu, ChevronDown, TrendingUp, LogOut, User, Home, BarChart3, Newspaper, Wallet, HelpCircle, Mail } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
@@ -56,34 +56,40 @@ const Header = () => {
     {
       title: "Home",
       href: "/",
-      description: "Go back to homepage"
+      description: "Go back to homepage",
+      icon: Home
     },
     {
       title: "Markets",
       href: "/markets",
-      description: "Explore all available trading pairs"
+      description: "Explore all available trading pairs",
+      icon: BarChart3
     },
     {
       title: "News",
       href: "/news",
-      description: "Latest cryptocurrency news"
+      description: "Latest cryptocurrency news",
+      icon: Newspaper
     },
     {
       title: "Trading",
+      icon: TrendingUp,
       items: [
-        { title: "Futures", href: "/futures", description: "Advanced trading with leverage" }
+        { title: "Futures", href: "/futures", description: "Advanced trading with leverage", icon: TrendingUp }
       ]
     },
     {
       title: "Assets",
       href: "/assets",
-      description: "Manage your portfolio"
+      description: "Manage your portfolio",
+      icon: Wallet
     },
     {
       title: "Support",
+      icon: HelpCircle,
       items: [
-        { title: "Help Center", href: "/help", description: "Find answers to common questions" },
-        { title: "Contact Us", href: "/contact", description: "Get in touch with our team" }
+        { title: "Help Center", href: "/help", description: "Find answers to common questions", icon: HelpCircle },
+        { title: "Contact Us", href: "/contact", description: "Get in touch with our team", icon: Mail }
       ]
     }
   ];
@@ -189,31 +195,36 @@ const Header = () => {
               {navigationItems.map((item) => (
                 <div key={item.title}>
                   {item.items ? (
-                    <div className="space-y-3">
-                      <div className="font-semibold text-sm text-muted-foreground uppercase tracking-wider px-3">
+                    <div className="space-y-2">
+                      <div className="flex items-center px-4 py-2 font-semibold text-sm text-primary/80 uppercase tracking-wider bg-primary/5 rounded-lg border border-primary/10">
+                        <item.icon className="h-4 w-4 mr-3" />
                         {item.title}
                       </div>
-                      {item.items.map((subItem) => (
-                        <div
-                          key={subItem.title}
-                          className="flex items-center px-3 py-3 text-base font-medium rounded-lg hover:bg-primary/10 hover:text-primary transition-all duration-200 cursor-pointer border border-transparent hover:border-primary/20"
-                          onClick={() => {
-                            handleNavClick(item, subItem);
-                            setIsOpen(false);
-                          }}
-                        >
-                          {subItem.title}
-                        </div>
-                      ))}
+                      <div className="pl-4 space-y-1">
+                        {item.items.map((subItem) => (
+                          <div
+                            key={subItem.title}
+                            className="flex items-center px-4 py-3 text-base font-medium rounded-lg hover:bg-primary/10 hover:text-primary transition-all duration-200 cursor-pointer border border-transparent hover:border-primary/20 ml-2"
+                            onClick={() => {
+                              handleNavClick(item, subItem);
+                              setIsOpen(false);
+                            }}
+                          >
+                            <subItem.icon className="h-4 w-4 mr-3 text-muted-foreground" />
+                            {subItem.title}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   ) : (
                     <div
-                      className="flex items-center px-3 py-3 text-base font-medium rounded-lg hover:bg-primary/10 hover:text-primary transition-all duration-200 cursor-pointer border border-transparent hover:border-primary/20"
+                      className="flex items-center px-4 py-3 text-base font-medium rounded-lg hover:bg-primary/10 hover:text-primary transition-all duration-200 cursor-pointer border border-transparent hover:border-primary/20"
                       onClick={() => {
                         handleNavClick(item);
                         setIsOpen(false);
                       }}
                     >
+                      <item.icon className="h-4 w-4 mr-3 text-muted-foreground" />
                       {item.title}
                     </div>
                   )}
