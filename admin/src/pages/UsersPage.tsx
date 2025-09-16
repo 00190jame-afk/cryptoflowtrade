@@ -29,23 +29,32 @@ export const UsersPage: React.FC = () => {
 
   const fetchUsers = async () => {
     try {
-      let query = supabase
+      const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          *,
-          user_balances (
-            balance
-          )
-        `);
+        .select('*');
 
-      const { data, error } = await query;
+      if (profilesError) throw profilesError;
 
-      if (error) throw error;
+      const ids = (profiles || []).map((p: any) => p.user_id);
+      let balancesMap = new Map<string, number>();
 
-      const usersWithBalance = data?.map(user => ({
+      if (ids.length > 0) {
+        const { data: balances, error: balancesError } = await supabase
+          .from('user_balances')
+          .select('user_id, balance')
+          .in('user_id', ids);
+
+        if (!balancesError && balances) {
+          balances.forEach((b: any) => {
+            balancesMap.set(b.user_id, Number(b.balance) || 0);
+          });
+        }
+      }
+
+      const usersWithBalance = (profiles || []).map((user: any) => ({
         ...user,
-        balance: user.user_balances?.[0]?.balance || 0
-      })) || [];
+        balance: balancesMap.get(user.user_id) ?? 0,
+      }));
 
       setUsers(usersWithBalance);
     } catch (error) {
