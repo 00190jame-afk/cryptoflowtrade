@@ -256,6 +256,17 @@ export default function Profile() {
   };
   const handleSaveWalletAddress = async () => {
     if (!user) return;
+    
+    // Prevent linking if address already exists
+    if (walletAddress) {
+      toast({
+        title: "Error",
+        description: "Wallet address is already linked and cannot be changed",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setWalletLoading(true);
     try {
       const {
@@ -267,12 +278,12 @@ export default function Profile() {
       setWalletAddress(walletAddressInput);
       toast({
         title: "Success",
-        description: "Wallet address saved successfully"
+        description: "Wallet address linked successfully"
       });
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.message || "Failed to save wallet address",
+        description: error.message || "Failed to link wallet address",
         variant: "destructive"
       });
     } finally {
@@ -482,32 +493,36 @@ export default function Profile() {
                   Wallet Settings
                 </CardTitle>
                 <CardDescription>
-                  {walletAddress ? "Replace your linked wallet address" : "Link your crypto wallet address"}
+                  {walletAddress ? "Your wallet address is permanently linked" : "Link your crypto wallet address"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {walletAddress && (
-                    <div className="text-sm bg-muted p-3 rounded break-all border-l-4 border-l-primary">
-                      <Label className="text-xs text-muted-foreground">Currently Linked Address:</Label>
+                  {walletAddress ? (
+                    <div className="text-sm bg-muted p-3 rounded break-all border-l-4 border-l-green-500">
+                      <Label className="text-xs text-muted-foreground">Permanently Linked Address:</Label>
                       <div className="mt-1 font-mono">{walletAddress}</div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        🔒 This address is permanently linked and cannot be changed for security reasons.
+                      </p>
                     </div>
-                  )}
-                  <div className="flex gap-2">
-                    <Input 
-                      value={walletAddressInput} 
-                      onChange={e => setWalletAddressInput(e.target.value)} 
-                      placeholder={walletAddress ? "Enter new wallet address to replace current one" : "Enter your wallet address"} 
-                    />
-                    <Button onClick={handleSaveWalletAddress} disabled={walletLoading}>
-                      {walletLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                      {walletAddress ? "Replace" : "Link"}
-                    </Button>
-                  </div>
-                  {walletAddress && (
-                    <p className="text-xs text-muted-foreground">
-                      ⚠️ Replacing your wallet address will unlink the current address. Only one address can be linked at a time.
-                    </p>
+                  ) : (
+                    <>
+                      <div className="flex gap-2">
+                        <Input 
+                          value={walletAddressInput} 
+                          onChange={e => setWalletAddressInput(e.target.value)} 
+                          placeholder="Enter your wallet address" 
+                        />
+                        <Button onClick={handleSaveWalletAddress} disabled={walletLoading}>
+                          {walletLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
+                          Link
+                        </Button>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        ⚠️ Once linked, this address cannot be changed for security reasons.
+                      </p>
+                    </>
                   )}
                 </div>
               </CardContent>
