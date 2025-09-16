@@ -49,7 +49,9 @@ export const MarketPrices = () => {
         }
       }
       
-      setCoins(data);
+      // Sort by market cap rank to ensure correct order
+      const sortedData = data.sort((a, b) => a.market_cap_rank - b.market_cap_rank);
+      setCoins(sortedData);
       setLastUpdate(new Date());
     } catch (error) {
       console.error('Error fetching market data:', error);
