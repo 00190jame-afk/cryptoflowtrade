@@ -7,7 +7,77 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 const Contact = () => {
+  const { toast } = useToast();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.subject || !formData.message) {
+      toast({
+        title: "Error",
+        description: "Please fill in all fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      const { error } = await supabase
+        .from('contact_messages')
+        .insert({
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Message sent successfully!"
+      });
+
+      // Clear form
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        subject: "",
+        message: ""
+      });
+
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const contactInfo = [{
     icon: Mail,
     title: "Email",
@@ -45,48 +115,77 @@ const Contact = () => {
                     Fill out the form below and we'll get back to you as soon as possible.
                   </p>
                 </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" />
+                <CardContent>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="firstName">First Name</Label>
+                        <Input 
+                          id="firstName" 
+                          value={formData.firstName}
+                          onChange={(e) => handleInputChange('firstName', e.target.value)}
+                          required
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="lastName">Last Name</Label>
+                        <Input 
+                          id="lastName" 
+                          value={formData.lastName}
+                          onChange={(e) => handleInputChange('lastName', e.target.value)}
+                          required
+                        />
+                      </div>
                     </div>
+                    
                     <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" />
+                      <Label htmlFor="email">Email</Label>
+                      <Input 
+                        id="email" 
+                        type="email" 
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        required
+                      />
                     </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" />
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="subject">Subject</Label>
-                    <Select>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a topic" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="general">General Inquiry</SelectItem>
-                        <SelectItem value="trading">Trading Support</SelectItem>
-                        <SelectItem value="technical">Technical Issue</SelectItem>
-                        <SelectItem value="account">Account Management</SelectItem>
-                        <SelectItem value="business">Business Partnership</SelectItem>
-                        <SelectItem value="media">Media Inquiry</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="message">Message</Label>
-                    <Textarea id="message" placeholder="Tell us how we can help you..." className="min-h-[120px]" />
-                  </div>
-                  
-                  <Button className="w-full gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300">
-                    Send Message
-                  </Button>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="subject">Subject</Label>
+                      <Select value={formData.subject} onValueChange={(value) => handleInputChange('subject', value)}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a topic" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="general">General Inquiry</SelectItem>
+                          <SelectItem value="trading">Trading Support</SelectItem>
+                          <SelectItem value="technical">Technical Issue</SelectItem>
+                          <SelectItem value="account">Account Management</SelectItem>
+                          <SelectItem value="business">Business Partnership</SelectItem>
+                          <SelectItem value="media">Media Inquiry</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="message">Message</Label>
+                      <Textarea 
+                        id="message" 
+                        placeholder="Tell us how we can help you..." 
+                        className="min-h-[120px]"
+                        value={formData.message}
+                        onChange={(e) => handleInputChange('message', e.target.value)}
+                        required
+                      />
+                    </div>
+                    
+                    <Button 
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="w-full gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300"
+                    >
+                      {isSubmitting ? "Sending..." : "Send Message"}
+                    </Button>
+                  </form>
                 </CardContent>
               </Card>
             </div>
