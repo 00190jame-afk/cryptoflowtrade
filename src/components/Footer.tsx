@@ -56,7 +56,7 @@ const Footer = () => {
     label: "LinkedIn"
   }, {
     icon: Mail,
-    href: "mailto:support@cryptoflow.com",
+    href: "mailto:support@cryptoflowtrade.com",
     label: "Email"
   }];
   const stats = [{
@@ -125,7 +125,7 @@ const Footer = () => {
               <div className="space-y-3 text-sm">
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <Mail className="h-4 w-4" />
-                  support@cryptoflow.com
+                  support@cryptoflowtrade.com
                 </div>
                 
                 
