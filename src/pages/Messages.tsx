@@ -7,6 +7,8 @@ import { ArrowLeft, Clock, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import Header from "@/components/Header";
+import { Link } from "react-router-dom";
 
 interface Message {
   id: string;
@@ -141,7 +143,19 @@ const Messages = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <Header />
+      
+      {/* Back to Home Button */}
+      <div className="container mx-auto px-4 pt-6 pb-2 max-w-4xl">
+        <Button variant="ghost" asChild className="mb-4">
+          <Link to="/" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+        </Button>
+      </div>
+      
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
         <div className="flex items-center gap-4 mb-6">
           <Button
             variant="outline"

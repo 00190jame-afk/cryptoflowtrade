@@ -8,9 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Wallet, CreditCard, Lock, ArrowUpRight, ArrowDownLeft, AlertCircle, Clock, Upload } from "lucide-react";
+import { Wallet, CreditCard, Lock, ArrowUpRight, ArrowDownLeft, AlertCircle, Clock, Upload, ArrowLeft } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import Header from "@/components/Header";
+import { Link } from "react-router-dom";
 interface UserBalance {
   balance: number;
   on_hold: number;
@@ -371,7 +372,17 @@ const Assets = () => {
   return <div className="min-h-screen">
       <Header />
       <div className="bg-background">
-        <div className="container mx-auto px-4 py-8 space-y-8">
+        {/* Back to Home Button */}
+        <div className="container mx-auto px-4 pt-6 pb-2">
+          <Button variant="ghost" asChild className="mb-4">
+            <Link to="/" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Home
+            </Link>
+          </Button>
+        </div>
+        
+        <div className="container mx-auto px-4 py-6 space-y-8">
         {/* Header */}
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Assets</h1>

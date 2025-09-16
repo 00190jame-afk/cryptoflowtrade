@@ -13,9 +13,10 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Edit, Shield, Settings, Mail, User, Wallet, MessageCircle } from "lucide-react";
+import { Loader2, Edit, Shield, Settings, Mail, User, Wallet, MessageCircle, ArrowLeft } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Header from "@/components/Header";
+import { Link } from "react-router-dom";
 interface UserProfile {
   id: string;
   username: string | null;
@@ -328,7 +329,17 @@ export default function Profile() {
   return <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8 max-w-4xl">
+      {/* Back to Home Button */}
+      <div className="container mx-auto px-4 pt-6 pb-2 max-w-4xl">
+        <Button variant="ghost" asChild className="mb-4">
+          <Link to="/" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+        </Button>
+      </div>
+      
+      <main className="container mx-auto px-4 py-6 max-w-4xl">
         {/* Full Width Profile Header */}
         <Card className="mb-8 bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
           <CardContent className="p-8">

@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Recharge = () => {
   const [rechargeCode, setRechargeCode] = useState("");
@@ -84,7 +86,17 @@ const Recharge = () => {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
+      {/* Back to Home Button */}
+      <div className="container mx-auto px-4 pt-6 pb-2">
+        <Button variant="ghost" asChild className="mb-4">
+          <Link to="/" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+        </Button>
+      </div>
+      
+      <main className="container mx-auto px-4 py-6">
         <div className="max-w-md mx-auto">
           <Card>
             <CardHeader>

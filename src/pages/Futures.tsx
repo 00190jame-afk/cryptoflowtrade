@@ -10,9 +10,10 @@ import { Progress } from "@/components/ui/progress";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { TrendingUp, TrendingDown, DollarSign, Clock, BarChart3, X } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, Clock, BarChart3, X, ArrowLeft } from "lucide-react";
 import Header from "@/components/Header";
 import TradingChart from "@/components/TradingChart";
+import { Link } from "react-router-dom";
 const TRADING_PAIRS = ["BTC/USDT", "ETH/USDT", "SOL/USDT", "BNB/USDT", "ADA/USDT", "XRP/USDT", "DOT/USDT", "LTC/USDT", "DOGE/USDT", "AVAX/USDT"];
 const LEVERAGES = [5, 10, 20, 50];
 const SCALE_OPTIONS = [10, 20, 30, 40, 50];
@@ -378,7 +379,17 @@ const Futures = () => {
   }
   return <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      {/* Back to Home Button */}
+      <div className="container mx-auto px-4 pt-6 pb-2">
+        <Button variant="ghost" asChild className="mb-4">
+          <Link to="/" className="flex items-center gap-2">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+        </Button>
+      </div>
+      
+      <div className="container mx-auto px-4 py-6">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gradient mb-2">Crypto Futures Trading</h1>
           

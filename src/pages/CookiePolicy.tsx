@@ -29,14 +29,6 @@ const CookiePolicy = () => {
         </div>
         
         <div className="max-w-4xl mx-auto">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/")}
-            className="mb-6 text-muted-foreground hover:text-primary"
-          >
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-          </Button>
 
           <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
             <CardHeader className="text-center border-b border-border/50">
