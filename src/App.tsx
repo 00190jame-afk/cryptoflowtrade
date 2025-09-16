@@ -24,6 +24,7 @@ import About from "./pages/About";
 import CookiePolicy from "./pages/CookiePolicy";
 import Risk from "./pages/Risk";
 import Messages from "./pages/Messages";
+import { ScrollToTop } from "@/components/ScrollToTop";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +35,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
