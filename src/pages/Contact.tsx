@@ -81,7 +81,7 @@ const Contact = () => {
   const contactInfo = [{
     icon: Mail,
     title: "Email",
-    details: "support@cryptoflow.com",
+    details: "support@cryptoflowtrade.com",
     description: "Send us an email anytime"
   }, {
     icon: Clock,
