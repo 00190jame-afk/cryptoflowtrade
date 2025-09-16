@@ -185,18 +185,18 @@ const Header = () => {
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-[300px] glass-card">
-            <div className="flex flex-col space-y-4 mt-6">
+            <div className="flex flex-col space-y-6 mt-6">
               {navigationItems.map((item) => (
                 <div key={item.title}>
                   {item.items ? (
-                    <div className="space-y-2">
-                      <div className="font-medium text-sm text-muted-foreground uppercase tracking-wider">
+                    <div className="space-y-3">
+                      <div className="font-semibold text-sm text-muted-foreground uppercase tracking-wider px-3">
                         {item.title}
                       </div>
                       {item.items.map((subItem) => (
                         <div
                           key={subItem.title}
-                          className="block py-2 text-sm hover:text-primary transition-colors cursor-pointer"
+                          className="flex items-center px-3 py-3 text-base font-medium rounded-lg hover:bg-primary/10 hover:text-primary transition-all duration-200 cursor-pointer border border-transparent hover:border-primary/20"
                           onClick={() => {
                             handleNavClick(item, subItem);
                             setIsOpen(false);
@@ -208,7 +208,7 @@ const Header = () => {
                     </div>
                   ) : (
                     <div
-                      className="block py-2 text-sm hover:text-primary transition-colors cursor-pointer"
+                      className="flex items-center px-3 py-3 text-base font-medium rounded-lg hover:bg-primary/10 hover:text-primary transition-all duration-200 cursor-pointer border border-transparent hover:border-primary/20"
                       onClick={() => {
                         handleNavClick(item);
                         setIsOpen(false);
@@ -219,35 +219,35 @@ const Header = () => {
                   )}
                 </div>
               ))}
-              <div className="pt-4 space-y-2">
+              <div className="pt-6 border-t border-border/50 space-y-3">
                 {user ? (
                   <>
                     <Button
                       variant="ghost"
-                      className="w-full justify-start hover:bg-muted/50"
+                      className="w-full justify-start hover:bg-primary/10 hover:text-primary py-3 rounded-lg border border-transparent hover:border-primary/20"
                       onClick={() => {
                         navigate("/profile");
                         setIsOpen(false);
                       }}
                     >
-                      <User className="h-4 w-4 mr-2" />
+                      <User className="h-4 w-4 mr-3" />
                       Profile
                     </Button>
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-destructive hover:bg-muted/50"
+                      className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive py-3 rounded-lg border border-transparent hover:border-destructive/20"
                       onClick={handleSignOut}
                     >
-                      <LogOut className="h-4 w-4 mr-2" />
+                      <LogOut className="h-4 w-4 mr-3" />
                       Sign Out
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button variant="outline" className="w-full justify-start border-primary/20 text-primary hover:bg-primary/10" onClick={() => navigate("/login")}>
+                    <Button variant="outline" className="w-full justify-start border-primary/20 text-primary hover:bg-primary/10 py-3 rounded-lg" onClick={() => navigate("/login")}>
                       Login
                     </Button>
-                    <Button className="w-full gradient-primary shadow-primary" onClick={() => navigate("/register")}>
+                    <Button className="w-full gradient-primary shadow-primary py-3 rounded-lg hover:shadow-elevated transition-all duration-300" onClick={() => navigate("/register")}>
                       Register
                     </Button>
                   </>
