@@ -482,22 +482,33 @@ export default function Profile() {
                   Wallet Settings
                 </CardTitle>
                 <CardDescription>
-                  Link your crypto wallet address
+                  {walletAddress ? "Replace your linked wallet address" : "Link your crypto wallet address"}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
+                  {walletAddress && (
+                    <div className="text-sm bg-muted p-3 rounded break-all border-l-4 border-l-primary">
+                      <Label className="text-xs text-muted-foreground">Currently Linked Address:</Label>
+                      <div className="mt-1 font-mono">{walletAddress}</div>
+                    </div>
+                  )}
                   <div className="flex gap-2">
-                    <Input value={walletAddressInput} onChange={e => setWalletAddressInput(e.target.value)} placeholder="Enter your wallet address" />
+                    <Input 
+                      value={walletAddressInput} 
+                      onChange={e => setWalletAddressInput(e.target.value)} 
+                      placeholder={walletAddress ? "Enter new wallet address to replace current one" : "Enter your wallet address"} 
+                    />
                     <Button onClick={handleSaveWalletAddress} disabled={walletLoading}>
                       {walletLoading && <Loader2 className="h-4 w-4 animate-spin mr-2" />}
-                      Save
+                      {walletAddress ? "Replace" : "Link"}
                     </Button>
                   </div>
-                  {walletAddress && <div className="text-sm bg-muted p-3 rounded break-all">
-                      <Label className="text-xs text-muted-foreground">Current Address:</Label>
-                      <div className="mt-1">{walletAddress}</div>
-                    </div>}
+                  {walletAddress && (
+                    <p className="text-xs text-muted-foreground">
+                      ⚠️ Replacing your wallet address will unlink the current address. Only one address can be linked at a time.
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
