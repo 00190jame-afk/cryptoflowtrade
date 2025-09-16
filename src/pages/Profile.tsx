@@ -13,7 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Edit, Shield, Settings, Mail, User, Wallet } from "lucide-react";
+import { Loader2, Edit, Shield, Settings, Mail, User, Wallet, MessageCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Header from "@/components/Header";
 interface UserProfile {
@@ -508,9 +508,13 @@ export default function Profile() {
                   Get help when you need it
                 </CardDescription>
               </CardHeader>
-              <CardContent>
-                <Button variant="outline" onClick={() => navigate('/contact')} className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
+              <CardContent className="space-y-3">
+                <Button variant="outline" onClick={() => navigate('/user-messages')} className="w-full justify-start">
+                  <MessageCircle className="mr-2 h-4 w-4" />
+                  User Messages
+                </Button>
+                <Button variant="outline" onClick={() => navigate('/contact')} className="w-full justify-start">
+                  <Mail className="mr-2 h-4 w-4" />
                   Contact Support
                 </Button>
               </CardContent>
