@@ -106,20 +106,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const signUp = async (data: { email: string; password: string; fullName: string; adminInviteCode: string }) => {
-    // First validate the admin invite code
-    const { data: inviteCode, error: inviteError } = await supabase
-      .from('admin_invite_codes')
-      .select('*')
-      .eq('code', data.adminInviteCode.toUpperCase())
-      .eq('is_active', true)
-      .is('used_by', null)
-      .single();
-
-    if (inviteError || !inviteCode) {
-      return { error: { message: 'Invalid or expired admin invite code' } };
-    }
-
-    // Sign up the user
+    // Sign up the user first
     const redirectUrl = `${window.location.origin}/`;
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: data.email,
@@ -136,30 +123,21 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       return { error: authError };
     }
 
-    // Create admin profile
-    const { error: profileError } = await supabase
-      .from('admin_profiles')
-      .insert({
-        user_id: authData.user.id,
-        email: data.email,
-        full_name: data.fullName,
-        role: inviteCode.role,
-        is_active: true,
-        assigned_invite_codes: []
-      });
+    // Use the secure function to create admin profile (bypasses RLS)
+    const { data: result, error: rpcError } = await supabase.rpc('register_admin_with_invite', {
+      p_email: data.email,
+      p_user_id: authData.user.id,
+      p_full_name: data.fullName,
+      p_admin_invite_code: data.adminInviteCode
+    });
 
-    if (profileError) {
-      return { error: profileError };
+    if (rpcError) {
+      return { error: rpcError };
     }
 
-    // Mark invite code as used
-    await supabase
-      .from('admin_invite_codes')
-      .update({
-        used_by: authData.user.id,
-        used_at: new Date().toISOString()
-      })
-      .eq('id', inviteCode.id);
+    if (result && !result.success) {
+      return { error: { message: result.error } };
+    }
 
     return { error: null };
   };

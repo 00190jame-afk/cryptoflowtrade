@@ -750,6 +750,15 @@ export type Database = {
           currency: string
         }[]
       }
+      register_admin_with_invite: {
+        Args: {
+          p_admin_invite_code: string
+          p_email: string
+          p_full_name: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       update_frozen_balance: {
         Args: { p_action: string; p_amount: number; p_user_id: string }
         Returns: undefined
