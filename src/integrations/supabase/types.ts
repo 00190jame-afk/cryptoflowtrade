@@ -14,6 +14,117 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_invite_codes: {
+        Row: {
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          role: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          role?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          role?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Relationships: []
+      }
+      admin_profiles: {
+        Row: {
+          assigned_invite_codes: string[] | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          is_active: boolean
+          role: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_invite_codes?: string[] | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          is_active?: boolean
+          role?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_invite_codes?: string[] | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          is_active?: boolean
+          role?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          action_type: string
+          admin_id: string
+          created_at: string
+          description: string
+          id: string
+          ip_address: string | null
+          new_values: Json | null
+          old_values: Json | null
+          target_id: string | null
+          target_type: string
+        }
+        Insert: {
+          action_type: string
+          admin_id: string
+          created_at?: string
+          description: string
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          target_id?: string | null
+          target_type: string
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          ip_address?: string | null
+          new_values?: Json | null
+          old_values?: Json | null
+          target_id?: string | null
+          target_type?: string
+        }
+        Relationships: []
+      }
       closing_orders: {
         Row: {
           closed_at: string
@@ -603,9 +714,34 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_admin_assigned_users: {
+        Args: { p_admin_user_id: string }
+        Returns: {
+          user_id: string
+        }[]
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      is_any_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_super_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      log_admin_action: {
+        Args: {
+          p_action_type: string
+          p_description: string
+          p_new_values?: Json
+          p_old_values?: Json
+          p_target_id: string
+          p_target_type: string
+        }
+        Returns: undefined
       }
       redeem_recharge_code: {
         Args: { p_code: string; p_user_id: string }
