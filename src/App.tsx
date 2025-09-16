@@ -23,7 +23,7 @@ import Privacy from "./pages/Privacy";
 import About from "./pages/About";
 import CookiePolicy from "./pages/CookiePolicy";
 import Risk from "./pages/Risk";
-import UserMessages from "./pages/UserMessages";
+import Messages from "./pages/Messages";
 
 const queryClient = new QueryClient();
 
@@ -53,7 +53,7 @@ const App = () => (
             <Route path="/about" element={<About />} />
             <Route path="/cookies" element={<CookiePolicy />} />
             <Route path="/risk" element={<Risk />} />
-            <Route path="/user-messages" element={<UserMessages />} />
+            <Route path="/messages" element={<Messages />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

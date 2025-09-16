@@ -509,7 +509,7 @@ export default function Profile() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                <Button variant="outline" onClick={() => navigate('/user-messages')} className="w-full justify-start">
+                <Button variant="outline" onClick={() => navigate('/messages')} className="w-full justify-start">
                   <MessageCircle className="mr-2 h-4 w-4" />
                   User Messages
                 </Button>
