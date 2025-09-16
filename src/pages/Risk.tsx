@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { Button } from "@/components/ui/button";
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 const Risk = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -10,6 +13,16 @@ const Risk = () => {
       
       <main className="flex-1 pt-24 pb-16">
         <div className="container mx-auto px-4 max-w-4xl">
+          {/* Back to Home Button */}
+          <div className="mb-6">
+            <Button variant="ghost" asChild className="mb-4">
+              <Link to="/" className="flex items-center gap-2">
+                <ArrowLeft className="h-4 w-4" />
+                Back to Home
+              </Link>
+            </Button>
+          </div>
+          
           {/* Page Header */}
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-3xl md:text-5xl font-bold mb-4">
