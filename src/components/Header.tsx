@@ -244,7 +244,7 @@ const Header = () => {
                   </>
                 ) : (
                   <>
-                    <Button variant="ghost" className="w-full justify-start hover:bg-muted/50" onClick={() => navigate("/login")}>
+                    <Button variant="outline" className="w-full justify-start border-primary/20 text-primary hover:bg-primary/10" onClick={() => navigate("/login")}>
                       Login
                     </Button>
                     <Button className="w-full gradient-primary shadow-primary" onClick={() => navigate("/register")}>
