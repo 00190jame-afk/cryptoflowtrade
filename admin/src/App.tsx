@@ -3,6 +3,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AdminAuthProvider, useAdminAuth } from '@/contexts/AdminAuthContext';
 import { AuthPage } from '@/pages/AuthPage';
 import { DashboardPage } from '@/pages/DashboardPage';
+import { UsersPage } from '@/pages/UsersPage';
+import { TradesPage } from '@/pages/TradesPage';
+import { InviteCodesPage } from '@/pages/InviteCodesPage';
+import { AdminManagementPage } from '@/pages/AdminManagementPage';
+import { SettingsPage } from '@/pages/SettingsPage';
 import { AdminLayout } from '@/components/AdminLayout';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -74,6 +79,56 @@ const AppContent: React.FC = () => {
           <ProtectedRoute>
             <AdminLayout>
               <DashboardPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/users"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <UsersPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/trades"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <TradesPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/invite-codes"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <InviteCodesPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin-management"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <AdminManagementPage />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <SettingsPage />
             </AdminLayout>
           </ProtectedRoute>
         }

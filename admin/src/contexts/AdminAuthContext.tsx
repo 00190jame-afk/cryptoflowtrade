@@ -55,7 +55,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         
         if (session?.user) {
           // Fetch admin profile
-          setTimeout(async () => {
+          const fetchProfile = async () => {
             const { data: profile } = await supabase
               .from('admin_profiles')
               .select('*')
@@ -64,7 +64,8 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
             
             setAdminProfile(profile);
             setLoading(false);
-          }, 0);
+          };
+          fetchProfile();
         } else {
           setAdminProfile(null);
           setLoading(false);
@@ -79,7 +80,7 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       
       if (session?.user) {
         // Fetch admin profile
-        setTimeout(async () => {
+        const fetchProfile = async () => {
           const { data: profile } = await supabase
             .from('admin_profiles')
             .select('*')
@@ -88,7 +89,8 @@ export const AdminAuthProvider: React.FC<{ children: React.ReactNode }> = ({ chi
           
           setAdminProfile(profile);
           setLoading(false);
-        }, 0);
+        };
+        fetchProfile();
       } else {
         setLoading(false);
       }
