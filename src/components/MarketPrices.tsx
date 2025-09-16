@@ -1,73 +1,25 @@
-import { useState, useEffect } from "react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { TrendingUp, TrendingDown, RefreshCw } from "lucide-react";
-
-interface CoinData {
-  id: string;
-  symbol: string;
-  name: string;
-  current_price: number;
-  price_change_percentage_24h: number;
-  market_cap: number;
-  total_volume: number;
-  market_cap_rank: number;
-}
+import { Button } from "@/components/ui/button";
+import { TrendingUp, TrendingDown, RefreshCw, Wifi, WifiOff, Clock } from "lucide-react";
+import { useMarketData } from "@/hooks/useMarketData";
+import { usePerformance } from "@/hooks/usePerformance";
 
 export const MarketPrices = () => {
-  const [coins, setCoins] = useState<CoinData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [lastUpdate, setLastUpdate] = useState<Date | null>(null);
-
-  const fetchMarketData = async () => {
-    try {
-      // Fetch from CoinGecko but update Bitcoin price from Binance for consistency
-      const [marketResponse, btcPriceResponse] = await Promise.all([
-        fetch('https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=100&page=1&sparkline=false'),
-        fetch('https://api.binance.com/api/v3/ticker/price?symbol=BTCUSDT')
-      ]);
-      
-      if (!marketResponse.ok) {
-        throw new Error('Failed to fetch market data');
-      }
-      
-      const data: CoinData[] = await marketResponse.json();
-      
-      // Update Bitcoin price with Binance data for consistency with Futures page
-      if (btcPriceResponse.ok) {
-        const btcData = await btcPriceResponse.json();
-        const btcPrice = parseFloat(btcData.price);
-        
-        const btcIndex = data.findIndex(coin => coin.symbol === 'btc');
-        if (btcIndex !== -1) {
-          const originalPrice = data[btcIndex].current_price;
-          data[btcIndex].current_price = btcPrice;
-          // Recalculate market cap with new price
-          data[btcIndex].market_cap = (data[btcIndex].market_cap / originalPrice) * btcPrice;
-        }
-      }
-      
-      // Sort by market cap rank to ensure correct order
-      const sortedData = data.sort((a, b) => a.market_cap_rank - b.market_cap_rank);
-      setCoins(sortedData);
-      setLastUpdate(new Date());
-    } catch (error) {
-      console.error('Error fetching market data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMarketData();
-    
-    // Auto-refresh every 60 seconds
-    const interval = setInterval(fetchMarketData, 60000);
-    
-    return () => clearInterval(interval);
-  }, []);
+  usePerformance('MarketPrices');
+  
+  const { 
+    data: coins, 
+    isLoading, 
+    isError, 
+    error, 
+    isRefetching, 
+    isOnline, 
+    refreshData, 
+    lastUpdated 
+  } = useMarketData();
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -91,7 +43,7 @@ export const MarketPrices = () => {
     return formatCurrency(value);
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card className="glass-card border-border/50">
         <CardHeader>
@@ -117,23 +69,66 @@ export const MarketPrices = () => {
     );
   }
 
+  if (isError) {
+    return (
+      <Card className="glass-card border-border/50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-destructive">
+            <WifiOff className="h-5 w-5" />
+            Connection Error
+          </CardTitle>
+          <CardDescription>
+            {error?.message || 'Failed to load market data'}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button onClick={refreshData} disabled={!isOnline} className="w-full">
+            <RefreshCw className="h-4 w-4 mr-2" />
+            {isOnline ? 'Try Again' : 'Offline'}
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card className="glass-card border-border/50">
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
           <CardTitle className="flex items-center gap-2">
             Market Prices
-            <RefreshCw className="h-4 w-4 text-muted-foreground" />
+            {isRefetching ? (
+              <RefreshCw className="h-4 w-4 text-muted-foreground animate-spin" />
+            ) : (
+              <div className="flex items-center gap-2">
+                {isOnline ? (
+                  <Wifi className="h-4 w-4 text-green-500" />
+                ) : (
+                  <WifiOff className="h-4 w-4 text-muted-foreground" />
+                )}
+              </div>
+            )}
           </CardTitle>
           <CardDescription>
-            Top 100 cryptocurrencies by market cap
-            {lastUpdate && (
-              <span className="block text-xs mt-1">
-                Last updated: {lastUpdate.toLocaleTimeString()}
+            Top 20 cryptocurrencies by market cap
+            {lastUpdated && (
+              <span className="flex items-center gap-1 text-xs mt-1">
+                <Clock className="h-3 w-3" />
+                Last updated: {new Date(lastUpdated).toLocaleTimeString()}
               </span>
             )}
           </CardDescription>
         </div>
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={refreshData} 
+          disabled={isRefetching || !isOnline}
+          className="ml-4"
+        >
+          <RefreshCw className={`h-4 w-4 mr-2 ${isRefetching ? 'animate-spin' : ''}`} />
+          Refresh
+        </Button>
       </CardHeader>
       <CardContent>
         <div className="rounded-md border border-border/50 overflow-hidden">
@@ -151,10 +146,10 @@ export const MarketPrices = () => {
             </TableHeader>
             <TableBody>
               {coins.map((coin) => (
-                <TableRow key={coin.id} className="border-border/50 hover:bg-muted/5">
-                  <TableCell className="font-medium">
-                    #{coin.market_cap_rank}
-                  </TableCell>
+                 <TableRow key={coin.id} className="border-border/50 hover:bg-muted/5">
+                   <TableCell className="font-medium">
+                     #{coins.indexOf(coin) + 1}
+                   </TableCell>
                   <TableCell>
                     <span className="font-semibold uppercase text-sm">
                       {coin.symbol}

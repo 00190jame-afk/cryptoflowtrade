@@ -2,9 +2,15 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Shield, Zap, Globe, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
+import { LazyImage } from "@/components/ui/lazy-image";
+import { usePrefetch } from "@/hooks/usePrefetch";
+import { usePerformance } from "@/hooks/usePerformance";
 import heroBackground from "@/assets/hero-bg.jpg";
 
 const Hero = () => {
+  usePerformance('Hero');
+  const { prefetchOnHover } = usePrefetch();
+  
   const stats = [
     { label: "Daily Volume", value: "$2.4B", icon: TrendingUp },
     { label: "Users Worldwide", value: "50M+", icon: Globe },
@@ -15,9 +21,11 @@ const Hero = () => {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ backgroundImage: `url(${heroBackground})` }}
+      <LazyImage
+        src={heroBackground}
+        alt="CryptoFlow trading platform background"
+        loading="eager"
+        className="absolute inset-0 w-full h-full object-cover"
       />
       <div className="absolute inset-0 bg-gradient-to-br from-background/90 via-background/60 to-primary/20" />
       
@@ -57,7 +65,10 @@ const Hero = () => {
               size="lg" 
               className="gradient-primary shadow-primary hover:shadow-elevated transition-all duration-300 text-lg px-8 py-6 group"
             >
-              <Link to="/futures">
+              <Link 
+                to="/futures" 
+                onMouseEnter={prefetchOnHover('/futures')}
+              >
                 Start Trading Now
                 <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
               </Link>
@@ -68,7 +79,10 @@ const Hero = () => {
               size="lg" 
               className="border-primary/30 hover:bg-primary/10 text-lg px-8 py-6 glass-card"
             >
-              <Link to="/markets">
+              <Link 
+                to="/markets" 
+                onMouseEnter={prefetchOnHover('/markets')}
+              >
                 Explore Markets
               </Link>
             </Button>
