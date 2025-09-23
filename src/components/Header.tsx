@@ -26,8 +26,8 @@ const Header = () => {
   const handleNavClick = (item: any, subItem?: any) => {
     const target = subItem || item;
     
-    // Redirect to login for Trading and Assets if user is not logged in
-    if (!user && (item.title === "Trading" || item.title === "Assets")) {
+    // Redirect to login for Trading, Assets, and Contact if user is not logged in
+    if (!user && (item.title === "Trading" || item.title === "Assets" || (subItem && subItem.title === "Contact Us"))) {
       navigate("/login");
       return;
     }
