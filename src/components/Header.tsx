@@ -191,26 +191,26 @@ const Header = () => {
             </Button>
           </SheetTrigger>
           <SheetContent side="right" className="w-[300px] glass-card">
-            <div className="flex flex-col space-y-6 mt-6">
+            <div className="flex flex-col space-y-2 mt-4">
               {navigationItems.map((item) => (
                 <div key={item.title}>
                   {item.items ? (
-                    <div className="space-y-2">
-                      <div className="flex items-center px-4 py-2 font-semibold text-sm text-primary/80 uppercase tracking-wider bg-primary/5 rounded-lg border border-primary/10">
-                        <item.icon className="h-4 w-4 mr-3" />
+                    <div className="space-y-1">
+                      <div className="flex items-center px-3 py-1.5 font-semibold text-xs text-primary/80 uppercase tracking-wider bg-primary/5 rounded-md border border-primary/10">
+                        <item.icon className="h-3 w-3 mr-2" />
                         {item.title}
                       </div>
-                      <div className="pl-4 space-y-1">
+                      <div className="pl-2 space-y-0.5">
                         {item.items.map((subItem) => (
                           <div
                             key={subItem.title}
-                            className="flex items-center px-4 py-3 text-base font-medium rounded-lg hover:bg-primary/10 hover:text-primary transition-all duration-200 cursor-pointer border border-transparent hover:border-primary/20 ml-2"
+                            className="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-primary/10 hover:text-primary transition-all duration-200 cursor-pointer border border-transparent hover:border-primary/20 ml-1"
                             onClick={() => {
                               handleNavClick(item, subItem);
                               setIsOpen(false);
                             }}
                           >
-                            <subItem.icon className="h-4 w-4 mr-3 text-muted-foreground" />
+                            <subItem.icon className="h-3 w-3 mr-2 text-muted-foreground" />
                             {subItem.title}
                           </div>
                         ))}
@@ -218,47 +218,47 @@ const Header = () => {
                     </div>
                   ) : (
                     <div
-                      className="flex items-center px-4 py-3 text-base font-medium rounded-lg hover:bg-primary/10 hover:text-primary transition-all duration-200 cursor-pointer border border-transparent hover:border-primary/20"
+                      className="flex items-center px-3 py-2 text-sm font-medium rounded-md hover:bg-primary/10 hover:text-primary transition-all duration-200 cursor-pointer border border-transparent hover:border-primary/20"
                       onClick={() => {
                         handleNavClick(item);
                         setIsOpen(false);
                       }}
                     >
-                      <item.icon className="h-4 w-4 mr-3 text-muted-foreground" />
+                      <item.icon className="h-3 w-3 mr-2 text-muted-foreground" />
                       {item.title}
                     </div>
                   )}
                 </div>
               ))}
-              <div className="pt-6 border-t border-border/50 space-y-3">
+              <div className="pt-3 border-t border-border/50 space-y-2">
                 {user ? (
                   <>
                     <Button
                       variant="ghost"
-                      className="w-full justify-start hover:bg-primary/10 hover:text-primary py-3 rounded-lg border border-transparent hover:border-primary/20"
+                      className="w-full justify-start hover:bg-primary/10 hover:text-primary py-2 rounded-md border border-transparent hover:border-primary/20 text-sm"
                       onClick={() => {
                         navigate("/profile");
                         setIsOpen(false);
                       }}
                     >
-                      <User className="h-4 w-4 mr-3" />
+                      <User className="h-3 w-3 mr-2" />
                       Profile
                     </Button>
                     <Button
                       variant="ghost"
-                      className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive py-3 rounded-lg border border-transparent hover:border-destructive/20"
+                      className="w-full justify-start text-destructive hover:bg-destructive/10 hover:text-destructive py-2 rounded-md border border-transparent hover:border-destructive/20 text-sm"
                       onClick={handleSignOut}
                     >
-                      <LogOut className="h-4 w-4 mr-3" />
+                      <LogOut className="h-3 w-3 mr-2" />
                       Sign Out
                     </Button>
                   </>
                 ) : (
                   <>
-                    <Button variant="outline" className="w-full justify-start border-primary/20 text-primary hover:bg-primary/10 py-3 rounded-lg" onClick={() => navigate("/login")}>
+                    <Button variant="outline" className="w-full justify-start border-primary/20 text-primary hover:bg-primary/10 py-2 rounded-md text-sm" onClick={() => navigate("/login")}>
                       Login
                     </Button>
-                    <Button className="w-full gradient-primary shadow-primary py-3 rounded-lg hover:shadow-elevated transition-all duration-300" onClick={() => navigate("/register")}>
+                    <Button className="w-full gradient-primary shadow-primary py-2 rounded-md hover:shadow-elevated transition-all duration-300 text-sm" onClick={() => navigate("/register")}>
                       Register
                     </Button>
                   </>
