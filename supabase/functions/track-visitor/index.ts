@@ -6,6 +6,26 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Get country from IP using free ip-api.com service
+async function getCountryFromIP(ip: string): Promise<string | null> {
+  try {
+    if (ip === 'unknown' || ip === '127.0.0.1' || ip.startsWith('192.168.') || ip.startsWith('10.')) {
+      return null;
+    }
+    
+    const response = await fetch(`http://ip-api.com/json/${ip}?fields=status,country`);
+    const data = await response.json();
+    
+    if (data.status === 'success' && data.country) {
+      return data.country;
+    }
+    return null;
+  } catch (error) {
+    console.error('IP geolocation error:', error);
+    return null;
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -48,9 +68,12 @@ serve(async (req) => {
     // Extract user agent
     const userAgent = req.headers.get('user-agent') || 'unknown';
 
-    console.log(`Tracking visitor - User: ${user.id}, IP: ${ip}, UA: ${userAgent.substring(0, 50)}...`);
+    // Get country from IP
+    const ipCountry = await getCountryFromIP(ip);
 
-    // Update the user's profile with IP and user agent using service role
+    console.log(`Tracking visitor - User: ${user.id}, IP: ${ip}, Country: ${ipCountry}, UA: ${userAgent.substring(0, 50)}...`);
+
+    // Update the user's profile with IP, user agent, and country using service role
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -59,6 +82,7 @@ serve(async (req) => {
       .update({
         ip_address: ip,
         user_agent: userAgent,
+        ip_country: ipCountry,
         updated_at: new Date().toISOString(),
       })
       .eq('user_id', user.id);
@@ -73,7 +97,7 @@ serve(async (req) => {
 
     console.log(`Successfully tracked visitor for user: ${user.id}`);
 
-    return new Response(JSON.stringify({ success: true }), {
+    return new Response(JSON.stringify({ success: true, country: ipCountry }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
