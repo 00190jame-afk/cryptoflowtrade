@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageLoader, RouteLoader } from "@/components/ui/page-loader";
 import { ScrollToTop } from "@/components/ScrollToTop";
+import { useVisitorTracking } from "@/hooks/useVisitorTracking";
 
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -49,42 +50,51 @@ const queryClient = new QueryClient({
   },
 });
 
+// Wrapper component to use hooks inside AuthProvider
+const AppContent = () => {
+  useVisitorTracking();
+  
+  return (
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <ScrollToTop />
+        <Suspense fallback={null}>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/news" element={<NewsPage />} />
+            <Route path="/markets" element={<Markets />} />
+            <Route path="/assets" element={<Assets />} />
+            <Route path="/recharge" element={<Recharge />} />
+            <Route path="/futures" element={<Futures />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/help" element={<Help />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/cookies" element={<CookiePolicy />} />
+            <Route path="/risk" element={<Risk />} />
+            <Route path="/messages" element={<Messages />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </TooltipProvider>
+  );
+};
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <ScrollToTop />
-            <Suspense fallback={null}>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="/news" element={<NewsPage />} />
-                <Route path="/markets" element={<Markets />} />
-                <Route path="/assets" element={<Assets />} />
-                <Route path="/recharge" element={<Recharge />} />
-                <Route path="/futures" element={<Futures />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/help" element={<Help />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/terms" element={<Terms />} />
-                <Route path="/privacy" element={<Privacy />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/cookies" element={<CookiePolicy />} />
-                <Route path="/risk" element={<Risk />} />
-                <Route path="/messages" element={<Messages />} />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Suspense>
-          </BrowserRouter>
-        </TooltipProvider>
+        <AppContent />
       </AuthProvider>
     </QueryClientProvider>
   </ErrorBoundary>
