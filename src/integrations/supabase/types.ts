@@ -182,8 +182,10 @@ export type Database = {
           email: string
           first_name: string
           id: string
+          is_read: boolean | null
           last_name: string
           message: string
+          replied_at: string | null
           subject: string
         }
         Insert: {
@@ -191,8 +193,10 @@ export type Database = {
           email: string
           first_name: string
           id?: string
+          is_read?: boolean | null
           last_name: string
           message: string
+          replied_at?: string | null
           subject: string
         }
         Update: {
@@ -200,8 +204,10 @@ export type Database = {
           email?: string
           first_name?: string
           id?: string
+          is_read?: boolean | null
           last_name?: string
           message?: string
+          replied_at?: string | null
           subject?: string
         }
         Relationships: []
@@ -254,6 +260,7 @@ export type Database = {
           id: string
           is_read: boolean
           message: string
+          reply_to_contact_id: string | null
           user_id: string
         }
         Insert: {
@@ -261,6 +268,7 @@ export type Database = {
           id?: string
           is_read?: boolean
           message: string
+          reply_to_contact_id?: string | null
           user_id: string
         }
         Update: {
@@ -268,9 +276,18 @@ export type Database = {
           id?: string
           is_read?: boolean
           message?: string
+          reply_to_contact_id?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "messages_reply_to_contact_id_fkey"
+            columns: ["reply_to_contact_id"]
+            isOneToOne: false
+            referencedRelation: "contact_messages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       positions_orders: {
         Row: {
@@ -347,12 +364,14 @@ export type Database = {
           first_name: string | null
           full_name: string | null
           id: string
+          ip_address: string | null
           is_verified: boolean | null
           last_name: string | null
           phone: string | null
           postal_code: string | null
           role: string | null
           updated_at: string
+          user_agent: string | null
           user_id: string
           username: string | null
           wallet_address: string | null
@@ -369,12 +388,14 @@ export type Database = {
           first_name?: string | null
           full_name?: string | null
           id?: string
+          ip_address?: string | null
           is_verified?: boolean | null
           last_name?: string | null
           phone?: string | null
           postal_code?: string | null
           role?: string | null
           updated_at?: string
+          user_agent?: string | null
           user_id: string
           username?: string | null
           wallet_address?: string | null
@@ -391,12 +412,14 @@ export type Database = {
           first_name?: string | null
           full_name?: string | null
           id?: string
+          ip_address?: string | null
           is_verified?: boolean | null
           last_name?: string | null
           phone?: string | null
           postal_code?: string | null
           role?: string | null
           updated_at?: string
+          user_agent?: string | null
           user_id?: string
           username?: string | null
           wallet_address?: string | null
