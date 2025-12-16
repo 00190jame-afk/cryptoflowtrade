@@ -19,7 +19,7 @@ const Register = () => {
   const [inviteCodeValid, setInviteCodeValid] = useState<boolean | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
   const [verificationSent, setVerificationSent] = useState(false);
-  const [showVerification, setShowVerification] = useState(false);
+  const [countdown, setCountdown] = useState(0);
   const [devCode, setDevCode] = useState<string | null>(null);
   
   const { signUp, user, validateInviteCode, sendVerificationCode, verifyEmailCode } = useAuth();
@@ -30,6 +30,14 @@ const Register = () => {
       navigate("/");
     }
   }, [user, navigate]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
 
   const handleSendVerification = async () => {
     if (!email.trim()) {
@@ -42,7 +50,7 @@ const Register = () => {
     
     if (!error) {
       setVerificationSent(true);
-      setShowVerification(true);
+      setCountdown(60);
       if (code) setDevCode(code);
       alert("Verification code sent to your email!");
     } else {
@@ -148,33 +156,30 @@ const Register = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Email Verification</Label>
-                {!showVerification ? (
+                <Label>Verification code</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Enter verification code"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    maxLength={6}
+                    className="flex-1"
+                  />
                   <Button
                     type="button"
                     onClick={handleSendVerification}
                     variant="secondary"
-                    className="w-full"
-                    disabled={loading || !email.trim()}
+                    disabled={loading || !email.trim() || countdown > 0}
+                    className="min-w-[80px]"
                   >
-                    {loading ? "Sending..." : "Send Verification Code"}
+                    {countdown > 0 ? `${countdown}s` : "Obtain"}
                   </Button>
-                ) : (
-                  <>
-                    <Input
-                      placeholder="Enter 6-digit verification code"
-                      value={verificationCode}
-                      onChange={(e) => setVerificationCode(e.target.value)}
-                      maxLength={6}
-                      required
-                    />
-                    {verificationSent && (
-                      <p className="text-xs text-green-600">
-                        Verification code sent to your email. Please check your inbox.
-                      </p>
-                    )}
-                  </>
-                )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {verificationSent 
+                    ? "Verification code sent to your email" 
+                    : "Please enter verification code"}
+                </p>
               </div>
 
               <div className="space-y-2">
