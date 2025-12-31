@@ -49,22 +49,74 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     )
 
-    console.log('🔍 Checking for expired trades to auto-lose...')
+    console.log('🔍 Starting auto-lose-trades processing...')
 
-    // Find all pending trades that have passed their end time (AUTO-LOSE)
+    // ========== STEP 1: Process admin-set WINS (decision='win' and execute_at passed) ==========
+    console.log('🎯 Checking for admin-set wins ready to execute...')
+    const { data: adminWins, error: adminWinsError } = await supabaseClient
+      .from('trades')
+      .select('id, user_id, trading_pair, stake_amount, entry_price, leverage, direction, profit_rate, current_price')
+      .eq('status', 'pending')
+      .eq('decision', 'win')
+      .not('execute_at', 'is', null)
+      .lte('execute_at', new Date().toISOString())
+
+    if (adminWinsError) {
+      console.error('❌ Error fetching admin wins:', adminWinsError)
+    }
+
+    let adminWinsProcessed = 0
+    if (adminWins && adminWins.length > 0) {
+      console.log(`🎯 Found ${adminWins.length} admin-set win trades ready to process`)
+
+      for (const trade of adminWins) {
+        try {
+          // Calculate profit
+          const profit = Math.round((Number(trade.stake_amount) * Number(trade.profit_rate) / 100) * 100) / 100
+          
+          // Update trade status to 'win' (finalize section will credit balance after ends_at)
+          const { error: updateError } = await supabaseClient
+            .from('trades')
+            .update({
+              status: 'win',
+              result: 'win',
+              profit_loss_amount: profit,
+              status_indicator: '🟢 WIN'
+            })
+            .eq('id', trade.id)
+
+          if (updateError) {
+            console.error(`❌ Error updating admin win trade ${trade.id}:`, updateError)
+            continue
+          }
+
+          console.log(`✅ Trade ${trade.id} status changed to WIN (admin decision) - will finalize after ends_at`)
+          adminWinsProcessed++
+        } catch (err) {
+          console.error(`❌ Error processing admin win trade ${trade.id}:`, err)
+        }
+      }
+    } else {
+      console.log('🎯 No admin-set wins ready to execute')
+    }
+
+    // ========== STEP 2: Process expired pending trades (auto-lose) ==========
+    // Only auto-lose trades that do NOT have decision='win'
+    console.log('🔍 Checking for expired trades to auto-lose...')
     const { data: expiredTrades, error: fetchError } = await supabaseClient
       .from('trades')
       .select('id, user_id, trading_pair, stake_amount, entry_price, leverage, direction, profit_rate')
       .eq('status', 'pending')
       .not('ends_at', 'is', null)
       .lt('ends_at', new Date().toISOString())
+      .or('decision.is.null,decision.neq.win')
 
     if (fetchError) {
       console.error('❌ Error fetching expired trades:', fetchError)
       throw fetchError
     }
 
-    console.log(`📊 Found ${expiredTrades?.length ?? 0} expired pending trades to auto-lose`)
+    console.log(`📊 Found ${expiredTrades?.length ?? 0} expired pending trades to auto-lose (no win decision)`)
 
     let processedLoses = 0
     for (const trade of expiredTrades ?? []) {
@@ -143,7 +195,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // Now process COMPLETED WINS (scheduled) - Only finalize after ends_at
+    // ========== STEP 3: Finalize completed WINS (status='win', ends_at passed) ==========
     console.log('🔍 Checking for scheduled wins to finalize...')
     const { data: winsToComplete, error: winsErr } = await supabaseClient
       .from('trades')
@@ -294,8 +346,9 @@ Deno.serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         message: 'Expired trades processed successfully',
+        adminWinsProcessed,
         losesProcessed: processedLoses,
-        winsProcessed: processedWins,
+        winsFinalized: processedWins,
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
