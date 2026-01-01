@@ -278,7 +278,8 @@ Deno.serve(async (req) => {
           .update({
             completed_at: new Date().toISOString(),
             result: 'win',
-            profit_loss_amount: profitAmount
+            profit_loss_amount: profitAmount,
+            status_indicator: '🟢 WIN'
           })
           .eq('id', trade.id)
         if (updWinErr) throw updWinErr
