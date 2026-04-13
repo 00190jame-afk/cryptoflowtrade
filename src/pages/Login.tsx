@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, TrendingUp } from "lucide-react";
 
 const Login = () => {
@@ -45,7 +46,6 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     const { error } = await signIn(email, password);
-    setLoading(false);
 
     if (rememberPassword) {
       localStorage.setItem(
@@ -54,6 +54,27 @@ const Login = () => {
       );
     } else {
       localStorage.removeItem("cryptoflow_credentials");
+    }
+
+    if (!error) {
+      // Check admin role for redirect
+      const { data: adminProfile } = await supabase
+        .from('admin_profiles')
+        .select('role, is_active')
+        .eq('user_id', (await supabase.auth.getUser()).data.user?.id || '')
+        .eq('is_active', true)
+        .maybeSingle();
+
+      setLoading(false);
+      if (adminProfile?.role === 'super_admin') {
+        navigate('/super-admin');
+      } else if (adminProfile?.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    } else {
+      setLoading(false);
     }
   };
 
