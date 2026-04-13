@@ -9,6 +9,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PageLoader, RouteLoader } from "@/components/ui/page-loader";
 import { ScrollToTop } from "@/components/ScrollToTop";
 import { useVisitorTracking } from "@/hooks/useVisitorTracking";
+import { AdminRoute } from "@/components/AdminRoute";
 
 // Lazy load pages for code splitting
 const Index = lazy(() => import("./pages/Index"));
@@ -31,6 +32,8 @@ const About = lazy(() => import("./pages/About"));
 const CookiePolicy = lazy(() => import("./pages/CookiePolicy"));
 const Risk = lazy(() => import("./pages/Risk"));
 const Messages = lazy(() => import("./pages/Messages"));
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+const SuperAdminDashboard = lazy(() => import("./pages/SuperAdminDashboard"));
 
 // Configure React Query with optimized settings
 const queryClient = new QueryClient({
@@ -81,6 +84,8 @@ const AppContent = () => {
             <Route path="/cookies" element={<CookiePolicy />} />
             <Route path="/risk" element={<Risk />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/admin" element={<AdminRoute requiredRole="admin"><AdminDashboard /></AdminRoute>} />
+            <Route path="/super-admin" element={<AdminRoute requiredRole="super_admin"><SuperAdminDashboard /></AdminRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
