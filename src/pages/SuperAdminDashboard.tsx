@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label";
 import {
   Users, TrendingUp, Ticket, CreditCard, ArrowDownToLine,
   MessageSquare, LogOut, RefreshCw, Plus, Send, Check, X,
-  DollarSign, Shield, Settings, BarChart3,
+  DollarSign, Shield, Settings, BarChart3, Home,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -270,9 +270,14 @@ const SuperAdminDashboard = () => {
               <p className="text-sm text-muted-foreground">{adminProfile?.email}</p>
             </div>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4 mr-2" /> Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => navigate("/")}>
+              <Home className="h-4 w-4 mr-2" /> Back to Home
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4 mr-2" /> Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 

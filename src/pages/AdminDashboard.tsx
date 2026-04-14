@@ -18,7 +18,7 @@ import {
 import { Label } from "@/components/ui/label";
 import {
   Users, TrendingUp, Ticket, CreditCard, ArrowDownToLine,
-  MessageSquare, LogOut, RefreshCw, Plus, Send, Check, X, DollarSign,
+  MessageSquare, LogOut, RefreshCw, Plus, Send, Check, X, DollarSign, Home,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -246,9 +246,14 @@ const AdminDashboard = () => {
             <h1 className="text-xl font-bold text-foreground">Admin Dashboard</h1>
             <p className="text-sm text-muted-foreground">{adminProfile?.email}</p>
           </div>
-          <Button variant="ghost" size="sm" onClick={handleSignOut}>
-            <LogOut className="h-4 w-4 mr-2" /> Sign Out
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={() => navigate("/")}>
+              <Home className="h-4 w-4 mr-2" /> Back to Home
+            </Button>
+            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4 mr-2" /> Sign Out
+            </Button>
+          </div>
         </div>
       </header>
 
