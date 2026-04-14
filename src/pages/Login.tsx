@@ -15,15 +15,33 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [rememberPassword, setRememberPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
   
   const { signIn, user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      navigate("/");
+    if (user && !isRedirecting) {
+      // User is already logged in but not mid-login, check role then redirect
+      const checkAndRedirect = async () => {
+        const { data: adminProfile } = await supabase
+          .from('admin_profiles')
+          .select('role, is_active')
+          .eq('user_id', user.id)
+          .eq('is_active', true)
+          .maybeSingle();
+
+        if (adminProfile?.role === 'super_admin') {
+          navigate('/super-admin');
+        } else if (adminProfile?.role === 'admin') {
+          navigate('/admin');
+        } else {
+          navigate('/');
+        }
+      };
+      checkAndRedirect();
     }
-  }, [user, navigate]);
+  }, [user, navigate, isRedirecting]);
 
   // Load saved credentials when "Remember password" was enabled
   useEffect(() => {
@@ -45,6 +63,7 @@ const Login = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setIsRedirecting(true);
     const { error } = await signIn(email, password);
 
     if (rememberPassword) {

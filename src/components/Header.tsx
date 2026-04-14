@@ -3,8 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { NavigationMenu, NavigationMenuContent, NavigationMenuItem, NavigationMenuLink, NavigationMenuList, NavigationMenuTrigger } from "@/components/ui/navigation-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, ChevronDown, TrendingUp, LogOut, User, Home, BarChart3, Newspaper, Wallet, HelpCircle, Mail } from "lucide-react";
+import { Menu, ChevronDown, TrendingUp, LogOut, User, Home, BarChart3, Newspaper, Wallet, HelpCircle, Mail, Shield } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useAdminRole } from "@/hooks/useAdminRole";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +17,7 @@ import { cn } from "@/lib/utils";
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { role } = useAdminRole();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -161,6 +163,18 @@ const Header = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
+                {role === 'super_admin' && (
+                  <DropdownMenuItem onClick={() => navigate("/super-admin")}>
+                    <Shield className="h-4 w-4 mr-2" />
+                    Super Admin Panel
+                  </DropdownMenuItem>
+                )}
+                {role === 'admin' && (
+                  <DropdownMenuItem onClick={() => navigate("/admin")}>
+                    <Shield className="h-4 w-4 mr-2" />
+                    Admin Panel
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuItem onClick={() => navigate("/profile")}>
                   <User className="h-4 w-4 mr-2" />
                   Profile
@@ -233,6 +247,26 @@ const Header = () => {
               <div className="pt-3 border-t border-border/50 space-y-2">
                 {user ? (
                   <>
+                    {role === 'super_admin' && (
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start hover:bg-primary/10 hover:text-primary py-2 rounded-md border border-transparent hover:border-primary/20 text-sm"
+                        onClick={() => { navigate("/super-admin"); setIsOpen(false); }}
+                      >
+                        <Shield className="h-3 w-3 mr-2" />
+                        Super Admin Panel
+                      </Button>
+                    )}
+                    {role === 'admin' && (
+                      <Button
+                        variant="ghost"
+                        className="w-full justify-start hover:bg-primary/10 hover:text-primary py-2 rounded-md border border-transparent hover:border-primary/20 text-sm"
+                        onClick={() => { navigate("/admin"); setIsOpen(false); }}
+                      >
+                        <Shield className="h-3 w-3 mr-2" />
+                        Admin Panel
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       className="w-full justify-start hover:bg-primary/10 hover:text-primary py-2 rounded-md border border-transparent hover:border-primary/20 text-sm"
