@@ -79,7 +79,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: "Please check your email for the 6-digit code.",
       });
 
-      return { error: null, code: (data as any)?.code };
+      return { error: null };
     } catch (error: any) {
       toast({
         title: "Failed to send verification code",

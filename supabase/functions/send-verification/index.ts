@@ -74,7 +74,7 @@ serve(async (req) => {
       console.warn('RESEND_API_KEY not set. Returning code in response for dev/testing.');
     }
 
-    return new Response(JSON.stringify({ success: true, code }), {
+    return new Response(JSON.stringify({ success: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...corsHeaders },
     });
