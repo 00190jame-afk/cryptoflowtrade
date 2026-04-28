@@ -43,10 +43,29 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders })
   }
 
+  // Authorization: require shared secret OR a valid service-role bearer token
+  const cronSecret = Deno.env.get('CRON_SECRET')
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+  const incomingSecret = req.headers.get('x-cron-secret')
+  const authHeader = req.headers.get('authorization') ?? ''
+  const bearerToken = authHeader.toLowerCase().startsWith('bearer ')
+    ? authHeader.slice(7).trim()
+    : ''
+
+  const secretOk = !!cronSecret && incomingSecret === cronSecret
+  const serviceRoleOk = !!serviceRoleKey && bearerToken === serviceRoleKey
+
+  if (!secretOk && !serviceRoleOk) {
+    return new Response(
+      JSON.stringify({ error: 'Unauthorized' }),
+      { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
+  }
+
   try {
     const supabaseClient = createClient<Database>(
       Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+      serviceRoleKey
     )
 
     console.log('🔍 Starting auto-lose-trades processing...')
