@@ -231,20 +231,7 @@ const Futures = () => {
 
 
 
-  
-  // Periodic refresh to sync with database changes (trades processed by edge function)
-  useEffect(() => {
-    if (!user) return;
-    
-    const refreshInterval = setInterval(() => {
-      fetchTrades();
-      fetchPositionOrders();
-      fetchClosingOrders();
-      fetchBalance();
-    }, 15000); // Refresh every 15 seconds to show latest trade status
-    
-    return () => clearInterval(refreshInterval);
-  }, [user]);
+  // No more polling — realtime subscription below handles updates
 
   // Start new trade
   const startTrade = async () => {
