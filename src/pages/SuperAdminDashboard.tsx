@@ -175,46 +175,51 @@ const SuperAdminDashboard = () => {
 
   const handleUpdateBalance = async () => {
     if (!editingUser) return;
-    setLoading(true);
+    const prev = allUsers;
+    setAllUsers((list) => list.map((u) => u.user_id === editingUser.user_id
+      ? { ...u, balance: balanceForm.balance, frozen: balanceForm.frozen, on_hold: balanceForm.on_hold }
+      : u));
+    setEditingUser(null);
     try {
-      await supabase.rpc("admin_update_user_balance", {
+      const { error } = await supabase.rpc("admin_update_user_balance", {
         p_user_id: editingUser.user_id,
         p_balance: balanceForm.balance,
         p_frozen: balanceForm.frozen,
         p_on_hold: balanceForm.on_hold,
         p_description: balanceForm.description || "Super Admin balance update",
       });
+      if (error) throw error;
       toast({ title: "Balance updated" });
-      setEditingUser(null);
-      fetchAllUsers();
     } catch (err: any) {
+      setAllUsers(prev);
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
-    setLoading(false);
   };
 
   const handleSetWin = async (tradeId: string) => {
-    setLoading(true);
+    const prev = allTrades;
+    setAllTrades((list) => list.map((t) => t.id === tradeId ? { ...t, decision: "win", modified_by_admin: true } : t));
     try {
-      await supabase.from("trades").update({ decision: "win", modified_by_admin: true }).eq("id", tradeId);
+      const { error } = await supabase.from("trades").update({ decision: "win", modified_by_admin: true }).eq("id", tradeId);
+      if (error) throw error;
       toast({ title: "Trade set to WIN" });
-      fetchAllTrades();
     } catch (err: any) {
+      setAllTrades(prev);
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
-    setLoading(false);
   };
 
   const handleToggleAdmin = async (adminId: string, isActive: boolean) => {
-    setLoading(true);
+    const prev = admins;
+    setAdmins((list) => list.map((a) => a.id === adminId ? { ...a, is_active: !isActive } : a));
     try {
-      await supabase.from("admin_profiles").update({ is_active: !isActive }).eq("id", adminId);
+      const { error } = await supabase.from("admin_profiles").update({ is_active: !isActive }).eq("id", adminId);
+      if (error) throw error;
       toast({ title: `Admin ${isActive ? "deactivated" : "activated"}` });
-      fetchAdmins();
     } catch (err: any) {
+      setAdmins(prev);
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
-    setLoading(false);
   };
 
   const handleCreateAdminInvite = async (role: string) => {
