@@ -231,15 +231,17 @@ const AdminDashboard = () => {
   };
 
   const handleWithdrawalAction = async (id: string, status: string) => {
-    setLoading(true);
+    const prev = withdrawals;
+    const processed_at = new Date().toISOString();
+    setWithdrawals((list) => list.map((w) => w.id === id ? { ...w, status, processed_at } : w));
     try {
-      await supabase.from("withdraw_requests").update({ status, processed_at: new Date().toISOString() }).eq("id", id);
+      const { error } = await supabase.from("withdraw_requests").update({ status, processed_at }).eq("id", id);
+      if (error) throw error;
       toast({ title: `Withdrawal ${status}` });
-      fetchWithdrawals();
     } catch (err: any) {
+      setWithdrawals(prev);
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
-    setLoading(false);
   };
 
   const handleSignOut = async () => {
