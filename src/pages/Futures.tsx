@@ -321,30 +321,34 @@ const Futures = () => {
   // Positions are automatically closed when trades expire via edge function
 
   useEffect(() => {
-    if (user) {
-      fetchBalance();
-      fetchTrades();
-      fetchPositionOrders();
-      fetchClosingOrders();
+    if (!user) return;
 
-      // Set up real-time subscription for balance changes
-      const channel = supabase
-        .channel('user_balance_changes')
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: 'user_balances',
-          filter: `user_id=eq.${user.id}`
-        }, () => {
-          console.log('Balance changed, refreshing...');
-          fetchBalance();
-        })
-        .subscribe();
+    fetchBalance();
+    fetchTrades();
+    fetchPositionOrders();
+    fetchClosingOrders();
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
+    const channelName = `futures:${user.id}`;
+    const filter = `user_id=eq.${user.id}`;
+    const channel = supabase
+      .channel(channelName)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_balances', filter }, () => {
+        fetchBalance();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'trades', filter }, () => {
+        fetchTrades();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'positions_orders', filter }, () => {
+        fetchPositionOrders();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'closing_orders', filter }, () => {
+        fetchClosingOrders();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
   if (!user) {
     return <div className="min-h-screen bg-background">
