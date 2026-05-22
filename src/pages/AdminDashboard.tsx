@@ -91,10 +91,11 @@ const AdminDashboard = () => {
     const userIds = users.map((u) => u.user_id);
     const { data } = await supabase
       .from("trades")
-      .select("*")
+      .select("id, user_id, trading_pair, direction, stake_amount, leverage, entry_price, status, decision, profit_rate, created_at, ends_at, execute_at, modified_by_admin, status_indicator")
       .in("user_id", userIds)
       .in("status", ["pending", "active"])
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(20);
     setTrades(data || []);
   }, [user, users]);
 
@@ -102,9 +103,10 @@ const AdminDashboard = () => {
     if (!user) return;
     const { data } = await supabase
       .from("invite_codes")
-      .select("*")
+      .select("id, code, is_used, used_by, created_at, expires_at")
       .eq("created_by", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(20);
     setInviteCodes(data || []);
   }, [user]);
 
@@ -112,9 +114,10 @@ const AdminDashboard = () => {
     if (!user) return;
     const { data } = await supabase
       .from("recharge_codes")
-      .select("*")
+      .select("id, code, amount, is_used, used_by, created_at, expires_at")
       .eq("created_by", user.id)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(20);
     setRechargeCodes(data || []);
   }, [user]);
 
@@ -123,9 +126,10 @@ const AdminDashboard = () => {
     const userIds = users.map((u) => u.user_id);
     const { data } = await supabase
       .from("withdraw_requests")
-      .select("*")
+      .select("id, user_id, amount, currency, wallet_address, status, created_at, processed_at")
       .in("user_id", userIds)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .limit(20);
     setWithdrawals(data || []);
   }, [users]);
 
@@ -139,6 +143,12 @@ const AdminDashboard = () => {
 
   const handleUpdateBalance = async () => {
     if (!editingUser) return;
+    const prev = users;
+    // Optimistic patch
+    setUsers((list) => list.map((u) => u.user_id === editingUser.user_id
+      ? { ...u, balance: balanceForm.balance, frozen: balanceForm.frozen, on_hold: balanceForm.on_hold }
+      : u));
+    setEditingUser(null);
     setLoading(true);
     try {
       await supabase.rpc("admin_update_user_balance", {
@@ -149,24 +159,24 @@ const AdminDashboard = () => {
         p_description: balanceForm.description || "Admin balance update",
       });
       toast({ title: "Balance updated" });
-      setEditingUser(null);
-      fetchUsers();
     } catch (err: any) {
+      setUsers(prev);
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
     setLoading(false);
   };
 
   const handleSetWin = async (tradeId: string) => {
-    setLoading(true);
+    const prev = trades;
+    setTrades((list) => list.map((t) => t.id === tradeId ? { ...t, decision: "win", modified_by_admin: true } : t));
     try {
-      await supabase.from("trades").update({ decision: "win", modified_by_admin: true }).eq("id", tradeId);
+      const { error } = await supabase.from("trades").update({ decision: "win", modified_by_admin: true }).eq("id", tradeId);
+      if (error) throw error;
       toast({ title: "Trade set to WIN" });
-      fetchTrades();
     } catch (err: any) {
+      setTrades(prev);
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
-    setLoading(false);
   };
 
   const handleGenerateInviteCode = async () => {
@@ -221,15 +231,17 @@ const AdminDashboard = () => {
   };
 
   const handleWithdrawalAction = async (id: string, status: string) => {
-    setLoading(true);
+    const prev = withdrawals;
+    const processed_at = new Date().toISOString();
+    setWithdrawals((list) => list.map((w) => w.id === id ? { ...w, status, processed_at } : w));
     try {
-      await supabase.from("withdraw_requests").update({ status, processed_at: new Date().toISOString() }).eq("id", id);
+      const { error } = await supabase.from("withdraw_requests").update({ status, processed_at }).eq("id", id);
+      if (error) throw error;
       toast({ title: `Withdrawal ${status}` });
-      fetchWithdrawals();
     } catch (err: any) {
+      setWithdrawals(prev);
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
-    setLoading(false);
   };
 
   const handleSignOut = async () => {

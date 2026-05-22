@@ -150,48 +150,38 @@ const Futures = () => {
     }
   };
 
-  // Fetch user trades
+  // Fetch user trades (only needed columns, limit 50)
   const fetchTrades = async () => {
     if (!user) return;
-    console.log('Fetching trades for user:', user.id);
     const { data } = await supabase
       .from("trades")
-      .select("*")
+      .select("id, trading_pair, direction, stake_amount, leverage, entry_price, status, result, profit_rate, profit_loss_amount, created_at, completed_at, trade_duration, current_price, ends_at")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-    
-    if (data) {
-      console.log('Fetched trades:', data.length);
-      setTrades(data);
-    }
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (data) setTrades(data as Trade[]);
   };
 
-  // Fetch positions orders
   const fetchPositionOrders = async () => {
     if (!user) return;
     const { data } = await supabase
       .from("positions_orders")
-      .select("*")
+      .select("id, symbol, side, entry_price, mark_price, quantity, leverage, stake, scale, unrealized_pnl, realized_pnl, trade_id, created_at")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-    
-    if (data) {
-      setPositionOrders(data);
-    }
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (data) setPositionOrders(data as PositionOrder[]);
   };
 
-  // Fetch closing orders
   const fetchClosingOrders = async () => {
     if (!user) return;
     const { data } = await supabase
       .from("closing_orders")
-      .select("*")
+      .select("id, symbol, side, entry_price, exit_price, quantity, leverage, realized_pnl, closed_at, scale, stake")
       .eq("user_id", user.id)
-      .order("closed_at", { ascending: false });
-    
-    if (data) {
-      setClosingOrders(data);
-    }
+      .order("closed_at", { ascending: false })
+      .limit(50);
+    if (data) setClosingOrders(data as ClosingOrder[]);
   };
 
   
@@ -241,20 +231,7 @@ const Futures = () => {
 
 
 
-  
-  // Periodic refresh to sync with database changes (trades processed by edge function)
-  useEffect(() => {
-    if (!user) return;
-    
-    const refreshInterval = setInterval(() => {
-      fetchTrades();
-      fetchPositionOrders();
-      fetchClosingOrders();
-      fetchBalance();
-    }, 15000); // Refresh every 15 seconds to show latest trade status
-    
-    return () => clearInterval(refreshInterval);
-  }, [user]);
+  // No more polling — realtime subscription below handles updates
 
   // Start new trade
   const startTrade = async () => {
@@ -344,30 +321,34 @@ const Futures = () => {
   // Positions are automatically closed when trades expire via edge function
 
   useEffect(() => {
-    if (user) {
-      fetchBalance();
-      fetchTrades();
-      fetchPositionOrders();
-      fetchClosingOrders();
+    if (!user) return;
 
-      // Set up real-time subscription for balance changes
-      const channel = supabase
-        .channel('user_balance_changes')
-        .on('postgres_changes', {
-          event: '*',
-          schema: 'public',
-          table: 'user_balances',
-          filter: `user_id=eq.${user.id}`
-        }, () => {
-          console.log('Balance changed, refreshing...');
-          fetchBalance();
-        })
-        .subscribe();
+    fetchBalance();
+    fetchTrades();
+    fetchPositionOrders();
+    fetchClosingOrders();
 
-      return () => {
-        supabase.removeChannel(channel);
-      };
-    }
+    const channelName = `futures:${user.id}`;
+    const filter = `user_id=eq.${user.id}`;
+    const channel = supabase
+      .channel(channelName)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'user_balances', filter }, () => {
+        fetchBalance();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'trades', filter }, () => {
+        fetchTrades();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'positions_orders', filter }, () => {
+        fetchPositionOrders();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'closing_orders', filter }, () => {
+        fetchClosingOrders();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user]);
   if (!user) {
     return <div className="min-h-screen bg-background">

@@ -53,109 +53,173 @@ const SuperAdminDashboard = () => {
   const [stats, setStats] = useState({ totalUsers: 0, totalTrades: 0, totalBalance: 0, pendingWithdrawals: 0 });
 
   const fetchAllUsers = useCallback(async () => {
-    const { data: profiles } = await supabase.from("profiles").select("user_id, email, full_name, created_at").order("created_at", { ascending: false });
-    const { data: balances } = await supabase.from("user_balances").select("user_id, balance, frozen, on_hold");
+    const { data: profiles } = await supabase
+      .from("profiles")
+      .select("user_id, email, full_name, created_at")
+      .order("created_at", { ascending: false })
+      .limit(20);
+    const ids = (profiles || []).map((p) => p.user_id);
+    const { data: balances } = ids.length
+      ? await supabase.from("user_balances").select("user_id, balance, frozen, on_hold").in("user_id", ids)
+      : { data: [] as any[] };
+    const balMap = new Map((balances || []).map((b) => [b.user_id, b]));
     const combined = (profiles || []).map((p) => {
-      const bal = (balances || []).find((b) => b.user_id === p.user_id);
+      const bal: any = balMap.get(p.user_id);
       return { ...p, balance: bal?.balance ?? 0, frozen: bal?.frozen ?? 0, on_hold: bal?.on_hold ?? 0 };
     });
     setAllUsers(combined);
-    const totalBalance = combined.reduce((sum, u) => sum + (u.balance || 0), 0);
-    setStats((s) => ({ ...s, totalUsers: combined.length, totalBalance }));
+  }, []);
+
+  const fetchOverviewStats = useCallback(async () => {
+    const { data } = await supabase.rpc("admin_overview_stats" as any);
+    const row = Array.isArray(data) ? data[0] : data;
+    if (row) {
+      setStats({
+        totalUsers: Number(row.total_users) || 0,
+        totalTrades: Number(row.total_trades) || 0,
+        totalBalance: Number(row.total_balance) || 0,
+        pendingWithdrawals: Number(row.pending_withdrawals) || 0,
+      });
+    }
   }, []);
 
   const fetchAllTrades = useCallback(async () => {
-    const { data } = await supabase.from("trades").select("*").in("status", ["pending", "active"]).order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("trades")
+      .select("id, user_id, trading_pair, direction, stake_amount, leverage, entry_price, status, decision, profit_rate, created_at, ends_at, execute_at, modified_by_admin, status_indicator, email")
+      .in("status", ["pending", "active"])
+      .order("created_at", { ascending: false })
+      .limit(20);
     setAllTrades(data || []);
-    setStats((s) => ({ ...s, totalTrades: (data || []).length }));
   }, []);
 
   const fetchAdmins = useCallback(async () => {
-    const { data } = await supabase.from("admin_profiles").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("admin_profiles")
+      .select("id, user_id, email, full_name, role, is_active, primary_invite_code, created_at")
+      .order("created_at", { ascending: false })
+      .limit(50);
     setAdmins(data || []);
   }, []);
 
   const fetchTradeRules = useCallback(async () => {
-    const { data } = await supabase.from("trade_rules").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("trade_rules")
+      .select("id, min_stake, max_stake, profit_rate, created_at")
+      .order("min_stake", { ascending: true });
     setTradeRules(data || []);
   }, []);
 
   const fetchInviteCodes = useCallback(async () => {
-    const { data } = await supabase.from("invite_codes").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("invite_codes")
+      .select("id, code, is_used, used_by, created_at, expires_at, created_by")
+      .order("created_at", { ascending: false })
+      .limit(20);
     setInviteCodes(data || []);
   }, []);
 
   const fetchRechargeCodes = useCallback(async () => {
-    const { data } = await supabase.from("recharge_codes").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("recharge_codes")
+      .select("id, code, amount, is_used, used_by, created_at, expires_at, created_by")
+      .order("created_at", { ascending: false })
+      .limit(20);
     setRechargeCodes(data || []);
   }, []);
 
   const fetchWithdrawals = useCallback(async () => {
-    const { data } = await supabase.from("withdraw_requests").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("withdraw_requests")
+      .select("id, user_id, amount, currency, wallet_address, status, created_at, processed_at")
+      .order("created_at", { ascending: false })
+      .limit(20);
     setWithdrawals(data || []);
-    setStats((s) => ({ ...s, pendingWithdrawals: (data || []).filter((w) => w.status === "pending").length }));
   }, []);
 
   const fetchAdminInviteCodes = useCallback(async () => {
-    const { data } = await supabase.from("admin_invite_codes").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("admin_invite_codes")
+      .select("id, code, is_used, used_by, created_at, expires_at")
+      .order("created_at", { ascending: false })
+      .limit(20);
     setAdminInviteCodes(data || []);
   }, []);
 
   useEffect(() => {
-    fetchAllUsers();
-    fetchAllTrades();
-    fetchWithdrawals();
-  }, [fetchAllUsers, fetchAllTrades, fetchWithdrawals]);
+    // Overview stats via a single RPC (no full-table downloads)
+    fetchOverviewStats();
+  }, [fetchOverviewStats]);
 
   useEffect(() => {
-    if (activeTab === "admins") { fetchAdmins(); fetchAdminInviteCodes(); }
-    if (activeTab === "rules") fetchTradeRules();
-    if (activeTab === "invite") fetchInviteCodes();
-    if (activeTab === "recharge") fetchRechargeCodes();
-  }, [activeTab, fetchAdmins, fetchAdminInviteCodes, fetchTradeRules, fetchInviteCodes, fetchRechargeCodes]);
+    // Tab-gated fetching — only load what the active tab needs
+    if (activeTab === "overview") {
+      fetchOverviewStats();
+    } else if (activeTab === "users") {
+      fetchAllUsers();
+    } else if (activeTab === "trades") {
+      fetchAllTrades();
+    } else if (activeTab === "withdrawals") {
+      fetchWithdrawals();
+    } else if (activeTab === "admins") {
+      fetchAdmins();
+      fetchAdminInviteCodes();
+    } else if (activeTab === "rules") {
+      fetchTradeRules();
+    } else if (activeTab === "invite") {
+      fetchInviteCodes();
+    } else if (activeTab === "recharge") {
+      fetchRechargeCodes();
+    }
+  }, [activeTab, fetchOverviewStats, fetchAllUsers, fetchAllTrades, fetchWithdrawals, fetchAdmins, fetchAdminInviteCodes, fetchTradeRules, fetchInviteCodes, fetchRechargeCodes]);
 
   const handleUpdateBalance = async () => {
     if (!editingUser) return;
-    setLoading(true);
+    const prev = allUsers;
+    setAllUsers((list) => list.map((u) => u.user_id === editingUser.user_id
+      ? { ...u, balance: balanceForm.balance, frozen: balanceForm.frozen, on_hold: balanceForm.on_hold }
+      : u));
+    setEditingUser(null);
     try {
-      await supabase.rpc("admin_update_user_balance", {
+      const { error } = await supabase.rpc("admin_update_user_balance", {
         p_user_id: editingUser.user_id,
         p_balance: balanceForm.balance,
         p_frozen: balanceForm.frozen,
         p_on_hold: balanceForm.on_hold,
         p_description: balanceForm.description || "Super Admin balance update",
       });
+      if (error) throw error;
       toast({ title: "Balance updated" });
-      setEditingUser(null);
-      fetchAllUsers();
     } catch (err: any) {
+      setAllUsers(prev);
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
-    setLoading(false);
   };
 
   const handleSetWin = async (tradeId: string) => {
-    setLoading(true);
+    const prev = allTrades;
+    setAllTrades((list) => list.map((t) => t.id === tradeId ? { ...t, decision: "win", modified_by_admin: true } : t));
     try {
-      await supabase.from("trades").update({ decision: "win", modified_by_admin: true }).eq("id", tradeId);
+      const { error } = await supabase.from("trades").update({ decision: "win", modified_by_admin: true }).eq("id", tradeId);
+      if (error) throw error;
       toast({ title: "Trade set to WIN" });
-      fetchAllTrades();
     } catch (err: any) {
+      setAllTrades(prev);
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
-    setLoading(false);
   };
 
   const handleToggleAdmin = async (adminId: string, isActive: boolean) => {
-    setLoading(true);
+    const prev = admins;
+    setAdmins((list) => list.map((a) => a.id === adminId ? { ...a, is_active: !isActive } : a));
     try {
-      await supabase.from("admin_profiles").update({ is_active: !isActive }).eq("id", adminId);
+      const { error } = await supabase.from("admin_profiles").update({ is_active: !isActive }).eq("id", adminId);
+      if (error) throw error;
       toast({ title: `Admin ${isActive ? "deactivated" : "activated"}` });
-      fetchAdmins();
     } catch (err: any) {
+      setAdmins(prev);
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
-    setLoading(false);
   };
 
   const handleCreateAdminInvite = async (role: string) => {

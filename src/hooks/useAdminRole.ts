@@ -22,11 +22,43 @@ interface UseAdminRoleReturn {
   adminProfile: AdminProfile | null;
 }
 
+// Module-scope cache so multiple components hitting useAdminRole during the
+// same session don't each fire their own admin_profiles query.
+type CacheEntry = { role: AdminRole; profile: AdminProfile | null };
+const roleCache = new Map<string, CacheEntry>();
+const inflight = new Map<string, Promise<CacheEntry>>();
+
+async function loadRole(userId: string): Promise<CacheEntry> {
+  if (roleCache.has(userId)) return roleCache.get(userId)!;
+  if (inflight.has(userId)) return inflight.get(userId)!;
+
+  const promise = (async () => {
+    const { data, error } = await supabase
+      .from('admin_profiles')
+      .select('id, user_id, email, full_name, role, is_active, primary_invite_code, created_at, updated_at')
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .maybeSingle();
+
+    if (error) throw error;
+
+    const entry: CacheEntry = data
+      ? { role: data.role === 'super_admin' ? 'super_admin' : 'admin', profile: data as AdminProfile }
+      : { role: 'user', profile: null };
+    roleCache.set(userId, entry);
+    return entry;
+  })().finally(() => inflight.delete(userId));
+
+  inflight.set(userId, promise);
+  return promise;
+}
+
 export const useAdminRole = (): UseAdminRoleReturn => {
   const { user } = useAuth();
-  const [role, setRole] = useState<AdminRole>('user');
-  const [loading, setLoading] = useState(true);
-  const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(null);
+  const cached = user ? roleCache.get(user.id) : undefined;
+  const [role, setRole] = useState<AdminRole>(cached?.role ?? 'user');
+  const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(cached?.profile ?? null);
+  const [loading, setLoading] = useState(!cached && !!user);
 
   useEffect(() => {
     if (!user) {
@@ -36,34 +68,27 @@ export const useAdminRole = (): UseAdminRoleReturn => {
       return;
     }
 
-    const checkRole = async () => {
-      try {
-        const { data, error } = await supabase
-          .from('admin_profiles')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('is_active', true)
-          .maybeSingle();
-
-        if (error) throw error;
-
-        if (data) {
-          setAdminProfile(data);
-          setRole(data.role === 'super_admin' ? 'super_admin' : 'admin');
-        } else {
+    let cancelled = false;
+    loadRole(user.id)
+      .then(({ role, profile }) => {
+        if (cancelled) return;
+        setRole(role);
+        setAdminProfile(profile);
+      })
+      .catch((err) => {
+        console.error('Error checking admin role:', err);
+        if (!cancelled) {
           setRole('user');
           setAdminProfile(null);
         }
-      } catch (err) {
-        console.error('Error checking admin role:', err);
-        setRole('user');
-        setAdminProfile(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
 
-    checkRole();
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   return { role, loading, adminProfile };
