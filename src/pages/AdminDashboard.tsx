@@ -143,6 +143,12 @@ const AdminDashboard = () => {
 
   const handleUpdateBalance = async () => {
     if (!editingUser) return;
+    const prev = users;
+    // Optimistic patch
+    setUsers((list) => list.map((u) => u.user_id === editingUser.user_id
+      ? { ...u, balance: balanceForm.balance, frozen: balanceForm.frozen, on_hold: balanceForm.on_hold }
+      : u));
+    setEditingUser(null);
     setLoading(true);
     try {
       await supabase.rpc("admin_update_user_balance", {
@@ -153,24 +159,24 @@ const AdminDashboard = () => {
         p_description: balanceForm.description || "Admin balance update",
       });
       toast({ title: "Balance updated" });
-      setEditingUser(null);
-      fetchUsers();
     } catch (err: any) {
+      setUsers(prev);
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
     setLoading(false);
   };
 
   const handleSetWin = async (tradeId: string) => {
-    setLoading(true);
+    const prev = trades;
+    setTrades((list) => list.map((t) => t.id === tradeId ? { ...t, decision: "win", modified_by_admin: true } : t));
     try {
-      await supabase.from("trades").update({ decision: "win", modified_by_admin: true }).eq("id", tradeId);
+      const { error } = await supabase.from("trades").update({ decision: "win", modified_by_admin: true }).eq("id", tradeId);
+      if (error) throw error;
       toast({ title: "Trade set to WIN" });
-      fetchTrades();
     } catch (err: any) {
+      setTrades(prev);
       toast({ title: "Error", description: err.message, variant: "destructive" });
     }
-    setLoading(false);
   };
 
   const handleGenerateInviteCode = async () => {
