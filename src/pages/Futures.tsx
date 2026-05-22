@@ -150,48 +150,38 @@ const Futures = () => {
     }
   };
 
-  // Fetch user trades
+  // Fetch user trades (only needed columns, limit 50)
   const fetchTrades = async () => {
     if (!user) return;
-    console.log('Fetching trades for user:', user.id);
     const { data } = await supabase
       .from("trades")
-      .select("*")
+      .select("id, trading_pair, direction, stake_amount, leverage, entry_price, status, result, profit_rate, profit_loss_amount, created_at, completed_at, trade_duration, current_price, ends_at")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-    
-    if (data) {
-      console.log('Fetched trades:', data.length);
-      setTrades(data);
-    }
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (data) setTrades(data as Trade[]);
   };
 
-  // Fetch positions orders
   const fetchPositionOrders = async () => {
     if (!user) return;
     const { data } = await supabase
       .from("positions_orders")
-      .select("*")
+      .select("id, symbol, side, entry_price, mark_price, quantity, leverage, stake, scale, unrealized_pnl, realized_pnl, trade_id, created_at")
       .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-    
-    if (data) {
-      setPositionOrders(data);
-    }
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (data) setPositionOrders(data as PositionOrder[]);
   };
 
-  // Fetch closing orders
   const fetchClosingOrders = async () => {
     if (!user) return;
     const { data } = await supabase
       .from("closing_orders")
-      .select("*")
+      .select("id, symbol, side, entry_price, exit_price, quantity, leverage, realized_pnl, closed_at, scale, stake")
       .eq("user_id", user.id)
-      .order("closed_at", { ascending: false });
-    
-    if (data) {
-      setClosingOrders(data);
-    }
+      .order("closed_at", { ascending: false })
+      .limit(50);
+    if (data) setClosingOrders(data as ClosingOrder[]);
   };
 
   
