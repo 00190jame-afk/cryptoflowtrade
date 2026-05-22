@@ -1,58 +1,119 @@
-## Fix: Supabase Resource Exhaustion — RLS evaluation storm
 
-### Diagnosis (from `pg_stat_user_tables`)
+# Supabase Performance Optimization Plan
 
-| Table | Rows | Seq scans | Tuples read |
-|---|---|---|---|
-| `admin_profiles` | 3 | **16,612,289** | 16.7M |
-| `trades` | 127 | 277,769 | **24.9M** |
-| `profiles` | 34 | 111,238 | 1.87M |
-| `invite_codes` | 4 | 91,616 | 365K |
-| `messages` | 5 | 21,700 | 22K |
+Goal: cut PostgREST/DB load, kill polling, paginate admin views, eliminate `select('*')`, and split trade decision from trade execution so admin clicks are instant and resolution happens out-of-band.
 
-Indexes don't help: Postgres always seq-scans tables with <100 rows. The real problem is that **`is_any_admin()` / `is_super_admin()` are called per-row, per-query**, and several hot tables have 2–3 overlapping permissive RLS policies that each invoke these functions.
+## 1. Realtime instead of polling — `src/pages/Futures.tsx`
 
-### Solution — two changes, no app code touched
+Current: `setInterval(... 15000)` refetches `trades`, `positions_orders`, `closing_orders`, and `user_balances` every 15s for every logged-in trader (4 queries × N users / 15s).
 
-**1. Wrap auth/admin calls in `(SELECT …)` in every RLS policy**
+Change:
+- Remove the 15s `refreshInterval` block entirely.
+- Add a single channel `trades:user:{user.id}` subscribing to `postgres_changes` on `trades`, `positions_orders`, `closing_orders` filtered by `user_id=eq.{user.id}`.
+- On each event, patch local state from `payload.new` (no refetch round-trip). Only refetch balance on a `trades` UPDATE where status transitions to `completed`.
+- Keep the existing `user_balances` channel; ensure it's the only balance subscription.
+- Keep the Binance price `setInterval` (external API, not Supabase) but slow it to 5s and pause when the tab is hidden via `document.visibilityState`.
 
-This is the Supabase-recommended optimization: Postgres treats `(SELECT auth.uid())` as an InitPlan and evaluates it **once per query** instead of once per row. Same for `(SELECT public.is_any_admin())`.
+## 2. Paginate + lazy-load admin dashboards
 
-Apply to all policies on: `profiles`, `trades`, `user_balances`, `transactions`, `positions_orders`, `closing_orders`, `messages`, `withdraw_requests`, `invite_codes`, `recharge_codes`, `admin_profiles`, `admin_invite_codes`, `contact_messages`, `verification_codes`, `trade_rules`.
+`src/pages/AdminDashboard.tsx` and `src/pages/SuperAdminDashboard.tsx` currently load full tables on mount. Apply:
 
-**2. Consolidate duplicate overlapping policies**
+- **Initial page size: 20 rows** per section using `.range(0, 19)` and a "Load more" button that increments the range.
+- **Tab-gated fetching**: only fetch a section's data when its tab becomes active (Super Admin currently eagerly fetches users + trades + withdrawals on mount — restrict to the active tab; keep a tiny `stats` RPC for the overview cards).
+- **Replace `select('*')`** with the exact columns each table renders. Example for trades list: `id, user_id, trading_pair, direction, stake_amount, leverage, status, decision, created_at, ends_at`.
+- **Server-side filter** trades to active statuses already done — keep it, but add `.limit(20)`.
+- **Overview stats** (totalUsers, totalBalance, pendingWithdrawals) move into a single `admin_overview_stats()` SECURITY DEFINER RPC returning one row of counts/sums, instead of pulling every profile + balance into the browser to `reduce()`.
+- **Cache static data** (`trade_rules`, `admin_profiles`, `admin_invite_codes`) in module-level refs with a 60s TTL so tab switches don't refetch.
 
-Each `permissive` SELECT policy is OR'd together — but Postgres still **evaluates every one**. Examples to merge:
+## 3. One subscription per page, clean teardown
 
-- `profiles` has 3 SELECT policies (`Users can view their own profile`, `admin_all_profiles_select`, `Admins can view their assigned users`) → merge into one.
-- `trades` has 3 SELECT policies → merge into one.
-- `user_balances` has 3 SELECT policies → merge into one.
-- `messages` has 2 SELECT policies → merge into one.
-- `withdraw_requests` has 2 SELECT policies → merge into one.
-- `contact_messages` has 2 overlapping admin policies → keep only the `is_any_admin()` one.
+Audit: `Futures.tsx`, `Assets.tsx`, `Messages.tsx`, `UserMessages.tsx` each open channels. Standardize:
 
-Merged pattern example for `profiles` SELECT:
+- Channel name includes `user.id` to avoid cross-user collisions: `assets:{user.id}`, `messages:{user.id}`.
+- Each `useEffect` returns `() => supabase.removeChannel(channel)`.
+- Guard against double-subscribe in React StrictMode by checking `channel.state !== 'joined'` before `.subscribe()`.
+- Add a small `useRealtimeChannel(name, config)` hook in `src/hooks/` to centralize the pattern and prevent future duplicates.
+
+## 4. Stop refetching after every UI interaction
+
+- Admin balance edit, set-win/set-lose, generate code: currently call `fetchUsers()` / `fetchTrades()` after every action. Replace with **optimistic local state patch** — update the row in `users`/`trades` array immediately, roll back on error.
+- Remove the post-action full refetch; rely on the realtime subscription (item 1) for confirmation.
+
+## 5. Edge function trimming — `supabase/functions/auto-lose-trades/index.ts`
+
+- Replace per-trade queries with a single bulk SQL via `supabase.rpc('resolve_expired_trades')` (new SECURITY DEFINER function) that does the join, balance credit, and status flip in one transaction.
+- Drop redundant validation selects when the row was just locked in the same transaction.
+- Move chained admin actions (e.g., create position + update balance + log transaction) into one RPC each.
+
+## 6. Trade decision vs. execution split
+
+New columns on `trades`:
+- `decision text` (`win` | `lose` | null) — already present per code; ensure indexed.
+- `execute_at timestamptz` — when resolution should fire (= `ends_at`).
+- `decided_at timestamptz`, `decided_by uuid`.
+
+Flow:
+- Admin "Set Win/Lose" only writes `decision`, `decided_by`, `decided_at`. Instant, no balance math, no status change. Optimistic UI confirms immediately.
+- A cron-driven edge function (`resolve-due-trades`, runs every 30s) selects `WHERE status='active' AND execute_at <= now()` with `LIMIT 100`, applies `decision` (or auto-loses if null), and updates balances in bulk via the RPC from item 5.
+- Existing `auto-lose-trades` is replaced/renamed.
+
+## 7. Query + index optimization
+
+Migration (one call, schema-only):
 ```sql
-USING (
-  (SELECT auth.uid()) = user_id
-  OR (SELECT public.is_any_admin())
-)
+CREATE INDEX IF NOT EXISTS idx_trades_user_id        ON public.trades(user_id);
+CREATE INDEX IF NOT EXISTS idx_trades_status         ON public.trades(status);
+CREATE INDEX IF NOT EXISTS idx_trades_created_at     ON public.trades(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_trades_decision       ON public.trades(decision) WHERE decision IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_trades_execute_at     ON public.trades(execute_at) WHERE status = 'active';
+CREATE INDEX IF NOT EXISTS idx_trades_status_execute ON public.trades(status, execute_at);
+ALTER TABLE public.trades ADD COLUMN IF NOT EXISTS execute_at  timestamptz;
+ALTER TABLE public.trades ADD COLUMN IF NOT EXISTS decided_at  timestamptz;
+ALTER TABLE public.trades ADD COLUMN IF NOT EXISTS decided_by  uuid;
 ```
+Plus: new `resolve_expired_trades()` and `admin_overview_stats()` SECURITY DEFINER functions.
 
-(Admin-assigned-users scoping moves into the function or stays as one branch.)
+Replace every `select('*')` flagged in the audit (Assets, Profile, UserMessages, Futures, both dashboards, `useAdminRole`) with explicit column lists.
 
-### Expected impact
+## 8. Rerender hygiene
 
-- `admin_profiles` seq scans drop from ~16M to roughly **1 per query** (was once per row × per policy × per query).
-- `trades` tuple reads drop by ~10× (currently 196,000 tuples per scan because RLS re-evaluates admin checks per row).
-- CPU on the Nano tier should fall from sustained-high to near-idle, fixing PostgREST timeouts.
+- Wrap admin table rows in `React.memo` keyed by `id + updated_at`.
+- Memoize `users.map(u=>u.user_id)` (currently rebuilt on every render and used as a `useCallback` dep, causing fetch loops).
+- Convert `stats` updates to functional setState batched once per fetch.
+- Move heavy formatters (`toLocaleString`, currency format) to `useMemo`.
 
-### Files
+## 9. Optimistic admin UX
 
-- One new migration SQL file rewriting all hot-table RLS policies.
-- **No application/TypeScript changes.**
+Win/Lose, balance edit, withdraw approve/reject, message send: patch local array → fire mutation → on error revert + toast. No refetch.
 
-### Out of scope
+## 10. Full audit pass
 
-- Compute upgrade (user can do this separately if they still want headroom).
-- The previously-added indexes stay; they don't hurt and help once tables grow.
+Walk every page once these land and verify:
+- no `setInterval` touching Supabase
+- no duplicate channel subscriptions
+- no `select('*')`
+- no `useEffect` whose deps include an array rebuilt every render
+- `useAdminRole` runs once per session (cache role in context, not per-page hook call)
+
+## Technical details
+
+Files touched:
+- `src/pages/Futures.tsx` — remove poll, add realtime channel, slim selects
+- `src/pages/AdminDashboard.tsx` — pagination, column lists, optimistic patches
+- `src/pages/SuperAdminDashboard.tsx` — tab-gated fetch, stats RPC, pagination
+- `src/pages/Assets.tsx`, `Profile.tsx`, `UserMessages.tsx`, `Messages.tsx` — column lists, channel naming
+- `src/hooks/useAdminRole.ts` — drop `select('*')`, cache result in context
+- `src/hooks/useRealtimeChannel.ts` — new shared hook
+- `src/contexts/AuthContext.tsx` — expose cached admin role
+- `supabase/functions/auto-lose-trades/index.ts` → rename `resolve-due-trades`, bulk RPC
+- New migration: indexes + `execute_at`/`decided_*` columns + `resolve_expired_trades()` + `admin_overview_stats()` RPCs
+
+Order of work:
+1. Migration (indexes, columns, RPCs)
+2. `useRealtimeChannel` hook + auth-context role cache
+3. Futures realtime swap
+4. Admin dashboards pagination + optimistic UI
+5. Edge function rewrite + cron schedule
+6. Audit pass and cleanup
+
+Expected impact: PostgREST request volume drops ~80% (no 15s polls × concurrent traders, no full-table admin loads), DB CPU drops because admin queries hit indexed `LIMIT 20` paths, and admin clicks feel instant due to optimistic UI.
