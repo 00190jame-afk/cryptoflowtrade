@@ -27,14 +27,15 @@ export const AdminRoute = ({ children, requiredRole }: AdminRouteProps) => {
     let cancelled = false;
     setSuperAdminAllowed(null);
 
-    supabase.rpc('is_super_admin')
-      .then(({ data, error }) => {
+    void (async () => {
+      try {
+        const { data, error } = await supabase.rpc('is_super_admin');
         if (cancelled) return;
         setSuperAdminAllowed(!error && data === true);
-      })
-      .catch(() => {
+      } catch {
         if (!cancelled) setSuperAdminAllowed(false);
-      });
+      }
+    })();
 
     return () => {
       cancelled = true;
@@ -59,10 +60,6 @@ export const AdminRoute = ({ children, requiredRole }: AdminRouteProps) => {
     }
 
     return <>{children}</>;
-  }
-
-  if (requiredRole === 'super_admin' && role !== 'super_admin') {
-    return <Navigate to="/" replace />;
   }
 
   if (requiredRole === 'admin' && role !== 'admin' && role !== 'super_admin') {
