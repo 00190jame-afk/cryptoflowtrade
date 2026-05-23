@@ -36,13 +36,24 @@ function readStoredRole(userId: string): CacheEntry | null {
     if (!stored) return null;
 
     const parsed = JSON.parse(stored) as { userId?: string; entry?: CacheEntry };
-    return parsed.userId === userId && parsed.entry ? parsed.entry : null;
+    if (parsed.userId !== userId || !parsed.entry || parsed.entry.role === 'user') {
+      sessionStorage.removeItem(ADMIN_ROLE_STORAGE_KEY);
+      return null;
+    }
+
+    return parsed.entry;
   } catch {
     return null;
   }
 }
 
 function storeRole(userId: string, entry: CacheEntry) {
+  if (entry.role === 'user') {
+    roleCache.delete(userId);
+    sessionStorage.removeItem(ADMIN_ROLE_STORAGE_KEY);
+    return;
+  }
+
   roleCache.set(userId, entry);
   sessionStorage.setItem(ADMIN_ROLE_STORAGE_KEY, JSON.stringify({ userId, entry }));
 }
@@ -69,7 +80,7 @@ async function loadRole(userId: string): Promise<CacheEntry> {
     const entry: CacheEntry = data
       ? { role: data.role === 'super_admin' ? 'super_admin' : 'admin', profile: data as AdminProfile }
       : { role: 'user', profile: null };
-    storeRole(userId, entry);
+    if (data) storeRole(userId, entry);
     return entry;
   })().finally(() => inflight.delete(userId));
 
