@@ -68,7 +68,16 @@ export const useAdminRole = (): UseAdminRoleReturn => {
       return;
     }
 
+    const cachedEntry = roleCache.get(user.id);
+    if (cachedEntry) {
+      setRole(cachedEntry.role);
+      setAdminProfile(cachedEntry.profile);
+      setLoading(false);
+      return;
+    }
+
     let cancelled = false;
+    setLoading(true);
     loadRole(user.id)
       .then(({ role, profile }) => {
         if (cancelled) return;
