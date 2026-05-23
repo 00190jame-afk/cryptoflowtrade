@@ -10,6 +10,21 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, TrendingUp } from "lucide-react";
 
+const getAdminRedirectPath = async (userId: string) => {
+  const { data: isSuperAdmin } = await supabase.rpc('is_super_admin');
+  if (isSuperAdmin === true) return '/super-admin';
+
+  const { data: adminProfile } = await supabase
+    .from('admin_profiles')
+    .select('role, is_active')
+    .eq('user_id', userId)
+    .eq('is_active', true)
+    .maybeSingle();
+
+  if (adminProfile?.role === 'admin') return '/admin';
+  return '/';
+};
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,20 +39,7 @@ const Login = () => {
     if (user && !isRedirecting) {
       // User is already logged in but not mid-login, check role then redirect
       const checkAndRedirect = async () => {
-        const { data: adminProfile } = await supabase
-          .from('admin_profiles')
-          .select('role, is_active')
-          .eq('user_id', user.id)
-          .eq('is_active', true)
-          .maybeSingle();
-
-        if (adminProfile?.role === 'super_admin') {
-          navigate('/super-admin');
-        } else if (adminProfile?.role === 'admin') {
-          navigate('/admin');
-        } else {
-          navigate('/');
-        }
+        navigate(await getAdminRedirectPath(user.id));
       };
       checkAndRedirect();
     }
@@ -77,21 +79,11 @@ const Login = () => {
 
     if (!error) {
       // Check admin role for redirect
-      const { data: adminProfile } = await supabase
-        .from('admin_profiles')
-        .select('role, is_active')
-        .eq('user_id', (await supabase.auth.getUser()).data.user?.id || '')
-        .eq('is_active', true)
-        .maybeSingle();
+      const signedInUser = (await supabase.auth.getUser()).data.user;
+      const redirectPath = signedInUser ? await getAdminRedirectPath(signedInUser.id) : '/';
 
       setLoading(false);
-      if (adminProfile?.role === 'super_admin') {
-        navigate('/super-admin');
-      } else if (adminProfile?.role === 'admin') {
-        navigate('/admin');
-      } else {
-        navigate('/');
-      }
+      navigate(redirectPath);
     } else {
       setLoading(false);
     }

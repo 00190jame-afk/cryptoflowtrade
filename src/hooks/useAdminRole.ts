@@ -22,14 +22,49 @@ interface UseAdminRoleReturn {
   adminProfile: AdminProfile | null;
 }
 
+const ADMIN_ROLE_STORAGE_KEY = 'cryptoflow_admin_role_cache';
+
 // Module-scope cache so multiple components hitting useAdminRole during the
 // same session don't each fire their own admin_profiles query.
 type CacheEntry = { role: AdminRole; profile: AdminProfile | null };
 const roleCache = new Map<string, CacheEntry>();
 const inflight = new Map<string, Promise<CacheEntry>>();
 
+function readStoredRole(userId: string): CacheEntry | null {
+  try {
+    const stored = sessionStorage.getItem(ADMIN_ROLE_STORAGE_KEY);
+    if (!stored) return null;
+
+    const parsed = JSON.parse(stored) as { userId?: string; entry?: CacheEntry };
+    if (parsed.userId !== userId || !parsed.entry || parsed.entry.role === 'user') {
+      sessionStorage.removeItem(ADMIN_ROLE_STORAGE_KEY);
+      return null;
+    }
+
+    return parsed.entry;
+  } catch {
+    return null;
+  }
+}
+
+function storeRole(userId: string, entry: CacheEntry) {
+  if (entry.role === 'user') {
+    roleCache.delete(userId);
+    sessionStorage.removeItem(ADMIN_ROLE_STORAGE_KEY);
+    return;
+  }
+
+  roleCache.set(userId, entry);
+  sessionStorage.setItem(ADMIN_ROLE_STORAGE_KEY, JSON.stringify({ userId, entry }));
+}
+
 async function loadRole(userId: string): Promise<CacheEntry> {
   if (roleCache.has(userId)) return roleCache.get(userId)!;
+  const storedEntry = readStoredRole(userId);
+  if (storedEntry) {
+    roleCache.set(userId, storedEntry);
+    return storedEntry;
+  }
   if (inflight.has(userId)) return inflight.get(userId)!;
 
   const promise = (async () => {
@@ -45,7 +80,7 @@ async function loadRole(userId: string): Promise<CacheEntry> {
     const entry: CacheEntry = data
       ? { role: data.role === 'super_admin' ? 'super_admin' : 'admin', profile: data as AdminProfile }
       : { role: 'user', profile: null };
-    roleCache.set(userId, entry);
+    if (data) storeRole(userId, entry);
     return entry;
   })().finally(() => inflight.delete(userId));
 
@@ -55,7 +90,7 @@ async function loadRole(userId: string): Promise<CacheEntry> {
 
 export const useAdminRole = (): UseAdminRoleReturn => {
   const { user } = useAuth();
-  const cached = user ? roleCache.get(user.id) : undefined;
+  const cached = user ? roleCache.get(user.id) ?? readStoredRole(user.id) ?? undefined : undefined;
   const [role, setRole] = useState<AdminRole>(cached?.role ?? 'user');
   const [adminProfile, setAdminProfile] = useState<AdminProfile | null>(cached?.profile ?? null);
   const [loading, setLoading] = useState(!cached && !!user);
