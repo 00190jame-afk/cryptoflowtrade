@@ -451,6 +451,8 @@ export type Database = {
           completed_at: string | null
           created_at: string
           current_price: number | null
+          decided_at: string | null
+          decided_by: string | null
           decision: string | null
           direction: string
           email: string | null
@@ -475,6 +477,8 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           current_price?: number | null
+          decided_at?: string | null
+          decided_by?: string | null
           decision?: string | null
           direction: string
           email?: string | null
@@ -499,6 +503,8 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           current_price?: number | null
+          decided_at?: string | null
+          decided_by?: string | null
           decision?: string | null
           direction?: string
           email?: string | null
@@ -696,6 +702,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_overview_stats: {
+        Args: never
+        Returns: {
+          pending_withdrawals: number
+          total_balance: number
+          total_trades: number
+          total_users: number
+        }[]
+      }
       admin_update_user_balance: {
         Args: {
           p_balance?: number
