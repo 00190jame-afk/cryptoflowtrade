@@ -93,9 +93,8 @@ const AdminDashboard = () => {
       .from("trades")
       .select("id, user_id, trading_pair, direction, stake_amount, leverage, entry_price, status, decision, profit_rate, created_at, ends_at, execute_at, modified_by_admin, status_indicator")
       .in("user_id", userIds)
-      .in("status", ["pending", "active"])
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setTrades(data || []);
   }, [user, users]);
 
@@ -103,10 +102,10 @@ const AdminDashboard = () => {
     if (!user) return;
     const { data } = await supabase
       .from("invite_codes")
-      .select("id, code, is_used, used_by, created_at, expires_at")
+      .select("id, code, is_active, current_uses, max_uses, used_by, created_at, expires_at")
       .eq("created_by", user.id)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setInviteCodes(data || []);
   }, [user]);
 
@@ -114,10 +113,10 @@ const AdminDashboard = () => {
     if (!user) return;
     const { data } = await supabase
       .from("recharge_codes")
-      .select("id, code, amount, is_used, used_by, created_at, expires_at")
+      .select("id, code, amount, status, user_id, created_at, redeemed_at")
       .eq("created_by", user.id)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setRechargeCodes(data || []);
   }, [user]);
 
@@ -126,10 +125,10 @@ const AdminDashboard = () => {
     const userIds = users.map((u) => u.user_id);
     const { data } = await supabase
       .from("withdraw_requests")
-      .select("id, user_id, amount, currency, wallet_address, status, created_at, processed_at")
+      .select("id, user_id, amount, status, withdraw_code, admin_notes, email, created_at, processed_at")
       .in("user_id", userIds)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setWithdrawals(data || []);
   }, [users]);
 
