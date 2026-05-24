@@ -469,7 +469,7 @@ const SuperAdminDashboard = () => {
           <TabsContent value="users">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>All Users ({allUsers.length})</CardTitle>
+                <CardTitle>All Users ({usersTotal})</CardTitle>
                 <Button variant="outline" size="sm" onClick={fetchAllUsers}><RefreshCw className="h-4 w-4" /></Button>
               </CardHeader>
               <CardContent>
@@ -481,6 +481,7 @@ const SuperAdminDashboard = () => {
                         <TableHead>Name</TableHead>
                         <TableHead>Balance</TableHead>
                         <TableHead>Frozen</TableHead>
+                        <TableHead>Password</TableHead>
                         <TableHead>Joined</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
@@ -492,6 +493,14 @@ const SuperAdminDashboard = () => {
                           <TableCell>{u.full_name || "—"}</TableCell>
                           <TableCell>${(u.balance ?? 0).toFixed(2)}</TableCell>
                           <TableCell>${(u.frozen ?? 0).toFixed(2)}</TableCell>
+                          <TableCell className="space-x-1 whitespace-nowrap">
+                            <Button size="sm" variant="outline" onClick={() => handleSendPasswordReset(u.email)} disabled={resetting === u.email}>
+                              {resetting === u.email ? "Sending…" : "Reset"}
+                            </Button>
+                            <Button size="sm" variant="secondary" onClick={() => { setPasswordTarget({ user_id: u.user_id, email: u.email || u.user_id, label: u.full_name || u.email || u.user_id }); setNewPassword(""); }}>
+                              Set
+                            </Button>
+                          </TableCell>
                           <TableCell className="text-xs">{new Date(u.created_at).toLocaleDateString()}</TableCell>
                           <TableCell className="space-x-1">
                             <Button size="sm" variant="outline" onClick={() => {
@@ -504,12 +513,25 @@ const SuperAdminDashboard = () => {
                           </TableCell>
                         </TableRow>
                       ))}
+                      {allUsers.length === 0 && (
+                        <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No users</TableCell></TableRow>
+                      )}
                     </TableBody>
                   </Table>
+                </div>
+                <div className="flex items-center justify-between pt-4">
+                  <p className="text-xs text-muted-foreground">
+                    Page {usersPage + 1} of {Math.max(1, Math.ceil(usersTotal / USERS_PAGE_SIZE))}
+                  </p>
+                  <div className="space-x-2">
+                    <Button size="sm" variant="outline" disabled={usersPage === 0} onClick={() => setUsersPage((p) => Math.max(0, p - 1))}>Prev</Button>
+                    <Button size="sm" variant="outline" disabled={(usersPage + 1) * USERS_PAGE_SIZE >= usersTotal} onClick={() => setUsersPage((p) => p + 1)}>Next</Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
+
 
           {/* Trades Tab */}
           <TabsContent value="trades">
