@@ -96,9 +96,8 @@ const SuperAdminDashboard = () => {
     const { data } = await supabase
       .from("trades")
       .select("id, user_id, trading_pair, direction, stake_amount, leverage, entry_price, status, decision, profit_rate, created_at, ends_at, execute_at, modified_by_admin, status_indicator, email")
-      .in("status", ["pending", "active"])
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setAllTrades(data || []);
   }, []);
 
