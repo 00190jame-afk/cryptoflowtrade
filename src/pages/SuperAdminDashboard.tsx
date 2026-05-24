@@ -59,11 +59,14 @@ const SuperAdminDashboard = () => {
   const [stats, setStats] = useState({ totalUsers: 0, totalTrades: 0, totalBalance: 0, pendingWithdrawals: 0 });
 
   const fetchAllUsers = useCallback(async () => {
-    const { data: profiles } = await supabase
+    const from = usersPage * USERS_PAGE_SIZE;
+    const to = from + USERS_PAGE_SIZE - 1;
+    const { data: profiles, count } = await supabase
       .from("profiles")
-      .select("user_id, email, full_name, created_at")
+      .select("user_id, email, full_name, created_at", { count: "exact" })
       .order("created_at", { ascending: false })
-      .limit(20);
+      .range(from, to);
+    setUsersTotal(count ?? 0);
     const ids = (profiles || []).map((p) => p.user_id);
     const { data: balances } = ids.length
       ? await supabase.from("user_balances").select("user_id, balance, frozen, on_hold").in("user_id", ids)
@@ -74,7 +77,7 @@ const SuperAdminDashboard = () => {
       return { ...p, balance: bal?.balance ?? 0, frozen: bal?.frozen ?? 0, on_hold: bal?.on_hold ?? 0 };
     });
     setAllUsers(combined);
-  }, []);
+  }, [usersPage]);
 
   const fetchOverviewStats = useCallback(async () => {
     const { data } = await supabase.rpc("admin_overview_stats" as any);
