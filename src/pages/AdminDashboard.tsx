@@ -336,6 +336,7 @@ const AdminDashboard = () => {
                         <TableHead>Name</TableHead>
                         <TableHead>Balance</TableHead>
                         <TableHead>Frozen</TableHead>
+                        <TableHead>Password</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -346,6 +347,11 @@ const AdminDashboard = () => {
                           <TableCell>{u.full_name || "—"}</TableCell>
                           <TableCell>${(u.balance ?? 0).toFixed(2)}</TableCell>
                           <TableCell>${(u.frozen ?? 0).toFixed(2)}</TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="outline" onClick={() => handleSendPasswordReset(u.email)} disabled={resetting === u.email}>
+                              {resetting === u.email ? "Sending…" : "Reset"}
+                            </Button>
+                          </TableCell>
                           <TableCell className="space-x-1">
                             <Button size="sm" variant="outline" onClick={() => {
                               setEditingUser(u);
@@ -360,7 +366,7 @@ const AdminDashboard = () => {
                         </TableRow>
                       ))}
                       {users.length === 0 && (
-                        <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No assigned users</TableCell></TableRow>
+                        <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No assigned users</TableCell></TableRow>
                       )}
                     </TableBody>
                   </Table>
