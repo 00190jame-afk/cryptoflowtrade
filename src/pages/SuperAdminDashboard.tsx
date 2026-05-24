@@ -885,6 +885,26 @@ const SuperAdminDashboard = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Set Password Dialog */}
+      <Dialog open={!!passwordTarget} onOpenChange={(open) => { if (!open) { setPasswordTarget(null); setNewPassword(""); } }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Set new password — {passwordTarget?.label}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <p className="text-xs text-muted-foreground">
+              Existing passwords are stored as one-way bcrypt hashes and cannot be revealed. Set a new one here and share it securely with the user.
+            </p>
+            <div>
+              <Label>New password (8–72 chars)</Label>
+              <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password" />
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" type="button" onClick={() => setNewPassword(Math.random().toString(36).slice(-10) + "A1!")}>Generate</Button>
+              <Button onClick={handleSetPassword} disabled={loading || newPassword.length < 8} className="flex-1">Update password</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
