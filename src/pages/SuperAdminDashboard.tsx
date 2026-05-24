@@ -330,6 +330,48 @@ const SuperAdminDashboard = () => {
     navigate("/login");
   };
 
+  const handleSendPasswordReset = async (email: string | null | undefined) => {
+    if (!email) {
+      toast({ title: "No email on file", variant: "destructive" });
+      return;
+    }
+    setResetting(email);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({ title: "Reset email sent", description: email });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setResetting(null);
+    }
+  };
+
+  const handleSetPassword = async () => {
+    if (!passwordTarget || newPassword.length < 8) {
+      toast({ title: "Password must be at least 8 characters", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-set-password", {
+        body: { user_id: passwordTarget.user_id, password: newPassword },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast({ title: "Password updated", description: `New password for ${passwordTarget.email} set.` });
+      setPasswordTarget(null);
+      setNewPassword("");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
