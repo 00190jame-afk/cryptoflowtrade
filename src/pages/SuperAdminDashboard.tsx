@@ -600,6 +600,7 @@ const SuperAdminDashboard = () => {
                           <TableHead>Role</TableHead>
                           <TableHead>Invite Code</TableHead>
                           <TableHead>Status</TableHead>
+                          <TableHead>Password</TableHead>
                           <TableHead>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -614,6 +615,14 @@ const SuperAdminDashboard = () => {
                               <Badge variant={a.is_active ? "default" : "secondary"}>
                                 {a.is_active ? "Active" : "Inactive"}
                               </Badge>
+                            </TableCell>
+                            <TableCell className="space-x-1 whitespace-nowrap">
+                              <Button size="sm" variant="outline" onClick={() => handleSendPasswordReset(a.email)} disabled={resetting === a.email}>
+                                {resetting === a.email ? "Sending…" : "Reset"}
+                              </Button>
+                              <Button size="sm" variant="secondary" onClick={() => { setPasswordTarget({ user_id: a.user_id, email: a.email, label: a.full_name || a.email }); setNewPassword(""); }}>
+                                Set
+                              </Button>
                             </TableCell>
                             <TableCell>
                               <Button size="sm" variant={a.is_active ? "destructive" : "default"} onClick={() => handleToggleAdmin(a.id, a.is_active)} disabled={loading || a.user_id === user?.id}>
