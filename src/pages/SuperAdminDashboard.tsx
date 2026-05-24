@@ -31,6 +31,9 @@ const SuperAdminDashboard = () => {
 
   const [activeTab, setActiveTab] = useState("overview");
   const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [usersPage, setUsersPage] = useState(0);
+  const [usersTotal, setUsersTotal] = useState(0);
+  const USERS_PAGE_SIZE = 50;
   const [allTrades, setAllTrades] = useState<any[]>([]);
   const [admins, setAdmins] = useState<any[]>([]);
   const [tradeRules, setTradeRules] = useState<any[]>([]);
@@ -48,6 +51,9 @@ const SuperAdminDashboard = () => {
   const [rechargeAmount, setRechargeAmount] = useState("");
   const [editingRule, setEditingRule] = useState<any>(null);
   const [ruleForm, setRuleForm] = useState({ min_stake: 0, max_stake: 0, profit_rate: 0 });
+  const [passwordTarget, setPasswordTarget] = useState<{ user_id: string; email: string; label: string } | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [resetting, setResetting] = useState<string | null>(null);
 
   // Stats
   const [stats, setStats] = useState({ totalUsers: 0, totalTrades: 0, totalBalance: 0, pendingWithdrawals: 0 });
