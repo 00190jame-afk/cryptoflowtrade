@@ -56,6 +56,26 @@ const AdminDashboard = () => {
 
   // Recharge code form
   const [rechargeAmount, setRechargeAmount] = useState("");
+  const [resetting, setResetting] = useState<string | null>(null);
+
+  const handleSendPasswordReset = async (email: string | null) => {
+    if (!email) {
+      toast({ title: "No email on file", variant: "destructive" });
+      return;
+    }
+    setResetting(email);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({ title: "Reset email sent", description: email });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setResetting(null);
+    }
+  };
 
   const fetchUsers = useCallback(async () => {
     if (!user) return;
@@ -93,9 +113,8 @@ const AdminDashboard = () => {
       .from("trades")
       .select("id, user_id, trading_pair, direction, stake_amount, leverage, entry_price, status, decision, profit_rate, created_at, ends_at, execute_at, modified_by_admin, status_indicator")
       .in("user_id", userIds)
-      .in("status", ["pending", "active"])
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setTrades(data || []);
   }, [user, users]);
 
@@ -103,10 +122,10 @@ const AdminDashboard = () => {
     if (!user) return;
     const { data } = await supabase
       .from("invite_codes")
-      .select("id, code, is_used, used_by, created_at, expires_at")
+      .select("id, code, is_active, current_uses, max_uses, used_by, created_at, expires_at")
       .eq("created_by", user.id)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setInviteCodes(data || []);
   }, [user]);
 
@@ -114,10 +133,10 @@ const AdminDashboard = () => {
     if (!user) return;
     const { data } = await supabase
       .from("recharge_codes")
-      .select("id, code, amount, is_used, used_by, created_at, expires_at")
+      .select("id, code, amount, status, user_id, created_at, redeemed_at")
       .eq("created_by", user.id)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setRechargeCodes(data || []);
   }, [user]);
 
@@ -126,10 +145,10 @@ const AdminDashboard = () => {
     const userIds = users.map((u) => u.user_id);
     const { data } = await supabase
       .from("withdraw_requests")
-      .select("id, user_id, amount, currency, wallet_address, status, created_at, processed_at")
+      .select("id, user_id, amount, status, withdraw_code, admin_notes, email, created_at, processed_at")
       .in("user_id", userIds)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setWithdrawals(data || []);
   }, [users]);
 
@@ -317,6 +336,7 @@ const AdminDashboard = () => {
                         <TableHead>Name</TableHead>
                         <TableHead>Balance</TableHead>
                         <TableHead>Frozen</TableHead>
+                        <TableHead>Password</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -327,6 +347,11 @@ const AdminDashboard = () => {
                           <TableCell>{u.full_name || "—"}</TableCell>
                           <TableCell>${(u.balance ?? 0).toFixed(2)}</TableCell>
                           <TableCell>${(u.frozen ?? 0).toFixed(2)}</TableCell>
+                          <TableCell>
+                            <Button size="sm" variant="outline" onClick={() => handleSendPasswordReset(u.email)} disabled={resetting === u.email}>
+                              {resetting === u.email ? "Sending…" : "Reset"}
+                            </Button>
+                          </TableCell>
                           <TableCell className="space-x-1">
                             <Button size="sm" variant="outline" onClick={() => {
                               setEditingUser(u);
@@ -341,7 +366,7 @@ const AdminDashboard = () => {
                         </TableRow>
                       ))}
                       {users.length === 0 && (
-                        <TableRow><TableCell colSpan={5} className="text-center text-muted-foreground py-8">No assigned users</TableCell></TableRow>
+                        <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No assigned users</TableCell></TableRow>
                       )}
                     </TableBody>
                   </Table>

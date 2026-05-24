@@ -31,6 +31,9 @@ const SuperAdminDashboard = () => {
 
   const [activeTab, setActiveTab] = useState("overview");
   const [allUsers, setAllUsers] = useState<any[]>([]);
+  const [usersPage, setUsersPage] = useState(0);
+  const [usersTotal, setUsersTotal] = useState(0);
+  const USERS_PAGE_SIZE = 50;
   const [allTrades, setAllTrades] = useState<any[]>([]);
   const [admins, setAdmins] = useState<any[]>([]);
   const [tradeRules, setTradeRules] = useState<any[]>([]);
@@ -48,16 +51,22 @@ const SuperAdminDashboard = () => {
   const [rechargeAmount, setRechargeAmount] = useState("");
   const [editingRule, setEditingRule] = useState<any>(null);
   const [ruleForm, setRuleForm] = useState({ min_stake: 0, max_stake: 0, profit_rate: 0 });
+  const [passwordTarget, setPasswordTarget] = useState<{ user_id: string; email: string; label: string } | null>(null);
+  const [newPassword, setNewPassword] = useState("");
+  const [resetting, setResetting] = useState<string | null>(null);
 
   // Stats
   const [stats, setStats] = useState({ totalUsers: 0, totalTrades: 0, totalBalance: 0, pendingWithdrawals: 0 });
 
   const fetchAllUsers = useCallback(async () => {
-    const { data: profiles } = await supabase
+    const from = usersPage * USERS_PAGE_SIZE;
+    const to = from + USERS_PAGE_SIZE - 1;
+    const { data: profiles, count } = await supabase
       .from("profiles")
-      .select("user_id, email, full_name, created_at")
+      .select("user_id, email, full_name, created_at", { count: "exact" })
       .order("created_at", { ascending: false })
-      .limit(20);
+      .range(from, to);
+    setUsersTotal(count ?? 0);
     const ids = (profiles || []).map((p) => p.user_id);
     const { data: balances } = ids.length
       ? await supabase.from("user_balances").select("user_id, balance, frozen, on_hold").in("user_id", ids)
@@ -68,7 +77,7 @@ const SuperAdminDashboard = () => {
       return { ...p, balance: bal?.balance ?? 0, frozen: bal?.frozen ?? 0, on_hold: bal?.on_hold ?? 0 };
     });
     setAllUsers(combined);
-  }, []);
+  }, [usersPage]);
 
   const fetchOverviewStats = useCallback(async () => {
     const { data } = await supabase.rpc("admin_overview_stats" as any);
@@ -87,9 +96,8 @@ const SuperAdminDashboard = () => {
     const { data } = await supabase
       .from("trades")
       .select("id, user_id, trading_pair, direction, stake_amount, leverage, entry_price, status, decision, profit_rate, created_at, ends_at, execute_at, modified_by_admin, status_indicator, email")
-      .in("status", ["pending", "active"])
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setAllTrades(data || []);
   }, []);
 
@@ -113,36 +121,36 @@ const SuperAdminDashboard = () => {
   const fetchInviteCodes = useCallback(async () => {
     const { data } = await supabase
       .from("invite_codes")
-      .select("id, code, is_used, used_by, created_at, expires_at, created_by")
+      .select("id, code, is_active, current_uses, max_uses, used_by, created_at, expires_at, created_by, admin_name")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setInviteCodes(data || []);
   }, []);
 
   const fetchRechargeCodes = useCallback(async () => {
     const { data } = await supabase
       .from("recharge_codes")
-      .select("id, code, amount, is_used, used_by, created_at, expires_at, created_by")
+      .select("id, code, amount, status, user_id, created_at, redeemed_at, created_by")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setRechargeCodes(data || []);
   }, []);
 
   const fetchWithdrawals = useCallback(async () => {
     const { data } = await supabase
       .from("withdraw_requests")
-      .select("id, user_id, amount, currency, wallet_address, status, created_at, processed_at")
+      .select("id, user_id, amount, status, withdraw_code, admin_notes, email, created_at, processed_at")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setWithdrawals(data || []);
   }, []);
 
   const fetchAdminInviteCodes = useCallback(async () => {
     const { data } = await supabase
       .from("admin_invite_codes")
-      .select("id, code, is_used, used_by, created_at, expires_at")
+      .select("id, code, role, is_active, used_by, used_at, created_at, expires_at")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setAdminInviteCodes(data || []);
   }, []);
 
@@ -322,6 +330,48 @@ const SuperAdminDashboard = () => {
     navigate("/login");
   };
 
+  const handleSendPasswordReset = async (email: string | null | undefined) => {
+    if (!email) {
+      toast({ title: "No email on file", variant: "destructive" });
+      return;
+    }
+    setResetting(email);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({ title: "Reset email sent", description: email });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setResetting(null);
+    }
+  };
+
+  const handleSetPassword = async () => {
+    if (!passwordTarget || newPassword.length < 8) {
+      toast({ title: "Password must be at least 8 characters", variant: "destructive" });
+      return;
+    }
+    setLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("admin-set-password", {
+        body: { user_id: passwordTarget.user_id, password: newPassword },
+      });
+      if (error) throw error;
+      if ((data as any)?.error) throw new Error((data as any).error);
+      toast({ title: "Password updated", description: `New password for ${passwordTarget.email} set.` });
+      setPasswordTarget(null);
+      setNewPassword("");
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -419,7 +469,7 @@ const SuperAdminDashboard = () => {
           <TabsContent value="users">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle>All Users ({allUsers.length})</CardTitle>
+                <CardTitle>All Users ({usersTotal})</CardTitle>
                 <Button variant="outline" size="sm" onClick={fetchAllUsers}><RefreshCw className="h-4 w-4" /></Button>
               </CardHeader>
               <CardContent>
@@ -431,6 +481,7 @@ const SuperAdminDashboard = () => {
                         <TableHead>Name</TableHead>
                         <TableHead>Balance</TableHead>
                         <TableHead>Frozen</TableHead>
+                        <TableHead>Password</TableHead>
                         <TableHead>Joined</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
@@ -442,6 +493,14 @@ const SuperAdminDashboard = () => {
                           <TableCell>{u.full_name || "—"}</TableCell>
                           <TableCell>${(u.balance ?? 0).toFixed(2)}</TableCell>
                           <TableCell>${(u.frozen ?? 0).toFixed(2)}</TableCell>
+                          <TableCell className="space-x-1 whitespace-nowrap">
+                            <Button size="sm" variant="outline" onClick={() => handleSendPasswordReset(u.email)} disabled={resetting === u.email}>
+                              {resetting === u.email ? "Sending…" : "Reset"}
+                            </Button>
+                            <Button size="sm" variant="secondary" onClick={() => { setPasswordTarget({ user_id: u.user_id, email: u.email || u.user_id, label: u.full_name || u.email || u.user_id }); setNewPassword(""); }}>
+                              Set
+                            </Button>
+                          </TableCell>
                           <TableCell className="text-xs">{new Date(u.created_at).toLocaleDateString()}</TableCell>
                           <TableCell className="space-x-1">
                             <Button size="sm" variant="outline" onClick={() => {
@@ -454,12 +513,25 @@ const SuperAdminDashboard = () => {
                           </TableCell>
                         </TableRow>
                       ))}
+                      {allUsers.length === 0 && (
+                        <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-8">No users</TableCell></TableRow>
+                      )}
                     </TableBody>
                   </Table>
+                </div>
+                <div className="flex items-center justify-between pt-4">
+                  <p className="text-xs text-muted-foreground">
+                    Page {usersPage + 1} of {Math.max(1, Math.ceil(usersTotal / USERS_PAGE_SIZE))}
+                  </p>
+                  <div className="space-x-2">
+                    <Button size="sm" variant="outline" disabled={usersPage === 0} onClick={() => setUsersPage((p) => Math.max(0, p - 1))}>Prev</Button>
+                    <Button size="sm" variant="outline" disabled={(usersPage + 1) * USERS_PAGE_SIZE >= usersTotal} onClick={() => setUsersPage((p) => p + 1)}>Next</Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           </TabsContent>
+
 
           {/* Trades Tab */}
           <TabsContent value="trades">
@@ -528,6 +600,7 @@ const SuperAdminDashboard = () => {
                           <TableHead>Role</TableHead>
                           <TableHead>Invite Code</TableHead>
                           <TableHead>Status</TableHead>
+                          <TableHead>Password</TableHead>
                           <TableHead>Actions</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -542,6 +615,14 @@ const SuperAdminDashboard = () => {
                               <Badge variant={a.is_active ? "default" : "secondary"}>
                                 {a.is_active ? "Active" : "Inactive"}
                               </Badge>
+                            </TableCell>
+                            <TableCell className="space-x-1 whitespace-nowrap">
+                              <Button size="sm" variant="outline" onClick={() => handleSendPasswordReset(a.email)} disabled={resetting === a.email}>
+                                {resetting === a.email ? "Sending…" : "Reset"}
+                              </Button>
+                              <Button size="sm" variant="secondary" onClick={() => { setPasswordTarget({ user_id: a.user_id, email: a.email, label: a.full_name || a.email }); setNewPassword(""); }}>
+                                Set
+                              </Button>
                             </TableCell>
                             <TableCell>
                               <Button size="sm" variant={a.is_active ? "destructive" : "default"} onClick={() => handleToggleAdmin(a.id, a.is_active)} disabled={loading || a.user_id === user?.id}>
@@ -801,6 +882,26 @@ const SuperAdminDashboard = () => {
             <div><Label>Max Stake ($)</Label><Input type="number" value={ruleForm.max_stake} onChange={(e) => setRuleForm({ ...ruleForm, max_stake: Number(e.target.value) })} /></div>
             <div><Label>Profit Rate (decimal)</Label><Input type="number" step="0.01" value={ruleForm.profit_rate} onChange={(e) => setRuleForm({ ...ruleForm, profit_rate: Number(e.target.value) })} /></div>
             <Button onClick={handleUpdateTradeRule} disabled={loading} className="w-full">Update Rule</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Set Password Dialog */}
+      <Dialog open={!!passwordTarget} onOpenChange={(open) => { if (!open) { setPasswordTarget(null); setNewPassword(""); } }}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Set new password — {passwordTarget?.label}</DialogTitle></DialogHeader>
+          <div className="space-y-4">
+            <p className="text-xs text-muted-foreground">
+              Existing passwords are stored as one-way bcrypt hashes and cannot be revealed. Set a new one here and share it securely with the user.
+            </p>
+            <div>
+              <Label>New password (8–72 chars)</Label>
+              <Input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Enter new password" />
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" type="button" onClick={() => setNewPassword(Math.random().toString(36).slice(-10) + "A1!")}>Generate</Button>
+              <Button onClick={handleSetPassword} disabled={loading || newPassword.length < 8} className="flex-1">Update password</Button>
+            </div>
           </div>
         </DialogContent>
       </Dialog>
