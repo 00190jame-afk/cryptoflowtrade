@@ -56,6 +56,26 @@ const AdminDashboard = () => {
 
   // Recharge code form
   const [rechargeAmount, setRechargeAmount] = useState("");
+  const [resetting, setResetting] = useState<string | null>(null);
+
+  const handleSendPasswordReset = async (email: string | null) => {
+    if (!email) {
+      toast({ title: "No email on file", variant: "destructive" });
+      return;
+    }
+    setResetting(email);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast({ title: "Reset email sent", description: email });
+    } catch (err: any) {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    } finally {
+      setResetting(null);
+    }
+  };
 
   const fetchUsers = useCallback(async () => {
     if (!user) return;
