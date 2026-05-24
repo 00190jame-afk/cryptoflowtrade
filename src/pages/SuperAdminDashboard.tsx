@@ -121,36 +121,36 @@ const SuperAdminDashboard = () => {
   const fetchInviteCodes = useCallback(async () => {
     const { data } = await supabase
       .from("invite_codes")
-      .select("id, code, is_used, used_by, created_at, expires_at, created_by")
+      .select("id, code, is_active, current_uses, max_uses, used_by, created_at, expires_at, created_by, admin_name")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setInviteCodes(data || []);
   }, []);
 
   const fetchRechargeCodes = useCallback(async () => {
     const { data } = await supabase
       .from("recharge_codes")
-      .select("id, code, amount, is_used, used_by, created_at, expires_at, created_by")
+      .select("id, code, amount, status, user_id, created_at, redeemed_at, created_by")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setRechargeCodes(data || []);
   }, []);
 
   const fetchWithdrawals = useCallback(async () => {
     const { data } = await supabase
       .from("withdraw_requests")
-      .select("id, user_id, amount, currency, wallet_address, status, created_at, processed_at")
+      .select("id, user_id, amount, status, withdraw_code, admin_notes, email, created_at, processed_at")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setWithdrawals(data || []);
   }, []);
 
   const fetchAdminInviteCodes = useCallback(async () => {
     const { data } = await supabase
       .from("admin_invite_codes")
-      .select("id, code, is_used, used_by, created_at, expires_at")
+      .select("id, code, role, is_active, used_by, used_at, created_at, expires_at")
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(50);
     setAdminInviteCodes(data || []);
   }, []);
 
