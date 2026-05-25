@@ -4,6 +4,7 @@ import Advantages from "@/components/Advantages";
 import News from "@/components/News";
 import About from "@/components/About";
 import Footer from "@/components/Footer";
+import QuickDepositCard from "@/components/QuickDepositCard";
 
 const Index = () => {
   return (
@@ -11,6 +12,7 @@ const Index = () => {
       <Header />
       <main>
         <Hero />
+        <QuickDepositCard />
         <Advantages />
         <News />
         <About />
