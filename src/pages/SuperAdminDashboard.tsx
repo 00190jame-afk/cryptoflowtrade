@@ -22,6 +22,8 @@ import {
   DollarSign, Shield, Settings, BarChart3, Home,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { WalletManagerTab } from "@/components/deposit/WalletManagerTab";
+import { DepositRequestsTab } from "@/components/deposit/DepositRequestsTab";
 
 const SuperAdminDashboard = () => {
   const { user, signOut } = useAuth();
@@ -417,7 +419,7 @@ const SuperAdminDashboard = () => {
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-4 md:grid-cols-8 w-full">
+          <TabsList className="grid grid-cols-4 md:grid-cols-10 w-full">
             <TabsTrigger value="overview"><BarChart3 className="h-4 w-4 mr-1 hidden md:block" />Overview</TabsTrigger>
             <TabsTrigger value="users"><Users className="h-4 w-4 mr-1 hidden md:block" />Users</TabsTrigger>
             <TabsTrigger value="trades"><TrendingUp className="h-4 w-4 mr-1 hidden md:block" />Trades</TabsTrigger>
@@ -426,6 +428,8 @@ const SuperAdminDashboard = () => {
             <TabsTrigger value="invite"><Ticket className="h-4 w-4 mr-1 hidden md:block" />Invite</TabsTrigger>
             <TabsTrigger value="recharge"><CreditCard className="h-4 w-4 mr-1 hidden md:block" />Recharge</TabsTrigger>
             <TabsTrigger value="withdrawals"><ArrowDownToLine className="h-4 w-4 mr-1 hidden md:block" />Withdrawals</TabsTrigger>
+            <TabsTrigger value="deposit-wallets">Wallets</TabsTrigger>
+            <TabsTrigger value="deposits">Deposits</TabsTrigger>
           </TabsList>
 
           {/* Overview Tab */}
@@ -844,6 +848,14 @@ const SuperAdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="deposit-wallets">
+            <WalletManagerTab />
+          </TabsContent>
+
+          <TabsContent value="deposits">
+            <DepositRequestsTab />
           </TabsContent>
         </Tabs>
       </div>

@@ -21,6 +21,8 @@ import {
   MessageSquare, LogOut, RefreshCw, Plus, Send, Check, X, DollarSign, Home,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { WalletManagerTab } from "@/components/deposit/WalletManagerTab";
+import { DepositRequestsTab } from "@/components/deposit/DepositRequestsTab";
 
 interface UserWithBalance {
   user_id: string;
@@ -311,13 +313,15 @@ const AdminDashboard = () => {
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full">
+          <TabsList className="grid grid-cols-4 md:grid-cols-8 w-full">
             <TabsTrigger value="users"><Users className="h-4 w-4 mr-1" />Users</TabsTrigger>
             <TabsTrigger value="trades"><TrendingUp className="h-4 w-4 mr-1" />Trades</TabsTrigger>
             <TabsTrigger value="invite"><Ticket className="h-4 w-4 mr-1" />Invite</TabsTrigger>
             <TabsTrigger value="recharge"><CreditCard className="h-4 w-4 mr-1" />Recharge</TabsTrigger>
             <TabsTrigger value="withdrawals"><ArrowDownToLine className="h-4 w-4 mr-1" />Withdrawals</TabsTrigger>
             <TabsTrigger value="messages"><MessageSquare className="h-4 w-4 mr-1" />Messages</TabsTrigger>
+            <TabsTrigger value="deposit-wallets">Wallets</TabsTrigger>
+            <TabsTrigger value="deposits">Deposits</TabsTrigger>
           </TabsList>
 
           {/* Users Tab */}
@@ -604,6 +608,14 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="deposit-wallets">
+            <WalletManagerTab />
+          </TabsContent>
+
+          <TabsContent value="deposits">
+            <DepositRequestsTab />
           </TabsContent>
         </Tabs>
       </div>

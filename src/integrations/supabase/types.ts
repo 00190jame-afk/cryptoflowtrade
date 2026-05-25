@@ -173,6 +173,90 @@ export type Database = {
         }
         Relationships: []
       }
+      deposit_requests: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          coin: string
+          created_at: string
+          id: string
+          network: string
+          processed_at: string | null
+          processed_by: string | null
+          screenshot_url: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          wallet_address: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          coin: string
+          created_at?: string
+          id?: string
+          network: string
+          processed_at?: string | null
+          processed_by?: string | null
+          screenshot_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          wallet_address: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          coin?: string
+          created_at?: string
+          id?: string
+          network?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          screenshot_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
+      deposit_wallets: {
+        Row: {
+          coin: string
+          created_at: string
+          created_by: string | null
+          id: string
+          is_active: boolean
+          network: string
+          qr_code_url: string | null
+          updated_at: string
+          wallet_address: string
+        }
+        Insert: {
+          coin: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          network: string
+          qr_code_url?: string | null
+          updated_at?: string
+          wallet_address: string
+        }
+        Update: {
+          coin?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          is_active?: boolean
+          network?: string
+          qr_code_url?: string | null
+          updated_at?: string
+          wallet_address?: string
+        }
+        Relationships: []
+      }
       invite_codes: {
         Row: {
           admin_name: string | null

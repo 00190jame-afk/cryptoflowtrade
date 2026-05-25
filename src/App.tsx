@@ -34,6 +34,9 @@ const Risk = lazy(() => import("./pages/Risk"));
 const Messages = lazy(() => import("./pages/Messages"));
 const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 const SuperAdminDashboard = lazy(() => import("./pages/SuperAdminDashboard"));
+const DepositChannels = lazy(() => import("./pages/DepositChannels"));
+const DepositDetails = lazy(() => import("./pages/DepositDetails"));
+const DepositHistory = lazy(() => import("./pages/DepositHistory"));
 
 // Configure React Query with optimized settings
 const queryClient = new QueryClient({
@@ -86,6 +89,9 @@ const AppContent = () => {
             <Route path="/messages" element={<Messages />} />
             <Route path="/admin" element={<AdminRoute requiredRole="admin"><AdminDashboard /></AdminRoute>} />
             <Route path="/super-admin" element={<AdminRoute requiredRole="super_admin"><SuperAdminDashboard /></AdminRoute>} />
+            <Route path="/deposit/channels" element={<DepositChannels />} />
+            <Route path="/deposit/history" element={<DepositHistory />} />
+            <Route path="/deposit/:coin" element={<DepositDetails />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
