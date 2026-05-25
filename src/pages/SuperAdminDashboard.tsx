@@ -22,6 +22,8 @@ import {
   DollarSign, Shield, Settings, BarChart3, Home,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { WalletManagerTab } from "@/components/deposit/WalletManagerTab";
+import { DepositRequestsTab } from "@/components/deposit/DepositRequestsTab";
 
 const SuperAdminDashboard = () => {
   const { user, signOut } = useAuth();

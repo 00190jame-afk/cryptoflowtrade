@@ -21,6 +21,8 @@ import {
   MessageSquare, LogOut, RefreshCw, Plus, Send, Check, X, DollarSign, Home,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { WalletManagerTab } from "@/components/deposit/WalletManagerTab";
+import { DepositRequestsTab } from "@/components/deposit/DepositRequestsTab";
 
 interface UserWithBalance {
   user_id: string;
@@ -606,6 +608,14 @@ const AdminDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="deposit-wallets">
+            <WalletManagerTab />
+          </TabsContent>
+
+          <TabsContent value="deposits">
+            <DepositRequestsTab />
           </TabsContent>
         </Tabs>
       </div>
