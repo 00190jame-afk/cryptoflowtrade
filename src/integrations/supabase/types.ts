@@ -786,6 +786,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_create_recharge_code: {
+        Args: { p_amount: number }
+        Returns: string
+      }
       admin_overview_stats: {
         Args: never
         Returns: {
