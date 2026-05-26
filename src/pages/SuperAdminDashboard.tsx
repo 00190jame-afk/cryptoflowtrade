@@ -289,9 +289,8 @@ const SuperAdminDashboard = () => {
     }
     setLoading(true);
     try {
-      const { data: code, error } = await supabase.rpc("generate_recharge_code");
+      const { data: code, error } = await supabase.rpc("admin_create_recharge_code", { p_amount: Number(rechargeAmount) });
       if (error) throw error;
-      await supabase.from("recharge_codes").update({ amount: Number(rechargeAmount) }).eq("code", code);
       toast({ title: "Recharge code generated", description: `${code} - $${rechargeAmount}` });
       setRechargeAmount("");
       fetchRechargeCodes();
